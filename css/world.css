@@ -1,0 +1,367 @@
+/* ============================================
+   JAVA ODYSSEY - World/Scene Display Styles
+   ============================================ */
+
+/* Game HUD */
+.game-hud {
+    height: var(--hud-height);
+    background: linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-dark) 100%);
+    border-bottom: 1px solid var(--border-gold-dim);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    z-index: 200;
+    flex-shrink: 0;
+}
+
+.hud-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.player-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.player-name {
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    color: var(--text-gold);
+    letter-spacing: 1px;
+}
+
+.xp-bar-container {
+    width: 150px;
+    height: 12px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-gold-dim);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+.xp-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #2244aa, var(--xp-blue));
+    border-radius: 6px;
+    transition: width 0.5s ease;
+}
+
+.xp-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-code);
+    font-size: 0.55rem;
+    color: var(--text-white);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    white-space: nowrap;
+}
+
+.level-badge {
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    color: var(--text-gold);
+    background: rgba(201, 168, 76, 0.15);
+    border: 1px solid var(--border-gold-dim);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+}
+
+.hud-center {
+    text-align: center;
+}
+
+.location-name {
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    color: var(--text-light);
+    letter-spacing: 2px;
+}
+
+.hud-right {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.hud-btn {
+    background: var(--bg-panel-light);
+    border: 1px solid var(--border-gold-dim);
+    color: var(--text-light);
+    width: 35px;
+    height: 35px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.hud-btn:hover {
+    border-color: var(--border-gold);
+    color: var(--text-gold);
+    background: var(--bg-panel-hover);
+}
+
+/* World Display */
+.world-display {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 1rem;
+    background: var(--bg-darker);
+}
+
+/* Scene Art (ASCII/Text art or placeholder for images) */
+.scene-art {
+    font-family: var(--font-code);
+    font-size: 0.5rem;
+    line-height: 1.1;
+    color: var(--text-dim);
+    white-space: pre;
+    text-align: center;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Placeholder for scene background image */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 8px;
+    position: relative;
+}
+
+.scene-art.modern-city {
+    color: var(--accent-blue);
+    background: linear-gradient(180deg, #0a0a1a 0%, #0f0f2a 50%, #1a1a3a 100%);
+}
+
+.scene-art.medieval-village {
+    color: var(--accent-green);
+    background: linear-gradient(180deg, #0a1a0a 0%, #0f2a0f 50%, #1a3a1a 100%);
+}
+
+.scene-art.dark-forest {
+    color: var(--accent-purple);
+    background: linear-gradient(180deg, #0a0a1a 0%, #1a0f2a 50%, #2a1a3a 100%);
+}
+
+.scene-art.portal {
+    color: var(--accent-purple);
+    background: radial-gradient(circle, rgba(154, 74, 255, 0.2) 0%, transparent 70%), var(--bg-darker);
+}
+
+/* Scene Description */
+.scene-description {
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    color: var(--text-light);
+    line-height: 1.8;
+    padding: 0.5rem 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.scene-description .narrator {
+    color: var(--text-dim);
+    font-style: italic;
+}
+
+.scene-description .location-intro {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    color: var(--text-gold);
+    text-align: center;
+    margin-bottom: 1rem;
+    letter-spacing: 2px;
+}
+
+.scene-description .emphasis {
+    color: var(--text-gold);
+    font-weight: bold;
+}
+
+.scene-description .code-ref {
+    font-family: var(--font-code);
+    background: var(--code-bg);
+    color: var(--code-keyword);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.95rem;
+}
+
+/* Action Area */
+.action-area {
+    padding: 0.8rem 1rem;
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border-gold-dim);
+    flex-shrink: 0;
+}
+
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.action-buttons .action-btn {
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    color: var(--text-light);
+    background: var(--bg-panel-light);
+    border: 1px solid var(--border-gold-dim);
+    padding: 0.5rem 1.2rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all var(--transition-fast);
+    min-width: 120px;
+}
+
+.action-buttons .action-btn:hover {
+    border-color: var(--border-gold);
+    color: var(--text-gold);
+    background: var(--bg-panel-hover);
+}
+
+.action-buttons .action-btn.primary {
+    border-color: var(--border-gold);
+    color: var(--text-gold);
+}
+
+.action-buttons .action-btn.primary:hover {
+    background: rgba(201, 168, 76, 0.15);
+    box-shadow: 0 0 10px rgba(201, 168, 76, 0.2);
+}
+
+.action-buttons .action-btn .btn-emoji {
+    margin-right: 0.3rem;
+}
+
+/* Chapter Title Display */
+.chapter-title-display {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 750;
+    animation: fadeIn 1s ease;
+}
+
+.chapter-number {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    color: var(--text-dim);
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.chapter-name {
+    font-family: var(--font-title);
+    font-size: 2.5rem;
+    color: var(--text-gold);
+    text-shadow: 0 0 30px rgba(240, 208, 96, 0.5);
+    letter-spacing: 3px;
+}
+
+.chapter-subtitle {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--text-dim);
+    font-style: italic;
+    margin-top: 0.5rem;
+}
+
+/* NPC Interaction Indicator */
+.npc-indicator {
+    color: var(--text-gold);
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid var(--border-gold-dim);
+    border-radius: 4px;
+    display: inline-block;
+    margin: 0.3rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.npc-indicator:hover {
+    border-color: var(--border-gold);
+    background: rgba(201, 168, 76, 0.1);
+}
+
+/* Location Markers */
+.location-marker {
+    color: var(--accent-blue);
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid rgba(74, 158, 255, 0.3);
+    border-radius: 4px;
+    display: inline-block;
+    margin: 0.3rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.location-marker:hover {
+    border-color: var(--accent-blue);
+    background: rgba(74, 158, 255, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .game-hud {
+        height: 40px;
+        padding: 0 0.5rem;
+    }
+    
+    .player-name {
+        font-size: 0.75rem;
+    }
+    
+    .xp-bar-container {
+        width: 100px;
+    }
+    
+    .location-name {
+        font-size: 0.75rem;
+    }
+    
+    .hud-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 0.85rem;
+    }
+    
+    .scene-art {
+        font-size: 0.4rem;
+        min-height: 60px;
+    }
+    
+    .scene-description {
+        font-size: 0.95rem;
+    }
+}

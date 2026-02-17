@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Odyssey: Trials of the Code Guardian</title>
+    
+    <!-- Medieval Fantasy Fonts from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700;900&family=IM+Fell+English:ital@0;1&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <link rel="stylesheet" href="css/dialogue.css">
+    <link rel="stylesheet" href="css/combat.css">
+    <link rel="stylesheet" href="css/world.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="screen active">
+        <div class="loading-content">
+            <h1 class="game-title-loading">Java Odyssey</h1>
+            <p class="loading-subtitle">Trials of the Code Guardian</p>
+            <div class="loading-bar-container">
+                <div class="loading-bar" id="loading-bar"></div>
+            </div>
+            <p class="loading-text" id="loading-text">Loading assets...</p>
+        </div>
+    </div>
+
+    <!-- Main Menu Screen -->
+    <div id="main-menu" class="screen">
+        <div class="menu-background">
+            <div class="floating-code-particles" id="code-particles"></div>
+        </div>
+        <div class="menu-content">
+            <div class="menu-title-container">
+                <h1 class="menu-title">Java Odyssey</h1>
+                <h2 class="menu-subtitle">Trials of the Code Guardian</h2>
+            </div>
+            <div class="menu-buttons">
+                <button class="menu-btn" id="btn-new-game" onclick="Game.startNewGame()">
+                    <span class="btn-icon">⚔️</span> New Game
+                </button>
+                <button class="menu-btn" id="btn-continue" onclick="Game.continueGame()" style="display:none;">
+                    <span class="btn-icon">📜</span> Continue
+                </button>
+                <button class="menu-btn" id="btn-settings" onclick="Game.showSettings()">
+                    <span class="btn-icon">⚙️</span> Settings
+                </button>
+                <button class="menu-btn" id="btn-about" onclick="Game.showAbout()">
+                    <span class="btn-icon">📖</span> About
+                </button>
+            </div>
+            <p class="menu-footer">A Java Programming Learning Adventure</p>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h2 class="modal-title">Settings</h2>
+            <div class="setting-row">
+                <label>Text Speed</label>
+                <select id="text-speed" onchange="Game.updateSettings()">
+                    <option value="fast">Fast</option>
+                    <option value="normal" selected>Normal</option>
+                    <option value="slow">Slow</option>
+                </select>
+            </div>
+            <div class="setting-row">
+                <label>Music Volume</label>
+                <input type="range" id="music-volume" min="0" max="100" value="70" onchange="Game.updateSettings()">
+            </div>
+            <div class="setting-row">
+                <label>SFX Volume</label>
+                <input type="range" id="sfx-volume" min="0" max="100" value="80" onchange="Game.updateSettings()">
+            </div>
+            <button class="menu-btn" onclick="Game.closeModal('settings-modal')">Close</button>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="about-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h2 class="modal-title">About Java Odyssey</h2>
+            <p class="about-text">
+                <strong>Java Odyssey: Trials of the Code Guardian</strong> is an online role-playing game 
+                developed to supplement learning in basic Java programming. Set in the fictional 
+                <em>Java Realm</em>, players assume the role of a novice Code Guardian tasked with 
+                restoring corrupted Prime Scripts through coding challenges.
+            </p>
+            <p class="about-text">
+                Topics covered include: Variables & Data Types, Conditional Statements, 
+                Loops, Methods, and Introductory Object-Oriented Programming.
+            </p>
+            <button class="menu-btn" onclick="Game.closeModal('about-modal')">Close</button>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div id="game-container" class="screen">
+        <!-- Top HUD -->
+        <div id="game-hud" class="game-hud">
+            <div class="hud-left">
+                <div class="player-info">
+                    <span class="player-name" id="hud-player-name">Trainee Guardian</span>
+                    <div class="xp-bar-container">
+                        <div class="xp-bar" id="hud-xp-bar" style="width: 0%"></div>
+                        <span class="xp-text" id="hud-xp-text">XP: 0 / 100</span>
+                    </div>
+                </div>
+                <div class="player-level">
+                    <span class="level-badge" id="hud-level">Lv. 1</span>
+                </div>
+            </div>
+            <div class="hud-center">
+                <span class="location-name" id="hud-location">Modern World</span>
+            </div>
+            <div class="hud-right">
+                <button class="hud-btn" onclick="Game.togglePauseMenu()" title="Menu">☰</button>
+                <button class="hud-btn" onclick="Game.showJournal()" title="Journal">📓</button>
+                <button class="hud-btn" onclick="Game.showInventory()" title="Inventory">🎒</button>
+            </div>
+        </div>
+
+        <!-- World Display Area (text-based) -->
+        <div id="world-display" class="world-display">
+
+            <!-- PHASER GAME CANVAS WILL LIVE HERE -->
+            <div id="phaser-container" class="phaser-container"></div>
+
+            <div id="scene-art" class="scene-art">
+                <!-- ASCII/Text art placeholder for scenes -->
+            </div>
+            <div id="scene-description" class="scene-description">
+                <!-- Scene narrative text -->
+            </div>
+        </div>
+
+        <!-- Action Buttons Area -->
+        <div id="action-area" class="action-area" style="display:none;">
+            <div id="action-buttons" class="action-buttons">
+                <!-- Dynamic action buttons -->
+            </div>
+        </div>
+
+        <!-- Dialogue Box -->
+        <div id="dialogue-box" class="dialogue-box" style="display:none;">
+            <div class="dialogue-portrait" id="dialogue-portrait">
+                <div class="portrait-placeholder" id="portrait-img">?</div>
+                <span class="portrait-name" id="dialogue-name">???</span>
+            </div>
+            <div class="dialogue-content">
+                <p class="dialogue-text" id="dialogue-text"></p>
+                <div class="dialogue-choices" id="dialogue-choices" style="display:none;"></div>
+                <span class="dialogue-continue" id="dialogue-continue">▼ Click to continue</span>
+            </div>
+        </div>
+
+        <!-- Combat/Challenge Interface -->
+        <div id="combat-interface" class="combat-interface" style="display:none;">
+            <div class="combat-scene">
+                <div class="enemy-display">
+                    <div class="enemy-art" id="enemy-art">
+                        <!-- Enemy ASCII art placeholder -->
+                    </div>
+                    <div class="enemy-info">
+                        <span class="enemy-name" id="enemy-name">Enemy</span>
+                        <div class="hp-bar-container">
+                            <div class="hp-bar" id="enemy-hp-bar" style="width: 100%"></div>
+                            <span class="hp-text" id="enemy-hp-text">HP: 100/100</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="combat-narrative" id="combat-narrative">
+                    <!-- Combat story text -->
+                </div>
+            </div>
+            <div class="challenge-area">
+                <div class="challenge-prompt" id="challenge-prompt">
+                    <!-- Challenge question -->
+                </div>
+                <div class="hint-area" id="hint-area" style="display:none;">
+                    <span class="hint-icon">💡</span>
+                    <span class="hint-text" id="hint-text"></span>
+                </div>
+                <div class="code-input-area">
+                    <div class="code-editor">
+                        <div class="code-line-numbers" id="code-line-numbers">1</div>
+                        <textarea id="code-input" class="code-input" placeholder="Type your Java code here..." spellcheck="false"></textarea>
+                    </div>
+                    <div class="code-actions">
+                        <button class="action-btn hint-btn" onclick="Combat.showHint()">
+                            💡 Hint
+                        </button>
+                        <button class="action-btn submit-btn" onclick="Combat.submitAnswer()">
+                            ⚔️ Execute Code
+                        </button>
+                    </div>
+                </div>
+                <div class="feedback-area" id="feedback-area" style="display:none;">
+                    <div class="feedback-content" id="feedback-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pause Menu -->
+        <div id="pause-menu" class="pause-overlay" style="display:none;">
+            <div class="pause-content">
+                <h2 class="pause-title">Game Paused</h2>
+                <button class="menu-btn" onclick="Game.togglePauseMenu()">Resume</button>
+                <button class="menu-btn" onclick="Game.saveGame()">Save Game</button>
+                <button class="menu-btn" onclick="Game.showSettings()">Settings</button>
+                <button class="menu-btn" onclick="Game.returnToMenu()">Main Menu</button>
+            </div>
+        </div>
+
+        <!-- Journal Modal -->
+        <div id="journal-modal" class="modal" style="display:none;">
+            <div class="modal-content journal-content">
+                <h2 class="modal-title">📓 Guardian's Journal</h2>
+                <div class="journal-tabs">
+                    <button class="journal-tab active" onclick="Game.showJournalTab('quests')">Quests</button>
+                    <button class="journal-tab" onclick="Game.showJournalTab('codex')">Codex</button>
+                    <button class="journal-tab" onclick="Game.showJournalTab('stats')">Stats</button>
+                </div>
+                <div id="journal-body" class="journal-body">
+                    <!-- Dynamic journal content -->
+                </div>
+                <button class="menu-btn" onclick="Game.closeModal('journal-modal')">Close</button>
+            </div>
+        </div>
+
+        <!-- Inventory Modal -->
+        <div id="inventory-modal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <h2 class="modal-title">🎒 Inventory</h2>
+                <div id="inventory-items" class="inventory-grid">
+                    <!-- Dynamic inventory items -->
+                </div>
+                <button class="menu-btn" onclick="Game.closeModal('inventory-modal')">Close</button>
+            </div>
+        </div>
+
+        <!-- Cutscene Overlay -->
+        <div id="cutscene-overlay" class="cutscene-overlay" style="display:none;">
+            <div class="cutscene-content">
+                <div class="cutscene-art" id="cutscene-art"></div>
+                <div class="cutscene-text" id="cutscene-text"></div>
+                <span class="cutscene-skip" onclick="Cutscene.skip()">Skip ▶▶</span>
+            </div>
+        </div>
+
+        <!-- Transition Overlay -->
+        <div id="transition-overlay" class="transition-overlay" style="display:none;">
+            <div class="transition-content" id="transition-content"></div>
+        </div>
+
+        <!-- Notification Area -->
+        <div id="notification-area" class="notification-area"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/assets.js"></script>
+    <script src="js/dialogue.js"></script>
+    <script src="js/combat.js"></script>
+    <script src="js/cutscene.js"></script>
+    <script src="js/world.js"></script>
+    <script src="js/scenes/intro.js"></script>
+    <script src="js/scenes/tutorial.js"></script>
+    <script src="js/scenes/portal.js"></script>
+    <script src="js/scenes/chapter1.js"></script>
+    <script src="js/game.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+    <script src="js/phaserWorld.js"></script>
+
+</body>
+</html>

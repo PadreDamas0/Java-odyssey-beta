@@ -1,0 +1,416 @@
+/* ============================================
+   JAVA ODYSSEY - Combat/Challenge System Styles
+   ============================================ */
+
+/* Combat Interface */
+.combat-interface {
+    position: absolute;
+    top: var(--hud-height);
+    left: 0;
+    width: 100%;
+    height: calc(100% - var(--hud-height));
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-darker);
+    z-index: 50;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Combat Scene (top half) */
+.combat-scene {
+    flex: 0 0 35%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background: 
+        radial-gradient(ellipse at 50% 80%, rgba(255, 50, 50, 0.05) 0%, transparent 60%),
+        var(--bg-dark);
+    border-bottom: 1px solid var(--border-gold-dim);
+}
+
+.enemy-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.enemy-art {
+    font-family: var(--font-code);
+    font-size: 0.55rem;
+    line-height: 1.1;
+    color: var(--accent-red);
+    white-space: pre;
+    text-align: center;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Placeholder for enemy sprite */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.enemy-art.damaged {
+    animation: shake 0.3s ease, damageFlash 0.5s ease;
+}
+
+.enemy-art.defeated {
+    animation: fadeOut 1s ease forwards;
+}
+
+.enemy-info {
+    text-align: center;
+    min-width: 200px;
+}
+
+.enemy-name {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    color: var(--accent-red);
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 0.3rem;
+}
+
+.hp-bar-container {
+    width: 200px;
+    height: 20px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-gold-dim);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.hp-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--hp-green), #66dd66);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.hp-bar.medium {
+    background: linear-gradient(90deg, var(--hp-yellow), #dddd66);
+}
+
+.hp-bar.low {
+    background: linear-gradient(90deg, var(--hp-red), #dd6666);
+    animation: pulse 1s ease-in-out infinite;
+}
+
+.hp-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-code);
+    font-size: 0.7rem;
+    color: var(--text-white);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.combat-narrative {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--text-light);
+    text-align: center;
+    padding: 0.5rem 1rem;
+    max-width: 600px;
+    font-style: italic;
+}
+
+/* Damage Number Float */
+.damage-number {
+    position: absolute;
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-gold);
+    text-shadow: 0 0 10px rgba(240, 208, 96, 0.8);
+    animation: floatUp 1s ease forwards;
+    pointer-events: none;
+    z-index: 60;
+}
+
+.damage-number.miss {
+    color: var(--text-dim);
+    font-size: 1rem;
+}
+
+/* Challenge Area (bottom half) */
+.challenge-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.challenge-prompt {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--text-light);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-gold-dim);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    line-height: 1.6;
+}
+
+.challenge-prompt .challenge-title {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    color: var(--text-gold);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.challenge-prompt code {
+    font-family: var(--font-code);
+    background: var(--code-bg);
+    color: var(--code-keyword);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.9rem;
+}
+
+.challenge-prompt pre {
+    font-family: var(--font-code);
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 0.8rem;
+    border-radius: 4px;
+    margin: 0.5rem 0;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    border-left: 3px solid var(--border-gold-dim);
+}
+
+/* Hint Area */
+.hint-area {
+    background: rgba(74, 158, 255, 0.1);
+    border: 1px solid rgba(74, 158, 255, 0.3);
+    border-radius: 6px;
+    padding: 0.7rem 1rem;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    animation: slideUp 0.3s ease;
+}
+
+.hint-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.hint-text {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--accent-blue);
+    line-height: 1.5;
+}
+
+/* Code Editor */
+.code-editor {
+    display: flex;
+    background: var(--code-bg);
+    border: 1px solid var(--border-gold-dim);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 0.8rem;
+    min-height: 80px;
+}
+
+.code-line-numbers {
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--text-dim);
+    font-family: var(--font-code);
+    font-size: 0.85rem;
+    padding: 0.8rem 0.5rem;
+    text-align: right;
+    min-width: 35px;
+    line-height: 1.5;
+    user-select: none;
+    border-right: 1px solid var(--border-gold-dim);
+}
+
+.code-input {
+    flex: 1;
+    background: transparent;
+    color: var(--code-text);
+    font-family: var(--font-code);
+    font-size: 0.85rem;
+    padding: 0.8rem;
+    border: none;
+    outline: none;
+    resize: none;
+    line-height: 1.5;
+    tab-size: 4;
+    min-height: 80px;
+}
+
+.code-input::placeholder {
+    color: var(--text-dim);
+    font-style: italic;
+}
+
+/* Code Actions */
+.code-actions {
+    display: flex;
+    gap: 0.8rem;
+    justify-content: flex-end;
+    margin-bottom: 0.8rem;
+}
+
+.action-btn {
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    padding: 0.6rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: 1px solid;
+}
+
+.hint-btn {
+    color: var(--accent-blue);
+    background: rgba(74, 158, 255, 0.1);
+    border-color: rgba(74, 158, 255, 0.3);
+}
+
+.hint-btn:hover {
+    background: rgba(74, 158, 255, 0.2);
+    border-color: var(--accent-blue);
+}
+
+.submit-btn {
+    color: var(--text-gold);
+    background: rgba(201, 168, 76, 0.15);
+    border-color: var(--border-gold);
+}
+
+.submit-btn:hover {
+    background: rgba(201, 168, 76, 0.3);
+    box-shadow: 0 0 15px rgba(201, 168, 76, 0.2);
+}
+
+.submit-btn:active {
+    transform: scale(0.97);
+}
+
+/* Feedback Area */
+.feedback-area {
+    border-radius: 6px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.5rem;
+    animation: slideUp 0.3s ease;
+}
+
+.feedback-area.correct {
+    background: rgba(74, 255, 106, 0.1);
+    border: 1px solid rgba(74, 255, 106, 0.3);
+}
+
+.feedback-area.incorrect {
+    background: rgba(255, 74, 74, 0.1);
+    border: 1px solid rgba(255, 74, 74, 0.3);
+}
+
+.feedback-area.partial {
+    background: rgba(255, 138, 74, 0.1);
+    border: 1px solid rgba(255, 138, 74, 0.3);
+}
+
+.feedback-content {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.feedback-content.correct {
+    color: var(--accent-green);
+}
+
+.feedback-content.incorrect {
+    color: var(--accent-red);
+}
+
+.feedback-content.partial {
+    color: var(--accent-orange);
+}
+
+/* Victory Screen */
+.victory-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 70;
+    animation: fadeIn 0.5s ease;
+}
+
+.victory-content {
+    text-align: center;
+    animation: slideUp 0.5s ease;
+}
+
+.victory-title {
+    font-family: var(--font-title);
+    font-size: 2.5rem;
+    color: var(--text-gold);
+    text-shadow: 0 0 30px rgba(240, 208, 96, 0.5);
+    margin-bottom: 1rem;
+}
+
+.victory-rewards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+}
+
+.reward-item {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    color: var(--text-light);
+    animation: slideUp 0.5s ease;
+}
+
+.reward-item .reward-value {
+    color: var(--text-gold);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .combat-interface {
+        top: 40px;
+        height: calc(100% - 40px);
+    }
+    
+    .combat-scene {
+        flex: 0 0 30%;
+    }
+    
+    .enemy-art {
+        font-size: 0.45rem;
+    }
+    
+    .challenge-prompt {
+        font-size: 0.9rem;
+    }
+    
+    .code-input {
+        font-size: 0.8rem;
+    }
+}

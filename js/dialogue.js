@@ -1,0 +1,234 @@
+/* ============================================
+   JAVA ODYSSEY - Dialogue System
+   Handles all character dialogues, choices,
+   and narrative text display
+   ============================================ */
+
+const Dialogue = {
+    queue: [],
+    currentIndex: 0,
+    isTyping: false,
+    callback: null,
+    choiceCallback: null,
+    
+    /**
+     * Start a dialogue sequence
+     * @param {Array} dialogues - Array of dialogue objects
+     * @param {Function} onComplete - Callback when all dialogues are done
+     * 
+     * Dialogue object format:
+     * {
+     *   speaker: 'character_id',
+     *   name: 'Display Name',
+     *   text: 'Dialogue text with <span class="highlight">highlights</span>',
+     *   portrait: 'emoji or image path',
+     *   choices: [ { text: 'Choice 1', value: 'choice1' }, ... ] // optional
+     * }
+     */
+    start(dialogues, onComplete = null) {
+        this.queue = dialogues;
+        this.currentIndex = 0;
+        this.callback = onComplete;
+        this.choiceCallback = null;
+        
+        GameState.dialogue.active = true;
+        
+        const box = Utils.$('dialogue-box');
+        box.style.display = 'flex';
+        
+        // Set up click handler for advancing dialogue
+        box.onclick = (e) => {
+            // Don't advance if clicking on choices
+            if (e.target.classList.contains('dialogue-choice')) return;
+            this.advance();
+        };
+        
+        this.showCurrent();
+    },
+    
+    /**
+     * Show the current dialogue entry
+     */
+    async showCurrent() {
+        if (this.currentIndex >= this.queue.length) {
+            this.end();
+            return;
+        }
+        
+        const entry = this.queue[this.currentIndex];
+        const nameEl = Utils.$('dialogue-name');
+        const textEl = Utils.$('dialogue-text');
+        const portraitEl = Utils.$('portrait-img');
+        const continueEl = Utils.$('dialogue-continue');
+        const choicesEl = Utils.$('dialogue-choices');
+        
+        // Set portrait
+        if (entry.portrait) {
+            portraitEl.textContent = entry.portrait;
+        } else {
+            portraitEl.textContent = Assets.getPortrait(entry.speaker) || '❓';
+        }
+        
+        // Set name
+        nameEl.textContent = entry.name || entry.speaker || '???';
+        
+        // Hide continue indicator and choices while typing
+        continueEl.style.display = 'none';
+        choicesEl.style.display = 'none';
+        choicesEl.innerHTML = '';
+        
+        // Type the text
+        this.isTyping = true;
+        await Utils.typeText(textEl, entry.text);
+        this.isTyping = false;
+        
+        // Show choices if available
+        if (entry.choices && entry.choices.length > 0) {
+            this.showChoices(entry.choices);
+        } else {
+            continueEl.style.display = 'block';
+        }
+    },
+    
+    /**
+     * Show dialogue choices
+     */
+    showChoices(choices) {
+        const choicesEl = Utils.$('dialogue-choices');
+        choicesEl.innerHTML = '';
+        choicesEl.style.display = 'flex';
+        
+        choices.forEach((choice, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'dialogue-choice';
+            btn.innerHTML = `<span class="choice-marker">${index + 1}.</span> ${choice.text}`;
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                this.selectChoice(choice);
+            };
+            choicesEl.appendChild(btn);
+        });
+    },
+    
+    /**
+     * Handle choice selection
+     */
+    selectChoice(choice) {
+        const choicesEl = Utils.$('dialogue-choices');
+        choicesEl.style.display = 'none';
+        
+        // Store choice in state if needed
+        if (choice.flag) {
+            GameState.setFlag(choice.flag, choice.value !== undefined ? choice.value : true);
+        }
+        
+        // If choice has a callback
+        if (choice.callback) {
+            choice.callback(choice);
+        }
+        
+        // If choice has follow-up dialogues
+        if (choice.followUp) {
+            // Insert follow-up dialogues after current
+            this.queue.splice(this.currentIndex + 1, 0, ...choice.followUp);
+        }
+        
+        // Advance to next
+        this.currentIndex++;
+        this.showCurrent();
+    },
+    
+    /**
+     * Advance to next dialogue
+     */
+    advance() {
+        if (this.isTyping) {
+            // Skip typing animation
+            const textEl = Utils.$('dialogue-text');
+            if (textEl._isTyping && textEl._skipTyping) {
+                textEl._skipTyping();
+            }
+            return;
+        }
+        
+        // Check if current entry has choices (don't auto-advance)
+        const entry = this.queue[this.currentIndex];
+        if (entry && entry.choices && entry.choices.length > 0) {
+            return; // Wait for choice selection
+        }
+        
+        this.currentIndex++;
+        this.showCurrent();
+    },
+    
+    /**
+     * End the dialogue sequence
+     */
+    end() {
+        GameState.dialogue.active = false;
+        const box = Utils.$('dialogue-box');
+        box.style.display = 'none';
+        box.onclick = null;
+        
+        this.queue = [];
+        this.currentIndex = 0;
+        this.isTyping = false;
+        
+        if (this.callback) {
+            const cb = this.callback;
+            this.callback = null;
+            cb();
+        }
+    },
+    
+    /**
+     * Quick dialogue - show a single message
+     */
+    quick(speaker, name, text, portrait = null) {
+        return new Promise(resolve => {
+            this.start([{
+                speaker,
+                name,
+                text,
+                portrait
+            }], resolve);
+        });
+    },
+    
+    /**
+     * Narrator text - no portrait
+     */
+    narrate(text) {
+        return new Promise(resolve => {
+            this.start([{
+                speaker: 'narrator',
+                name: 'Narrator',
+                text: `<em>${text}</em>`,
+                portrait: '📖'
+            }], resolve);
+        });
+    },
+    
+    /**
+     * Show a choice dialogue and return the selected choice
+     */
+    askChoice(speaker, name, text, choices, portrait = null) {
+        return new Promise(resolve => {
+            const dialogueEntry = {
+                speaker,
+                name,
+                text,
+                portrait,
+                choices: choices.map(c => ({
+                    ...c,
+                    callback: () => resolve(c)
+                }))
+            };
+            
+            this.start([dialogueEntry], () => {
+                // If dialogue ends without choice (shouldn't happen), resolve with null
+                resolve(null);
+            });
+        });
+    }
+};
