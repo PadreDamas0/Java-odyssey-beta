@@ -13,6 +13,8 @@ const PhaserWorld = {
     if (this.game) return;
 
     const parentId = "phaser-container";
+    const container = document.getElementById(parentId);
+    if (container) container.style.display = "block";
 
     const config = {
       type: Phaser.AUTO,
@@ -42,6 +44,9 @@ const PhaserWorld = {
     this.game.destroy(true);
     this.game = null;
     this.scene = null;
+
+    const container = document.getElementById("phaser-container");
+    if (container) container.style.display = "none";
   }
 };
 
@@ -145,3 +150,4 @@ class PhaserWorldScene extends Phaser.Scene {
     this.posText.setText(`x:${Math.floor(this.player.x)} y:${Math.floor(this.player.y)}  speed:${baseSpeed}`);
   }
 }
+

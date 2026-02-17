@@ -60,7 +60,8 @@ const CONFIG = {
     
     // ASCII Art Placeholders
     // These can be replaced with actual sprite images later
-    PLACEHOLDER_SPRITES: false
+    PLACEHOLDER_SPRITES: false,
+    ENABLE_PHASER_WORLD: false
 };
 
 // Character Portraits (emoji placeholders - replace with image paths)
@@ -208,3 +209,4 @@ const ASCII_ART = {
         └─┬─┘
          ╱ ╲`
 };
+

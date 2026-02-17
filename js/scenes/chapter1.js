@@ -16,7 +16,9 @@ const Chapter1Scene = {
         Utils.showScreen('game-container');
 
         // ✅ START PHASER (movement) ONCE when Chapter 1 starts
-        PhaserWorld.start();
+        if (CONFIG.ENABLE_PHASER_WORLD) {
+            PhaserWorld.start();
+        }
 
         // Register all Chapter 1 scenes
         this.registerScenes();
@@ -881,3 +883,4 @@ ______________________</pre>
         ]);
     }
 };
+
