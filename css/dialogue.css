@@ -14,7 +14,7 @@
     display: flex;
     gap: 1rem;
     min-height: 150px;
-    z-index: 100;
+    z-index: 80;
     animation: slideUp 0.3s ease;
 }
 
@@ -247,6 +247,69 @@
         width: auto;
         gap: 0.5rem;
     }
+/* Centered Character Portrait Display */
+.centered-portrait-display {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 50;
+    pointer-events: none;
+    animation: fadeIn 0.4s ease;
+}
+
+.centered-portrait-img {
+    max-width: 350px;
+    max-height: 550px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 25px rgba(218, 165, 32, 0.4));
+    animation: portraitAppear 0.5s ease;
+}
+
+/* Hide side portrait when centered portrait is shown */
+.dialogue-box.with-centered-portrait .dialogue-portrait {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -55%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+@keyframes portraitAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .centered-portrait-display {
+        top: 40%;
+    }
+    
+    .centered-portrait-img {
+        max-width: 300px;
+        max-height: 450px;
+    }
+}
+
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
     
     .portrait-placeholder {
         width: 50px;

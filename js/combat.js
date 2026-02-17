@@ -42,6 +42,9 @@ const Combat = {
      * }
      */
     start(enemyData, challenges, onVictory, onDefeat = null) {
+        // Play battle music
+        Audio.playBgm('battle', true);
+        
         this.enemy = { ...enemyData };
         this.challenges = challenges;
         this.currentChallengeIndex = 0;

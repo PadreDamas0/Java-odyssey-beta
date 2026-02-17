@@ -116,8 +116,11 @@
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    padding: 1rem;
+    padding: 0.5rem;
     background: var(--bg-darker);
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0;
 }
 
 /* Scene Art (ASCII/Text art or placeholder for images) */
@@ -128,18 +131,19 @@
     color: var(--text-dim);
     white-space: pre;
     text-align: center;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    min-height: 100px;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
     /* Placeholder for scene background image */
-    background-size: cover;
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     border-radius: 8px;
     position: relative;
+    max-height: 400px;
+    width: 100%;
 }
 
 .scene-art.modern-city {
@@ -168,8 +172,8 @@
     font-size: 1.05rem;
     color: var(--text-light);
     line-height: 1.8;
-    padding: 0.5rem 1rem;
-    max-width: 800px;
+    padding: 0.3rem 0.5rem;
+    max-width: 900px;
     margin: 0 auto;
     width: 100%;
 }

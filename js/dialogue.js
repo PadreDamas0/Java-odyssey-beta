@@ -26,24 +26,32 @@ const Dialogue = {
      * }
      */
     start(dialogues, onComplete = null) {
-        this.queue = dialogues;
-        this.currentIndex = 0;
-        this.callback = onComplete;
-        this.choiceCallback = null;
-        
-        GameState.dialogue.active = true;
-        
-        const box = Utils.$('dialogue-box');
-        box.style.display = 'flex';
-        
-        // Set up click handler for advancing dialogue
-        box.onclick = (e) => {
-            // Don't advance if clicking on choices
-            if (e.target.classList.contains('dialogue-choice')) return;
-            this.advance();
-        };
-        
-        this.showCurrent();
+        return new Promise((resolve) => {
+            this.queue = dialogues;
+            this.currentIndex = 0;
+            // Wrap the callback to resolve the promise
+            this.callback = () => {
+                if (onComplete) onComplete();
+                resolve();
+            };
+            this.choiceCallback = null;
+            
+            GameState.dialogue.active = true;
+            
+            const box = Utils.$('dialogue-box');
+            if (box) {
+                box.style.display = 'flex';
+                
+                // Set up click handler for advancing dialogue
+                box.onclick = (e) => {
+                    // Don't advance if clicking on choices
+                    if (e.target.classList.contains('dialogue-choice')) return;
+                    this.advance();
+                };
+            }
+            
+            this.showCurrent();
+        });
     },
     
     /**
@@ -61,6 +69,38 @@ const Dialogue = {
         const portraitEl = Utils.$('portrait-img');
         const continueEl = Utils.$('dialogue-continue');
         const choicesEl = Utils.$('dialogue-choices');
+        const dialogueBox = Utils.$('dialogue-box');
+        
+        try {
+            // Handle Cipher centered portrait display with defensive checks
+            const centeredPortraitDisplay = Utils.$('centered-portrait-display');
+            const centeredPortraitImg = Utils.$('centered-portrait-img');
+            
+            if (centeredPortraitDisplay && centeredPortraitImg) {
+                if (entry.speaker === 'mysterious') {
+                    // Cipher is talking - show talk image
+                    centeredPortraitDisplay.style.display = 'block';
+                    centeredPortraitImg.src = 'assets/npcs/cipher_talk.png';
+                    if (dialogueBox) dialogueBox.classList.add('with-centered-portrait');
+                } else if (entry.speaker === 'player' && GameState.getFlag && GameState.getFlag('met_mysterious')) {
+                    // Player is talking after meeting Cipher - show idle image
+                    centeredPortraitDisplay.style.display = 'block';
+                    centeredPortraitImg.src = 'assets/npcs/cipher_idle.png';
+                    if (dialogueBox) dialogueBox.classList.add('with-centered-portrait');
+                } else if (entry.speaker === 'narrator' && GameState.getFlag && GameState.getFlag('met_mysterious')) {
+                    // Narrator is talking after meeting Cipher - show idle image
+                    centeredPortraitDisplay.style.display = 'block';
+                    centeredPortraitImg.src = 'assets/npcs/cipher_idle.png';
+                    if (dialogueBox) dialogueBox.classList.add('with-centered-portrait');
+                } else {
+                    // Haven't met Cipher yet or not relevant, hide centered portrait
+                    centeredPortraitDisplay.style.display = 'none';
+                    if (dialogueBox) dialogueBox.classList.remove('with-centered-portrait');
+                }
+            }
+        } catch (e) {
+            console.warn('Centered portrait error:', e);
+        }
         
         // Set portrait
         if (entry.portrait) {
@@ -167,8 +207,17 @@ const Dialogue = {
     end() {
         GameState.dialogue.active = false;
         const box = Utils.$('dialogue-box');
-        box.style.display = 'none';
-        box.onclick = null;
+        
+        if (box) {
+            box.style.display = 'none';
+            box.onclick = null;
+            box.classList.remove('with-centered-portrait');
+        }
+        
+        const centeredPortraitDisplay = Utils.$('centered-portrait-display');
+        if (centeredPortraitDisplay) {
+            centeredPortraitDisplay.style.display = 'none';
+        }
         
         this.queue = [];
         this.currentIndex = 0;

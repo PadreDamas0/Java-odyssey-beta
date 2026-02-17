@@ -124,6 +124,9 @@ const IntroScene = {
      * Campus scene - establishing the MC
      */
     async campusScene() {
+        // Play modern world music
+        Audio.playBgm('modernWorld', true);
+        
         Utils.setSceneArt('campus', 'modern-city');
         Utils.setSceneText(`
             <div class="location-intro">🏫 University Campus — Evening</div>
@@ -183,6 +186,9 @@ const IntroScene = {
      * Dark alley encounter - mysterious character appears
      */
     async darkAlleyEncounter() {
+        // Play dark alley music
+        Audio.playBgm('darkAlley', true);
+        
         Utils.setSceneArt('darkAlley', 'modern-city');
         Utils.setSceneText(`
             <div class="location-intro">🌙 Dark Alley — Night</div>
@@ -194,7 +200,7 @@ const IntroScene = {
             {
                 speaker: 'narrator',
                 name: 'Narrator',
-                text: `<em>Suddenly, a figure materializes from the shadows — a hooded stranger crackling with digital energy. Their form seems to glitch in and out of reality.</em>`,
+                text: `<em>Suddenly, a figure materializes from the shadows - a hooded stranger crackling with digital energy. Their form seems to glitch in and out of reality.</em>`,
                 portrait: '📖'
             },
             {

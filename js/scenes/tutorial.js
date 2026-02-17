@@ -12,6 +12,9 @@ const TutorialScene = {
     async startTutorialCombat() {
         GameState.phase = 'tutorial';
         
+        // Play battle music
+        Audio.playBgm('battle', true);
+        
         // Define the tutorial enemy
         const enemy = {
             name: 'Syntax Bug',

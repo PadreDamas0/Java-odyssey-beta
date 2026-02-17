@@ -66,9 +66,9 @@ const Assets = {
         backgrounds: {
             mainMenu: 'assets/backgrounds/main_menu.png',
             modernCity: 'assets/backgrounds/modern_city.png',
-            campus: 'assets/backgrounds/campus.png',
-            darkAlley: 'assets/backgrounds/dark_alley.png',
-            portal: 'assets/backgrounds/portal.png',
+            campus: 'assets/backgrounds/campus.jpg',
+            darkAlley: 'assets/backgrounds/dark_alley.jpg',
+            portal: 'assets/backgrounds/portal.jpg',
             medievalVillage: 'assets/backgrounds/medieval_village.png',
             forestPath: 'assets/backgrounds/forest_path.png',
             villageSquare: 'assets/backgrounds/village_square.png',
@@ -85,11 +85,17 @@ const Assets = {
         }
     },
     
+    // Videos
+    videos: {
+        portalTransition: 'assets/videos/portal.mp4'
+    },
+    
     // Sound placeholders
     sounds: {
         bgm: {
             mainMenu: 'assets/audio/bgm/main_menu.mp3',
             modernWorld: 'assets/audio/bgm/modern_world.mp3',
+            darkAlley: 'assets/audio/bgm/dark_alley.mp3',
             battle: 'assets/audio/bgm/battle.mp3',
             medievalVillage: 'assets/audio/bgm/medieval_village.mp3',
             forest: 'assets/audio/bgm/forest.mp3',

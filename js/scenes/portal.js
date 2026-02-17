@@ -123,6 +123,24 @@ const PortalScene = {
         
         Utils.setActions([]);
         
+        // Fade out current music
+        Audio.stopBgm(true);
+        
+        // Play portal video with music
+        try {
+            await Audio.playVideo('portalTransition', {
+                loop: false,
+                autoplay: true,
+                onEnd: () => {
+                    // Play menu music when video ends
+                    Audio.playBgm('mainMenu', true);
+                }
+            });
+        } catch (e) {
+            console.warn('Portal video not available, skipping:', e);
+            Audio.playBgm('mainMenu', true);
+        }
+        
         // Portal entry cutscene
         await Cutscene.play([
             {

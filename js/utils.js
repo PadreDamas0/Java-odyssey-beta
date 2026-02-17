@@ -51,6 +51,7 @@ const Utils = {
             element.innerHTML = '';
             let i = 0;
             let isSkipped = false;
+            let displayContent = '';
             element._isTyping = true;
 
             // Store skip function on element for external access
@@ -69,16 +70,17 @@ const Utils = {
                     if (text[i] === '<') {
                         const closeIndex = text.indexOf('>', i);
                         if (closeIndex !== -1) {
-                            element.innerHTML += text.substring(i, closeIndex + 1);
+                            displayContent += text.substring(i, closeIndex + 1);
                             i = closeIndex + 1;
                         } else {
-                            element.innerHTML += text[i];
+                            displayContent += text[i];
                             i++;
                         }
                     } else {
-                        element.innerHTML += text[i];
+                        displayContent += text[i];
                         i++;
                     }
+                    element.innerHTML = displayContent;
                     setTimeout(type, textSpeed);
                 } else {
                     element._isTyping = false;

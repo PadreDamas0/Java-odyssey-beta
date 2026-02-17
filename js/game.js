@@ -35,6 +35,9 @@ const Game = {
         await Utils.wait(500);
         Utils.showScreen('main-menu');
         
+        // Play main menu music
+        Audio.playBgm('mainMenu', true);
+        
         console.log('Java Odyssey: Ready!');
     },
     
