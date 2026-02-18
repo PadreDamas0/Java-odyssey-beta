@@ -344,24 +344,36 @@ const Utils = {
          if (!artEl) return;
          
          artEl.className = 'scene-art ' + cssClass;
+         artEl.style.minHeight = '';
+         artEl.style.backgroundImage = 'none';
          
-         const sceneArt = Assets.getSceneArt(artKey);
+         const sceneArt = Assets.getSceneArt(artKey) || '';
+         const isImagePath = /\.(png|jpe?g|webp|gif)$/i.test(sceneArt);
          if (ASCII_ART[artKey] && CONFIG.PLACEHOLDER_SPRITES) {
              // Show ASCII art if using placeholders
              artEl.textContent = ASCII_ART[artKey];
-             artEl.style.backgroundImage = 'none';
-         } else if (sceneArt && sceneArt.includes('.png') || sceneArt.includes('.jpg') || sceneArt.includes('.jpeg')) {
-             // Show image if it's a file path
-             artEl.textContent = '';
-             artEl.style.backgroundImage = `url('${sceneArt}')`;
-             artEl.style.backgroundSize = 'contain';
-             artEl.style.backgroundPosition = 'center';
-             artEl.style.backgroundRepeat = 'no-repeat';
-             artEl.style.minHeight = '400px';
+         } else if (isImagePath) {
+             // Show image if available, otherwise fallback to ASCII/text label
+             const img = new Image();
+             img.onload = () => {
+                 artEl.textContent = '';
+                 artEl.style.backgroundImage = `url('${sceneArt}')`;
+                 artEl.style.backgroundSize = 'contain';
+                 artEl.style.backgroundPosition = 'center';
+                 artEl.style.backgroundRepeat = 'no-repeat';
+                 artEl.style.minHeight = '400px';
+             };
+             img.onerror = () => {
+                 if (ASCII_ART[artKey]) {
+                     artEl.textContent = ASCII_ART[artKey];
+                 } else {
+                     artEl.textContent = `[Missing scene art: ${artKey}]`;
+                 }
+             };
+             img.src = sceneArt;
          } else {
              // Fallback to text if neither
              artEl.textContent = artKey;
-             artEl.style.backgroundImage = 'none';
          }
      },
 
