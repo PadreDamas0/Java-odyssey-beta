@@ -60,8 +60,8 @@ const Chapter1Scene = {
                 whispering worriedly about the corruption.</p>
             `,
             actions: [
-                { label: 'Talk to Elder', icon: '👴', primary: true, callback: () => Chapter1Scene.talkToElder() },
-                { label: 'Talk to Villager', icon: '👨‍🌾', callback: () => Chapter1Scene.talkToVillager() },
+                { label: 'Talk to Elder', icon: '👴', primary: true, callback: () => Chapter1Scene.walkToNpcThenTalk('elder', () => Chapter1Scene.talkToElder()) },
+                { label: 'Talk to Villager', icon: '👨‍🌾', callback: () => Chapter1Scene.walkToNpcThenTalk('villager', () => Chapter1Scene.talkToVillager()) },
                 { label: 'Visit Training Grounds', icon: '⚔️', callback: () => World.goTo('ch1_training', 'Walking to the training grounds...') },
                 { label: 'Explore Forest Path', icon: '🌲', callback: () => Chapter1Scene.tryForest() }
             ]
@@ -112,6 +112,17 @@ const Chapter1Scene = {
         });
     },
     
+    /**
+     * Walk to an NPC first, then trigger talk.
+     */
+    walkToNpcThenTalk(role, talkFn) {
+        if (CONFIG.ENABLE_PHASER_WORLD && PhaserWorld && typeof PhaserWorld.walkToNpc === 'function') {
+            PhaserWorld.walkToNpc(role, talkFn);
+            return;
+        }
+        talkFn();
+    },
+
     /**
      * Village Entrance - first arrival
      */
@@ -883,4 +894,6 @@ ______________________</pre>
         ]);
     }
 };
+
+
 
