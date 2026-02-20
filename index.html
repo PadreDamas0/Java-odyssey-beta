@@ -71,11 +71,17 @@
             </div>
             <div class="setting-row">
                 <label>Music Volume</label>
-                <input type="range" id="music-volume" min="0" max="100" value="70" onchange="Game.updateSettings()">
+                <input type="range" id="music-volume" min="0" max="100" value="70" oninput="Game.updateSettings()">
+                <span id="music-volume-value">70%</span>
             </div>
             <div class="setting-row">
                 <label>SFX Volume</label>
-                <input type="range" id="sfx-volume" min="0" max="100" value="80" onchange="Game.updateSettings()">
+                <input type="range" id="sfx-volume" min="0" max="100" value="80" oninput="Game.updateSettings()">
+                <span id="sfx-volume-value">80%</span>
+            </div>
+            <div class="setting-row">
+                <label>Audio</label>
+                <button id="mute-toggle-btn" class="menu-btn" onclick="Game.toggleMute()" style="min-width: 160px; padding: 0.5rem 1rem;">Mute: Off</button>
             </div>
             <button class="menu-btn" onclick="Game.closeModal('settings-modal')">Close</button>
         </div>

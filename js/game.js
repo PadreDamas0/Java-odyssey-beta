@@ -117,6 +117,7 @@ const Game = {
         Utils.$('text-speed').value = GameState.settings.textSpeed;
         Utils.$('music-volume').value = GameState.settings.musicVolume;
         Utils.$('sfx-volume').value = GameState.settings.sfxVolume;
+        this.refreshAudioSettingsUi();
     },
     
     /**
@@ -126,8 +127,36 @@ const Game = {
         GameState.settings.textSpeed = Utils.$('text-speed').value;
         GameState.settings.musicVolume = parseInt(Utils.$('music-volume').value);
         GameState.settings.sfxVolume = parseInt(Utils.$('sfx-volume').value);
+
+        // Apply audio immediately (real-time volume changes)
+        Audio.setBgmVolume(GameState.settings.musicVolume / 100);
+        Audio.setSfxVolume(GameState.settings.sfxVolume / 100);
+        Audio.setMuted(!!GameState.settings.muted);
+        this.refreshAudioSettingsUi();
         
         Utils.saveToStorage(CONFIG.SETTINGS_KEY, GameState.settings);
+    },
+
+    /**
+     * Toggle global audio mute
+     */
+    toggleMute() {
+        GameState.settings.muted = !GameState.settings.muted;
+        Audio.setMuted(GameState.settings.muted);
+        this.refreshAudioSettingsUi();
+        Utils.saveToStorage(CONFIG.SETTINGS_KEY, GameState.settings);
+    },
+
+    /**
+     * Keep settings UI in sync with current audio state
+     */
+    refreshAudioSettingsUi() {
+        const musicVal = Utils.$('music-volume-value');
+        const sfxVal = Utils.$('sfx-volume-value');
+        const muteBtn = Utils.$('mute-toggle-btn');
+        if (musicVal) musicVal.textContent = `${GameState.settings.musicVolume}%`;
+        if (sfxVal) sfxVal.textContent = `${GameState.settings.sfxVolume}%`;
+        if (muteBtn) muteBtn.textContent = `Mute: ${GameState.settings.muted ? 'On' : 'Off'}`;
     },
     
     /**
@@ -138,6 +167,9 @@ const Game = {
         if (saved) {
             GameState.settings = { ...GameState.settings, ...saved };
         }
+        Audio.setBgmVolume((GameState.settings.musicVolume || 0) / 100);
+        Audio.setSfxVolume((GameState.settings.sfxVolume || 0) / 100);
+        Audio.setMuted(!!GameState.settings.muted);
     },
     
     /**

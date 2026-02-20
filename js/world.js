@@ -45,6 +45,10 @@ const World = {
         Utils.show('world-display');
         Utils.hide('combat-interface');
         Utils.hide('dialogue-box');
+
+        // Reset scroll so top area (Phaser canvas) is always visible on scene entry
+        const worldDisplay = Utils.$('world-display');
+        if (worldDisplay) worldDisplay.scrollTop = 0;
         
         // Set scene art
         if (scene.art) {
@@ -61,6 +65,13 @@ const World = {
             Utils.setActions(scene.actions);
         } else {
             Utils.setActions([]);
+        }
+
+        // Chapter 1 scenes use Phaser map; ensure it is started and visible on every entry
+        if (CONFIG.ENABLE_PHASER_WORLD && sceneId.startsWith('ch1_')) {
+            PhaserWorld.start();
+            const phaserContainer = Utils.$('phaser-container');
+            if (phaserContainer) phaserContainer.style.display = 'block';
         }
         
         // Run scene's onEnter function

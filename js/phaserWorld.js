@@ -7,10 +7,10 @@ const PhaserWorld = {
   scene: null,
 
   start() {
-    if (this.game) return;
     const parentId = "phaser-container";
     const container = document.getElementById(parentId);
     if (container) container.style.display = "block";
+    if (this.game) return;
 
     this.game = new Phaser.Game({
       type: Phaser.AUTO,

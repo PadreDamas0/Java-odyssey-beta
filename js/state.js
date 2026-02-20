@@ -10,7 +10,8 @@ const GameState = {
     settings: {
         textSpeed: 'normal',
         musicVolume: 70,
-        sfxVolume: 80
+        sfxVolume: 80,
+        muted: false
     },
     
     // Player data

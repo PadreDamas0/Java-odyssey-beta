@@ -13,6 +13,7 @@ const Audio = {
     // Volume settings
     bgmVolume: 0.7,
     sfxVolume: 0.8,
+    muted: false,
     
     /**
      * Initialize audio system with HTML5 Audio elements
@@ -22,6 +23,7 @@ const Audio = {
         this.bgmTrack = new window.Audio();
         this.bgmTrack.loop = true;
         this.bgmTrack.volume = this.bgmVolume;
+        this.bgmTrack.muted = this.muted;
         
         // Create video element for cutscenes
         this.videoElement = document.createElement('video');
@@ -58,6 +60,7 @@ const Audio = {
         
         if (fade) {
             this.bgmTrack.volume = 0;
+            this.bgmTrack.muted = this.muted;
             this.bgmTrack.play();
             // Fade in over 1 second
             let volume = 0;
@@ -68,6 +71,7 @@ const Audio = {
             }, 50);
         } else {
             this.bgmTrack.volume = this.bgmVolume;
+            this.bgmTrack.muted = this.muted;
             this.bgmTrack.play();
         }
     },
@@ -112,6 +116,7 @@ const Audio = {
         const sfx = new window.Audio();
         sfx.src = sfxPath;
         sfx.volume = this.sfxVolume;
+        sfx.muted = this.muted;
         sfx.play();
         
         // Clean up after playing
@@ -230,6 +235,24 @@ const Audio = {
      */
     setSfxVolume(vol) {
         this.sfxVolume = Math.max(0, Math.min(vol, 1));
+    },
+
+    /**
+     * Mute/unmute all audio
+     */
+    setMuted(muted) {
+        this.muted = !!muted;
+        if (this.bgmTrack) {
+            this.bgmTrack.muted = this.muted;
+        }
+    },
+
+    /**
+     * Toggle mute state
+     */
+    toggleMute() {
+        this.setMuted(!this.muted);
+        return this.muted;
     },
     
     /**
