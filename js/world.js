@@ -69,9 +69,14 @@ const World = {
 
         // Chapter 1 scenes use Phaser map; ensure it is started and visible on every entry
         if (CONFIG.ENABLE_PHASER_WORLD && sceneId.startsWith('ch1_')) {
-            PhaserWorld.start();
             const phaserContainer = Utils.$('phaser-container');
             if (phaserContainer) phaserContainer.style.display = 'block';
+
+            PhaserWorld.start();
+
+            if (typeof PhaserWorld.refreshLayout === 'function') {
+                PhaserWorld.refreshLayout();
+            }
         }
         
         // Run scene's onEnter function

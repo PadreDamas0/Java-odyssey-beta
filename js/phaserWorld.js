@@ -13,15 +13,35 @@ const PhaserWorld = {
     if (this.game) return;
 
     this.game = new Phaser.Game({
+      // Use fixed-size FIT scaling to avoid framebuffer resize issues when world UI is hidden/shown.
       type: Phaser.AUTO,
       parent: parentId,
       pixelArt: false,
       antialias: true,
       backgroundColor: "#6fa974",
-      scale: { mode: Phaser.Scale.RESIZE, autoCenter: Phaser.Scale.CENTER_BOTH, width: "100%", height: "100%" },
+      scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 42 * 32,
+        height: 28 * 32
+      },
       physics: { default: "arcade", arcade: { gravity: { y: 0 }, debug: false } },
       scene: [PhaserWorldScene]
     });
+  },
+
+  refreshLayout() {
+    const container = document.getElementById("phaser-container");
+    if (!container) return;
+
+    container.style.display = "block";
+    // If a canvas is missing unexpectedly, recover by rebuilding once.
+    if (this.game && !container.querySelector("canvas")) this.restart();
+  },
+
+  restart() {
+    this.stop();
+    this.start();
   },
 
   stop() {
@@ -51,6 +71,10 @@ class PhaserWorldScene extends Phaser.Scene {
     this.playerSpeed = 220;
     this.sprintSpeed = 300;
     this.waypointThreshold = 6;
+    this.pathStuckMs = 420;
+    this.pathStuckDistance = 1.2;
+    this.pathStuckElapsed = 0;
+    this.lastPathPos = { x: 0, y: 0 };
   }
 
   preload() {}
@@ -211,6 +235,14 @@ class PhaserWorldScene extends Phaser.Scene {
   createVillageMap() {
     const ground = [], obstacle = [], decor = [], treeSpots = [];
     const cx = Math.floor(this.mapW / 2), cy = Math.floor(this.mapH / 2);
+    const reserved = new Set();
+
+    this.npcObjects = [
+      { name: "elder", x: cx - 8, y: cy - 4 },
+      { name: "villager", x: cx + 8, y: cy - 3 },
+      { name: "trainer", x: cx - 7, y: cy + 4 },
+      { name: "merchant", x: cx + 7, y: cy + 4 }
+    ];
 
     for (let y = 0; y < this.mapH; y++) {
       ground[y] = []; obstacle[y] = []; decor[y] = [];
@@ -225,39 +257,114 @@ class PhaserWorldScene extends Phaser.Scene {
       }
     }
 
-    for (let y = 2; y < this.mapH - 2; y++) {
-      for (let x = 2; x < this.mapW - 2; x++) {
-        const dist = Math.abs(x - cx) + Math.abs(y - cy);
-        if (dist > 11 && Math.random() < 0.12) { obstacle[y][x] = 5; treeSpots.push({ x, y }); }
-        if (dist > 13 && Math.random() < 0.03) obstacle[y][x] = 6;
-      }
-    }
+    this.reserveTiles(reserved, cx, cy, 3);
+    this.npcObjects.forEach((npc) => this.reserveTiles(reserved, npc.x, npc.y, 2));
 
-    this.fillRect(obstacle, cx - 3, cy - 2, 7, 5, -1);
     this.carvePath(obstacle, 0, cy, cx, cy);
     this.carvePath(obstacle, this.mapW - 1, cy, cx, cy);
     this.carvePath(obstacle, cx, 0, cx, cy);
     this.carvePath(obstacle, cx, this.mapH - 1, cx, cy);
+
+    for (let y = 2; y < this.mapH - 2; y++) {
+      for (let x = 2; x < this.mapW - 2; x++) {
+        if (obstacle[y][x] >= 0) continue;
+        if (reserved.has(`${x},${y}`)) continue;
+
+        const curve = Math.min(
+          Math.abs(x - (cx + Math.sin((y - cy) * 0.34) * 2)),
+          Math.abs(y - (cy + Math.cos((x - cx) * 0.31) * 1.7))
+        );
+        if (curve <= 2.2) continue;
+
+        const dist = Math.abs(x - cx) + Math.abs(y - cy);
+        if (dist <= 9) continue;
+
+        const treeChance = dist > 16 ? 0.11 : 0.07;
+        const rockChance = dist > 18 ? 0.028 : 0.012;
+        if (this.hasBlockedNeighbor(obstacle, x, y, 1, 2)) continue;
+
+        if (Math.random() < treeChance) {
+          obstacle[y][x] = 5;
+          treeSpots.push({ x, y });
+          this.reserveTiles(reserved, x, y, 1);
+        } else if (Math.random() < rockChance) {
+          obstacle[y][x] = 6;
+        }
+      }
+    }
+
+    this.fillRect(obstacle, cx - 3, cy - 2, 7, 5, -1);
+    this.npcObjects.forEach((npc) => this.clearRadius(obstacle, npc.x, npc.y, 1));
+    this.carvePath(obstacle, 0, cy, cx, cy);
+    this.carvePath(obstacle, this.mapW - 1, cy, cx, cy);
+    this.carvePath(obstacle, cx, 0, cx, cy);
+    this.carvePath(obstacle, cx, this.mapH - 1, cx, cy);
+    const activeTreeSpots = treeSpots.filter((s) => obstacle[s.y][s.x] === 5);
 
     const map = this.make.tilemap({ data: ground, tileWidth: this.tileSize, tileHeight: this.tileSize });
     const tileset = map.addTilesetImage("terrain_tiles");
     this.groundLayer = map.createLayer(0, tileset, 0, 0);
     const obstacleMap = this.make.tilemap({ data: obstacle, tileWidth: this.tileSize, tileHeight: this.tileSize });
     this.obstacleLayer = obstacleMap.createLayer(0, tileset, 0, 0);
-    this.obstacleLayer.setCollision([5, 6]);
     const decorMap = this.make.tilemap({ data: decor, tileWidth: this.tileSize, tileHeight: this.tileSize });
     this.decorLayer = decorMap.createLayer(0, tileset, 0, 0);
     this.map = map;
     this.baseGrid = this.buildWalkGrid(obstacle);
     this.physics.world.setBounds(0, 0, this.mapW * this.tileSize, this.mapH * this.tileSize);
-    this.createTreeCanopies(treeSpots);
+    this.createObstacleBodies(obstacle);
+    this.createTreeCanopies(activeTreeSpots);
+  }
 
-    this.npcObjects = [
-      { name: "elder", x: cx - 8, y: cy - 4 },
-      { name: "villager", x: cx + 8, y: cy - 3 },
-      { name: "trainer", x: cx - 7, y: cy + 4 },
-      { name: "merchant", x: cx + 7, y: cy + 4 }
-    ];
+  reserveTiles(reserved, tx, ty, radius) {
+    for (let y = ty - radius; y <= ty + radius; y++) {
+      for (let x = tx - radius; x <= tx + radius; x++) {
+        if (x > 0 && y > 0 && x < this.mapW - 1 && y < this.mapH - 1) reserved.add(`${x},${y}`);
+      }
+    }
+  }
+
+  clearRadius(layer, tx, ty, radius) {
+    for (let y = ty - radius; y <= ty + radius; y++) {
+      for (let x = tx - radius; x <= tx + radius; x++) {
+        if (x > 0 && y > 0 && x < this.mapW - 1 && y < this.mapH - 1) layer[y][x] = -1;
+      }
+    }
+  }
+
+  hasBlockedNeighbor(layer, tx, ty, radius, maxAllowed) {
+    let blocked = 0;
+    for (let y = ty - radius; y <= ty + radius; y++) {
+      for (let x = tx - radius; x <= tx + radius; x++) {
+        if (x < 0 || y < 0 || x >= this.mapW || y >= this.mapH) continue;
+        if (x === tx && y === ty) continue;
+        if (layer[y][x] >= 0) blocked += 1;
+        if (blocked > maxAllowed) return true;
+      }
+    }
+    return false;
+  }
+
+  createObstacleBodies(obstacleData) {
+    if (this.obstacleBodies) this.obstacleBodies.clear(true, true);
+    this.obstacleBodies = this.physics.add.staticGroup();
+    const half = this.tileSize / 2;
+
+    for (let y = 0; y < this.mapH; y++) {
+      for (let x = 0; x < this.mapW; x++) {
+        const tile = obstacleData[y][x];
+        if (tile < 0) continue;
+        if (x === 0 || y === 0 || x === this.mapW - 1 || y === this.mapH - 1) continue;
+
+        let w = 0, h = 0, yOffset = 0;
+        if (tile === 5) { w = 10; h = 16; yOffset = 6; }
+        else if (tile === 6) { w = 18; h = 14; yOffset = 3; }
+        else continue;
+
+        const blocker = this.add.rectangle((x * this.tileSize) + half, (y * this.tileSize) + half + yOffset, w, h, 0x000000, 0);
+        this.physics.add.existing(blocker, true);
+        this.obstacleBodies.add(blocker);
+      }
+    }
   }
 
   fillRect(layer, x, y, w, h, v) { for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) if (yy >= 0 && xx >= 0 && yy < this.mapH && xx < this.mapW) layer[yy][xx] = v; }
@@ -293,7 +400,7 @@ class PhaserWorldScene extends Phaser.Scene {
       npc.nameLabel = this.add.text(npc.x, npc.y - 34, `${obj.name.toUpperCase()} NPC`, { fontFamily: "Georgia, serif", fontSize: "11px", color: "#f6f2df", backgroundColor: "#1a1f1f88", padding: { x: 5, y: 2 } }).setOrigin(0.5, 1);
       this.npcByRole[obj.name] = npc;
     });
-    this.physics.add.collider(this.player, this.obstacleLayer);
+    if (this.obstacleBodies) this.physics.add.collider(this.player, this.obstacleBodies);
     this.physics.add.collider(this.player, this.npcs);
   }
 
@@ -354,14 +461,14 @@ class PhaserWorldScene extends Phaser.Scene {
   startAutoWalkToWorld(worldX, worldY, onArrive) {
     const now = performance.now(); if (now - this.lastPathRequestAt < this.pathRequestCooldownMs) return false; this.lastPathRequestAt = now;
     const startTile = this.worldToTile(this.player.x, this.player.y), goalTile = this.worldToTile(worldX, worldY), navGrid = this.copyGridWithNpcBlocks(null);
-    let goal = goalTile; if (!this.isWalkableTile(goal.x, goal.y, navGrid)) { goal = this.findNearestWalkable(goalTile, navGrid, 5); if (!goal) return false; }
+    let goal = goalTile; if (!this.isWalkableTile(goal.x, goal.y, navGrid)) { goal = this.findNearestWalkable(goalTile, navGrid, 7); if (!goal) return false; }
     this.findPath(startTile, goal, navGrid, (path) => { if (!path || path.length === 0) return; this.startFollowingPath(path, onArrive); });
     return true;
   }
 
   findNearestWalkable(origin, navGrid, maxRadius) { if (this.isWalkableTile(origin.x, origin.y, navGrid)) return origin; for (let r = 1; r <= maxRadius; r++) for (let y = origin.y - r; y <= origin.y + r; y++) for (let x = origin.x - r; x <= origin.x + r; x++) if (this.isWalkableTile(x, y, navGrid)) return { x, y }; return null; }
   findPath(startTile, endTile, navGrid, callback) { if (!this.pathFinder) { callback([startTile, endTile]); return; } this.pathFinder.setGrid(navGrid); this.pathFinder.findPath(startTile.x, startTile.y, endTile.x, endTile.y, (path) => callback(path || null)); }
-  startFollowingPath(path, onArrive) { this.currentPath = path; this.pathIndex = 0; this.isPathMoving = true; this.pendingArriveCallback = onArrive || null; }
+  startFollowingPath(path, onArrive) { this.currentPath = path; this.pathIndex = 0; this.isPathMoving = true; this.pendingArriveCallback = onArrive || null; this.pathStuckElapsed = 0; this.lastPathPos.x = this.player.x; this.lastPathPos.y = this.player.y; }
 
   advanceAlongPath(speed) {
     if (!this.isPathMoving || this.currentPath.length === 0) return false;
@@ -403,6 +510,15 @@ class PhaserWorldScene extends Phaser.Scene {
     if (this.pathFinder) this.pathFinder.calculate();
     const movingSpeed = this.keys.shift.isDown ? this.sprintSpeed : this.playerSpeed;
     let handledByPath = false; if (this.isPathMoving) handledByPath = this.advanceAlongPath(movingSpeed);
+
+    if (this.isPathMoving) {
+      const moved = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.lastPathPos.x, this.lastPathPos.y);
+      const isTryingToMove = Math.abs(this.player.body.velocity.x) > 0.5 || Math.abs(this.player.body.velocity.y) > 0.5;
+      if (isTryingToMove && moved < this.pathStuckDistance) this.pathStuckElapsed += this.game.loop.delta;
+      else this.pathStuckElapsed = 0;
+      this.lastPathPos.x = this.player.x; this.lastPathPos.y = this.player.y;
+      if (this.pathStuckElapsed >= this.pathStuckMs) this.stopPathMove(false);
+    } else this.pathStuckElapsed = 0;
 
     if (!handledByPath) {
       let vx = 0, vy = 0;

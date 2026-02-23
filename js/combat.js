@@ -455,6 +455,14 @@ const Combat = {
         
         // Show world display
         Utils.show('world-display');
+        if (
+            CONFIG.ENABLE_PHASER_WORLD &&
+            GameState.phase === 'chapter1' &&
+            typeof PhaserWorld !== 'undefined' &&
+            typeof PhaserWorld.refreshLayout === 'function'
+        ) {
+            PhaserWorld.refreshLayout();
+        }
         
         // Reset combat state
         this.enemy = null;
