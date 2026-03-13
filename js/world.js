@@ -29,6 +29,18 @@ const World = {
         
         this.currentScene = sceneId;
         GameState.progress.currentScene = sceneId;
+
+        const gameContainer = Utils.$('game-container');
+        const phaserContainer = Utils.$('phaser-container');
+        const isFullScreenMap = Boolean(scene.fullScreenMap);
+        // If hidePhaser is explicitly set, use that; otherwise default to hiding for fullScreenMap
+        const hidePhaser = scene.hidePhaser !== undefined ? scene.hidePhaser : isFullScreenMap;
+        if (gameContainer) {
+            gameContainer.classList.toggle('fullscreen-map-mode', isFullScreenMap);
+        }
+        if (phaserContainer) {
+            phaserContainer.style.display = hidePhaser ? 'none' : 'block';
+        }
         
         // Show transition if requested
         if (options.transition) {
@@ -56,9 +68,7 @@ const World = {
         }
         
         // Set scene description
-        if (scene.description) {
-            Utils.setSceneText(scene.description);
-        }
+        Utils.setSceneText(scene.description || '');
         
         // Set actions
         if (scene.actions) {
@@ -67,15 +77,34 @@ const World = {
             Utils.setActions([]);
         }
 
-        // Chapter 1 scenes use Phaser map; ensure it is started and visible on every entry
-        if (CONFIG.ENABLE_PHASER_WORLD && sceneId.startsWith('ch1_')) {
-            const phaserContainer = Utils.$('phaser-container');
+        // If we're in the village platformer scene, make the world display use the village background
+        // Reuse worldDisplay from above
+        if (worldDisplay) {
+            if (sceneId === 'ch1_village_square' || sceneId === 'ch1_entrance') {
+                worldDisplay.style.background = 'url("assets/background/village.jpg") center top / cover no-repeat';
+            } else {
+                worldDisplay.style.background = 'var(--bg-darker)';
+            }
+        }
+
+        // Chapter 1 scenes use the platformer canvas (replaces Phaser for the village platformer)
+        // Reuse phaserContainer from above
+        if (sceneId.startsWith('ch1_')) {
+            const sceneArt = Utils.$('scene-art');
+
             if (phaserContainer) phaserContainer.style.display = 'block';
+            if (sceneArt) sceneArt.style.display = 'none';
 
-            PhaserWorld.start();
+            if (Platformer && typeof Platformer.start === 'function') {
+                Platformer.start('phaser-container');
+            }
 
-            if (typeof PhaserWorld.refreshLayout === 'function') {
-                PhaserWorld.refreshLayout();
+        } else {
+            // Ensure platformer is stopped when leaving Chapter 1
+            // Reuse phaserContainer from above
+            if (phaserContainer) phaserContainer.style.display = 'none';
+            if (Platformer && typeof Platformer.stop === 'function' && Platformer.running) {
+                Platformer.stop();
             }
         }
         
@@ -136,3 +165,8 @@ const World = {
         });
     }
 };
+
+// Ensure World is available globally (for scripts that check window.World)
+if (typeof window !== 'undefined') {
+    window.World = World;
+}

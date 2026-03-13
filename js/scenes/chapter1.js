@@ -4,6 +4,75 @@
    Focus: Variables, Data Types, Basic I/O
    ============================================ */
 
+// Fallback World manager (only used if world.js fails to load)
+// This ensures Chapter 1 still works even if the normal World manager isn't available.
+if (typeof window !== 'undefined' && typeof window.World === 'undefined') {
+    window.World = {
+        currentScene: null,
+        scenes: {},
+
+        registerScene(id, sceneData) {
+            this.scenes[id] = sceneData;
+        },
+
+        async loadScene(sceneId, options = {}) {
+            const scene = this.scenes[sceneId];
+            if (!scene) return;
+
+            this.currentScene = sceneId;
+            if (window.GameState) {
+                window.GameState.progress.currentScene = sceneId;
+            }
+
+            // Basic UI adjustments
+            if (window.Utils) {
+                Utils.show('world-display');
+                Utils.hide('combat-interface');
+                Utils.hide('dialogue-box');
+
+                // Background handling (village vs other)
+                const worldDisplay = Utils.$('world-display');
+                if (worldDisplay) {
+                    if (sceneId === 'ch1_village_square' || sceneId === 'ch1_entrance') {
+                        worldDisplay.style.background = 'url("assets/background/village.jpg") center top / cover no-repeat';
+                    } else {
+                        worldDisplay.style.background = 'var(--bg-darker)';
+                    }
+                }
+
+                if (scene.art) {
+                    Utils.setSceneArt(scene.art, scene.artClass || '');
+                }
+                Utils.setSceneText(scene.description || '');
+                Utils.setActions(scene.actions || []);
+            }
+
+            if (sceneId.startsWith('ch1_')) {
+                const phaserContainer = Utils.$('phaser-container');
+                const sceneArt = Utils.$('scene-art');
+                if (phaserContainer) phaserContainer.style.display = 'block';
+                if (sceneArt) sceneArt.style.display = 'none';
+
+                if (window.Platformer && typeof Platformer.start === 'function') {
+                    Platformer.start('phaser-container');
+                }
+            }
+
+            if (scene.onEnter) {
+                await scene.onEnter(options);
+            }
+        },
+
+        async goTo(sceneId, transitionText = null) {
+            await this.loadScene(sceneId, { transition: true, transitionText });
+        },
+
+        updateActions(actions) {
+            if (window.Utils) Utils.setActions(actions);
+        }
+    };
+}
+
 const Chapter1Scene = {
     
     /**
@@ -15,18 +84,22 @@ const Chapter1Scene = {
         // ✅ make sure the game UI is visible
         Utils.showScreen('game-container');
 
-        // ✅ START PHASER (movement) ONCE when Chapter 1 starts
-        if (CONFIG.ENABLE_PHASER_WORLD) {
-            PhaserWorld.start();
-        }
-
-        // Register all Chapter 1 scenes
+            // Register all Chapter 1 scenes
         this.registerScenes();
 
         // Start at village entrance
         await this.villageEntrance();
     },
-    
+
+    // NOTE: World is now treated as a best-effort dependency. If world.js fails to load,
+    // a minimal fallback World implementation (created at the top of this file) will keep
+    // Chapter 1 running.
+
+    async waitForWorld() {
+        // No-op: the fallback above guarantees `window.World` exists by the time this runs.
+        return;
+    },
+
     /**
      * Register all scenes for this chapter
      */
@@ -34,8 +107,8 @@ const Chapter1Scene = {
         // Village Entrance
         World.registerScene('ch1_entrance', {
             locationName: 'Village of Variables — Entrance',
-            art: 'medievalVillage',
-            artClass: 'medieval-village',
+            art: 'fullMap',
+            artClass: 'portal-entry-map',
             description: `
                 <div class="location-intro">🏰 Village of Variables — Entrance</div>
                 <p class="narrator">You stand at the entrance of a quaint medieval village. Thatched-roof cottages line 
@@ -45,26 +118,20 @@ const Chapter1Scene = {
             actions: [
                 { label: 'Enter Village', icon: '🏘️', primary: true, callback: () => World.goTo('ch1_village_square', 'Entering the village...') },
                 { label: 'Look Around', icon: '👀', callback: () => Chapter1Scene.lookAroundEntrance() }
-            ]
+            ],
+            hidePhaser: true
         });
         
         // Village Square
         World.registerScene('ch1_village_square', {
             locationName: 'Village of Variables — Square',
-            art: 'medievalVillage',
-            artClass: 'medieval-village',
-            description: `
-                <div class="location-intro">⛲ Village Square</div>
-                <p class="narrator">The village square is the heart of the settlement. A stone fountain stands in the center, 
-                though its water flows erratically — sometimes upward, sometimes freezing mid-air. Villagers gather in small groups, 
-                whispering worriedly about the corruption.</p>
-            `,
-            actions: [
-                { label: 'Talk to Elder', icon: '👴', primary: true, callback: () => Chapter1Scene.walkToNpcThenTalk('elder', () => Chapter1Scene.talkToElder()) },
-                { label: 'Talk to Villager', icon: '👨‍🌾', callback: () => Chapter1Scene.walkToNpcThenTalk('villager', () => Chapter1Scene.talkToVillager()) },
-                { label: 'Visit Training Grounds', icon: '⚔️', callback: () => World.goTo('ch1_training', 'Walking to the training grounds...') },
-                { label: 'Explore Forest Path', icon: '🌲', callback: () => Chapter1Scene.tryForest() }
-            ]
+            art: 'village',
+            artClass: 'full-screen-map',
+            description: '',
+            actions: [],
+            // Full-screen map mode hides Phaser canvas (used for static map view), so disable it for the platformer.
+            fullScreenMap: false,
+            hidePhaser: false  // Show Phaser with player
         });
         
         // Training Grounds
@@ -127,6 +194,7 @@ const Chapter1Scene = {
      * Village Entrance - first arrival
      */
     async villageEntrance() {
+        // Start at the entrance so the player can choose to enter the village (buttons available)
         await World.loadScene('ch1_entrance');
         
         await Dialogue.start([
@@ -894,6 +962,7 @@ ______________________</pre>
         ]);
     }
 };
+
 
 
 

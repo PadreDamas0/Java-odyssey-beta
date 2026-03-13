@@ -202,6 +202,6 @@ const PortalScene = {
         });
         
         // Start Chapter 1
-        Chapter1Scene.start();
+        await Chapter1Scene.start();
     }
 };
