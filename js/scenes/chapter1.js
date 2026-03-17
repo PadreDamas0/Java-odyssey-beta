@@ -381,7 +381,69 @@ const Chapter1Scene = {
         
         await Dialogue.start(villagerDialogues);
     },
-    
+
+    /**
+     * Talk to the village trainer (wizard)
+     */
+    async talkToWizard() {
+        if (GameState.hasFlag('ch1_training_complete')) {
+            await Dialogue.quick('wizard', 'Wizard Elyon',
+                `<em>You've already trained with the dummies. The forest awaits your return.</em>`,
+                '🧙‍♂️');
+            return;
+        }
+
+        await Dialogue.start([
+            {
+                speaker: 'wizard',
+                name: 'Wizard Elyon',
+                text: `Welcome, Guardian. I keep the Training Grounds ready for those who seek to master the Prime Scripts. When you're ready, <span class="highlight">press the Training button</span> or head to the grounds and begin.`,
+                portrait: '🧙‍♂️'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `Got it — I'll start training right away!`,
+                portrait: '🧑‍💻'
+            },
+            {
+                speaker: 'wizard',
+                name: 'Wizard Elyon',
+                text: `Remember: variables are like containers. Master them, and the Prime Script will start to obey.`,
+                portrait: '🧙‍♂️'
+            }
+        ]);
+
+        // Kick off training for convenience
+        await this.startTraining();
+    },
+
+    /**
+     * Talk to the blacksmith
+     */
+    async talkToBlacksmith() {
+        await Dialogue.start([
+            {
+                speaker: 'blacksmith',
+                name: 'Blacksmith Brawn',
+                text: `The forge hasn't run right since the corruption came. I can still make a simple tool, but I need the Prime Script restored before I can craft anything truly powerful.`,
+                portrait: '🛠️'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `I'll do my best. First I need to learn the basics and recover the Prime Script fragments.`,
+                portrait: '🧑‍💻'
+            },
+            {
+                speaker: 'blacksmith',
+                name: 'Blacksmith Brawn',
+                text: `Come back after you've trained. I might have something useful for a Code Guardian like you.`,
+                portrait: '🛠️'
+            }
+        ]);
+    },
+
     /**
      * Try to enter forest before training
      */

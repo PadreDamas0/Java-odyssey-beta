@@ -12,6 +12,9 @@ const Platformer = {
   lastTimestamp: 0,
   keys: {},
   assets: {},
+  npcs: [],
+  nearestNpc: null,
+  eKeyLast: false,
   frameTimer: 0,
   player: {
     x: 0,
@@ -89,7 +92,11 @@ const Platformer = {
       jump_0: 'assets/sprites/mc/adventurer-jump-00.png',
       jump_1: 'assets/sprites/mc/adventurer-jump-01.png',
       jump_2: 'assets/sprites/mc/adventurer-jump-02.png',
-      jump_3: 'assets/sprites/mc/adventurer-jump-03.png'
+      jump_3: 'assets/sprites/mc/adventurer-jump-03.png',
+      npc_monk: 'assets/sprites/npc/Monk.png',
+      npc_villager: 'assets/sprites/npc/Villager.png',
+      npc_wizard: 'assets/sprites/npc/Wizard.png',
+      npc_blacksmith: 'assets/sprites/npc/Blacksmith.png'
     };
 
     const keys = Object.keys(images);
@@ -155,6 +162,29 @@ const Platformer = {
     this.player.frame = 0;
     this.player.dir = 1;
     this.frameTimer = 0;
+    this.eKeyLast = false;
+    this.resetNpcs();
+  },
+
+  resetNpcs() {
+    const groundY = this.groundY || 0;
+    const npcHeight = 64;
+    const baseY = groundY - npcHeight;
+    const width = this.width || 800;
+
+    const template = [
+      { role: 'monk', name: 'Monk Varion', relX: 0.18 },
+      { role: 'villager', name: 'Villager Ada', relX: 0.56 },
+      { role: 'wizard', name: 'Wizard Elyon', relX: 0.78 },
+      { role: 'blacksmith', name: 'Blacksmith Brawn', relX: 0.35 }
+    ];
+
+    this.npcs = template.map((item, idx) => ({
+      ...item,
+      x: Math.floor(width * item.relX),
+      y: baseY,
+      bobPhase: idx * 1.2
+    }));
   },
 
   loop(timestamp) {
@@ -169,6 +199,13 @@ const Platformer = {
   },
 
   update(dt) {
+    // Freeze movement while dialogue is active
+    if (window.GameState && GameState.dialogue && GameState.dialogue.active) {
+      this.player.vx = 0;
+      this.player.vy = 0;
+      return;
+    }
+
     const left = this.keys['ArrowLeft'] || this.keys['KeyA'];
     const right = this.keys['ArrowRight'] || this.keys['KeyD'];
     const up = this.keys['ArrowUp'] || this.keys['Space'] || this.keys['KeyW'];
@@ -222,6 +259,14 @@ const Platformer = {
     } else {
       this.player.state = 'idle';
     }
+
+    // NPC interaction (press E when near) - only shown when no dialogue active
+    this.nearestNpc = this.getNearestNpc(54);
+    const ePressed = !!this.keys['KeyE'];
+    if (ePressed && !this.eKeyLast && this.nearestNpc) {
+      this.interactWithNpc(this.nearestNpc);
+    }
+    this.eKeyLast = ePressed;
   },
 
   draw() {
@@ -243,6 +288,27 @@ const Platformer = {
     this.ctx.fillStyle = 'rgba(0,0,0,0.4)';
     this.ctx.fillRect(0, this.groundY, this.width, this.height - this.groundY);
 
+    // Draw NPCs
+    const npcSize = 56;
+    const now = performance.now();
+    this.npcs.forEach((npc) => {
+      const bob = Math.sin((now / 520) + npc.bobPhase) * 4;
+      const img = this.assets[`npc_${npc.role}`];
+      const x = npc.x - npcSize / 2;
+      const y = npc.y + bob;
+      if (img) {
+        this.ctx.drawImage(img, x, y, npcSize, npcSize);
+      } else {
+        this.ctx.fillStyle = 'rgba(120,160,200,0.85)';
+        this.ctx.fillRect(x, y, npcSize, npcSize);
+      }
+      // Name label
+      this.ctx.font = '12px sans-serif';
+      this.ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      this.ctx.textAlign = 'center';
+      this.ctx.fillText(npc.name, npc.x, y - 8);
+    });
+
     // Draw player (fallback to colored rectangle if sprite missing)
     const sprite = this.getCurrentFrame();
     if (sprite) {
@@ -262,6 +328,13 @@ const Platformer = {
     this.ctx.font = '14px sans-serif';
     this.ctx.fillStyle = 'rgba(255,255,255,0.8)';
     this.ctx.fillText('Platformer active', 12, 20);
+
+    // Interaction prompt
+    if (this.nearestNpc) {
+      this.ctx.font = '14px sans-serif';
+      this.ctx.fillStyle = 'rgba(255,255,255,0.95)';
+      this.ctx.fillText(`Press E to talk: ${this.nearestNpc.name}`, 14, 46);
+    }
   },
 
   getCurrentFrame() {
@@ -274,6 +347,35 @@ const Platformer = {
       return this.assets[`jump_${idx}`] || this.assets.jump_0;
     }
     return this.assets[`idle_${idx}`] || this.assets.idle_0;
+  },
+
+  getNearestNpc(range) {
+    if (!this.npcs || this.npcs.length === 0) return null;
+    const px = this.player.x + this.player.w / 2;
+    const py = this.player.y + this.player.h / 2;
+
+    let best = null;
+    let bestDist = Infinity;
+    this.npcs.forEach((npc) => {
+      const npcCenterY = npc.y + 32; // approximate
+      const dx = px - npc.x;
+      const dy = py - npcCenterY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < bestDist && dist <= range) {
+        bestDist = dist;
+        best = npc;
+      }
+    });
+    return best;
+  },
+
+  interactWithNpc(npc) {
+    if (!npc || !window.Chapter1Scene) return;
+    const role = npc.role;
+    if (role === 'monk' && typeof Chapter1Scene.talkToElder === 'function') Chapter1Scene.talkToElder();
+    else if (role === 'villager' && typeof Chapter1Scene.talkToVillager === 'function') Chapter1Scene.talkToVillager();
+    else if (role === 'wizard' && typeof Chapter1Scene.talkToWizard === 'function') Chapter1Scene.talkToWizard();
+    else if (role === 'blacksmith' && typeof Chapter1Scene.talkToBlacksmith === 'function') Chapter1Scene.talkToBlacksmith();
   },
 
   resize() {
@@ -301,5 +403,8 @@ const Platformer = {
         this.player.y = this.groundY - this.player.h;
       }
     }
+
+    // Update NPC positions to stay on the ground
+    this.resetNpcs();
   }
 };

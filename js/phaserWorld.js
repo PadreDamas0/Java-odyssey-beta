@@ -198,10 +198,10 @@ class PhaserWorldScene extends Phaser.Scene {
       g.fillStyle(0x332b26, 1); g.fillRect(4 + shift, 17, 3, 7); g.fillRect(9 + shift, 17, 3, 7);
       g.generateTexture(key, 16, 24); g.destroy();
     };
-    makeNpc("npc_elder_1", 0x6b4ca6, 0x9b9ea6, 0); makeNpc("npc_elder_2", 0x6b4ca6, 0x9b9ea6, 1);
+    makeNpc("npc_monk_1", 0x6b4ca6, 0x9b9ea6, 0); makeNpc("npc_monk_2", 0x6b4ca6, 0x9b9ea6, 1);
     makeNpc("npc_villager_1", 0x2f7fc2, 0x49a79f, 0); makeNpc("npc_villager_2", 0x2f7fc2, 0x49a79f, 1);
-    makeNpc("npc_trainer_1", 0x2e7a39, 0x7b532e, 0); makeNpc("npc_trainer_2", 0x2e7a39, 0x7b532e, 1);
-    makeNpc("npc_merchant_1", 0xa8632a, 0xd8b24a, 0); makeNpc("npc_merchant_2", 0xa8632a, 0xd8b24a, 1);
+    makeNpc("npc_wizard_1", 0x2e7a39, 0x7b532e, 0); makeNpc("npc_wizard_2", 0x2e7a39, 0x7b532e, 1);
+    makeNpc("npc_blacksmith_1", 0xa8632a, 0xd8b24a, 0); makeNpc("npc_blacksmith_2", 0xa8632a, 0xd8b24a, 1);
   }
 
   makeTreeCanopyTexture(key, w, h, base, light, dark) {
@@ -238,10 +238,10 @@ class PhaserWorldScene extends Phaser.Scene {
     const reserved = new Set();
 
     this.npcObjects = [
-      { name: "elder", x: cx - 8, y: cy - 4 },
-      { name: "villager", x: cx + 8, y: cy - 3 },
-      { name: "trainer", x: cx - 7, y: cy + 4 },
-      { name: "merchant", x: cx + 7, y: cy + 4 }
+      { name: "monk", x: cx - 8, y: cy - 4, label: 'Monk Varion' },
+      { name: "villager", x: cx + 8, y: cy - 3, label: 'Villager Ada' },
+      { name: "wizard", x: cx - 7, y: cy + 4, label: 'Wizard Elyon' },
+      { name: "blacksmith", x: cx + 7, y: cy + 4, label: 'Blacksmith Brawn' }
     ];
 
     for (let y = 0; y < this.mapH; y++) {
@@ -406,10 +406,10 @@ class PhaserWorldScene extends Phaser.Scene {
 
   createNpcAnimations() {
     const addIdle = (key, a, b, fps) => this.anims.create({ key, frames: [{ key: a }, { key: b }], frameRate: fps, repeat: -1, yoyo: true });
-    addIdle("npc_elder_idle", "npc_elder_1", "npc_elder_2", 1.3);
+    addIdle("npc_monk_idle", "npc_monk_1", "npc_monk_2", 1.3);
     addIdle("npc_villager_idle", "npc_villager_1", "npc_villager_2", 2);
-    addIdle("npc_trainer_idle", "npc_trainer_1", "npc_trainer_2", 2.6);
-    addIdle("npc_merchant_idle", "npc_merchant_1", "npc_merchant_2", 1.8);
+    addIdle("npc_wizard_idle", "npc_wizard_1", "npc_wizard_2", 2.6);
+    addIdle("npc_blacksmith_idle", "npc_blacksmith_1", "npc_blacksmith_2", 1.8);
     this.npcs.getChildren().forEach((npc) => npc.play(`npc_${npc.role}_idle`));
   }
 
@@ -486,8 +486,10 @@ class PhaserWorldScene extends Phaser.Scene {
 
   tryTalkToRole(role) {
     if (!window.Chapter1Scene) return;
-    if (role === "elder" && typeof Chapter1Scene.talkToElder === "function") Chapter1Scene.talkToElder();
+    if (role === "monk" && typeof Chapter1Scene.talkToElder === "function") Chapter1Scene.talkToElder();
     else if (role === "villager" && typeof Chapter1Scene.talkToVillager === "function") Chapter1Scene.talkToVillager();
+    else if (role === "wizard" && typeof Chapter1Scene.talkToWizard === "function") Chapter1Scene.talkToWizard();
+    else if (role === "blacksmith" && typeof Chapter1Scene.talkToBlacksmith === "function") Chapter1Scene.talkToBlacksmith();
   }
 
   nearestNpcInRange(rangePx) {
