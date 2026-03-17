@@ -23,6 +23,8 @@ const Platformer = {
     vy: 0,
     w: 48,
     h: 64,
+    renderW: 68,
+    renderH: 92,
     dir: 1,
     state: 'idle',
     frame: 0
@@ -401,7 +403,10 @@ const Platformer = {
       const py = this.player.y;
       this.ctx.translate(px, py);
       if (this.player.dir < 0) this.ctx.scale(-1, 1);
-      this.ctx.drawImage(sprite, -this.player.w / 2, 0, this.player.w, this.player.h);
+      // Draw the player larger while keeping the collision box unchanged.
+      const drawX = -this.player.renderW / 2;
+      const drawY = this.player.h - this.player.renderH;
+      this.ctx.drawImage(sprite, drawX, drawY, this.player.renderW, this.player.renderH);
       this.ctx.restore();
     } else {
       this.ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
