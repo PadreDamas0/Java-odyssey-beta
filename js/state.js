@@ -320,3 +320,7 @@ const GameState = {
         return !!Utils.loadFromStorage(CONFIG.SAVE_KEY);
     }
 };
+
+if (typeof window !== 'undefined') {
+    window.GameState = GameState;
+}

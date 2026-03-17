@@ -361,6 +361,9 @@ window.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('keydown', (e) => {
     // Escape to toggle pause
     if (e.key === 'Escape') {
+        if (typeof GameState !== 'undefined' && GameState.dialogue && GameState.dialogue.active) {
+            return;
+        }
         const gameContainer = Utils.$('game-container');
         if (gameContainer && gameContainer.classList.contains('active')) {
             // Close any open modals first

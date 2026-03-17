@@ -10,6 +10,7 @@ const Dialogue = {
     isTyping: false,
     callback: null,
     choiceCallback: null,
+    keyboardBound: false,
     
     /**
      * Start a dialogue sequence
@@ -27,6 +28,7 @@ const Dialogue = {
      */
     start(dialogues, onComplete = null) {
         return new Promise((resolve) => {
+            this.ensureKeyboardControls();
             this.queue = dialogues;
             this.currentIndex = 0;
             // Wrap the callback to resolve the promise
@@ -70,6 +72,7 @@ const Dialogue = {
         const continueEl = Utils.$('dialogue-continue');
         const choicesEl = Utils.$('dialogue-choices');
         const dialogueBox = Utils.$('dialogue-box');
+        const isLastEntry = this.currentIndex >= this.queue.length - 1;
         
         try {
             // Handle Cipher centered portrait display with defensive checks
@@ -112,10 +115,13 @@ const Dialogue = {
         // Set name
         nameEl.textContent = entry.name || entry.speaker || '???';
         
-        // Hide continue indicator and choices while typing
+        // Dialogue UI is rendered here in the shared bottom-screen box.
         continueEl.style.display = 'none';
         choicesEl.style.display = 'none';
         choicesEl.innerHTML = '';
+        continueEl.textContent = isLastEntry
+            ? 'Press E or Enter to close • ESC to close'
+            : 'Press E or Enter to continue • ESC to close';
         
         // Type the text
         this.isTyping = true;
@@ -200,6 +206,42 @@ const Dialogue = {
         this.currentIndex++;
         this.showCurrent();
     },
+
+    close() {
+        if (!GameState.dialogue.active) return;
+        this.end();
+    },
+
+    ensureKeyboardControls() {
+        if (this.keyboardBound) return;
+
+        window.addEventListener('keydown', (e) => {
+            if (!GameState.dialogue.active || e.repeat) return;
+
+            if (e.code === 'KeyE' || e.code === 'Enter') {
+                e.preventDefault();
+                this.advance();
+            } else if (e.code === 'Escape') {
+                e.preventDefault();
+                this.close();
+            }
+        });
+
+        this.keyboardBound = true;
+    },
+
+    openNpcDialogue(npc) {
+        if (!npc) return Promise.resolve();
+
+        return this.start([
+            {
+                speaker: 'npc',
+                name: npc.name,
+                text: npc.dialogue,
+                portrait: npc.portrait || '💬'
+            }
+        ]);
+    },
     
     /**
      * End the dialogue sequence
@@ -281,3 +323,7 @@ const Dialogue = {
         });
     }
 };
+
+if (typeof window !== 'undefined') {
+    window.Dialogue = Dialogue;
+}

@@ -14,7 +14,6 @@ const Platformer = {
   assets: {},
   npcs: [],
   nearestNpc: null,
-  eKeyLast: false,
   frameTimer: 0,
   npcFrameTimer: 0,
   player: {
@@ -165,19 +164,22 @@ const Platformer = {
     this.player.dir = 1;
     this.frameTimer = 0;
     this.npcFrameTimer = 0;
-    this.eKeyLast = false;
+    if (window.NPCSystem) NPCSystem.resetInputState();
     this.resetNpcs();
   },
 
   resetNpcs() {
     const groundY = this.groundY || 0;
     const width = this.width || 800;
-
-    const template = [
+    const fallbackTemplate = [
       {
+        id: 'elder-varion',
         role: 'elder',
         name: 'Elder Varion',
         relX: 0.22,
+        interactionRange: 96,
+        dialogue: 'Welcome, traveler. Our village has been waiting for you.',
+        portrait: '👴',
         assetKey: 'npc_elder',
         frameCount: 4,
         frameWidth: 160,
@@ -190,9 +192,13 @@ const Platformer = {
         drawHeight: 84
       },
       {
+        id: 'blacksmith',
         role: 'blacksmith',
-        name: 'Blacksmith Brawn',
+        name: 'Blacksmith',
         relX: 0.5,
+        interactionRange: 108,
+        dialogue: 'If your gear is dull, bring it here. I can forge it stronger.',
+        portrait: '⚒️',
         assetKey: 'npc_blacksmith',
         frameCount: 7,
         frameWidth: 96,
@@ -205,9 +211,13 @@ const Platformer = {
         drawHeight: 74
       },
       {
-        role: 'trainer',
-        name: 'Trainer Rowan',
+        id: 'rowan',
+        role: 'rowan',
+        name: 'Rowan',
         relX: 0.78,
+        interactionRange: 96,
+        dialogue: 'The forest hides many secrets. Stay alert on your journey.',
+        portrait: '🧭',
         assetKey: 'npc_trainer',
         frameCount: 4,
         frameWidth: 160,
@@ -221,12 +231,20 @@ const Platformer = {
       }
     ];
 
-    this.npcs = template.map((item, idx) => ({
-      ...item,
-      x: Math.floor(width * item.relX),
-      y: groundY - item.drawHeight,
-      frame: idx % item.frameCount
-    }));
+    const generatedNpcs = window.NPCSystem && typeof NPCSystem.createPlatformerNpcs === 'function'
+      ? NPCSystem.createPlatformerNpcs(width, groundY)
+      : null;
+
+    const npcSource = generatedNpcs && generatedNpcs.length > 0
+      ? generatedNpcs
+      : fallbackTemplate.map((item, index) => ({
+          ...item,
+          x: Math.floor(width * item.relX),
+          y: groundY - item.drawHeight,
+          frame: index % item.frameCount
+        }));
+
+    this.npcs = npcSource;
   },
 
   loop(timestamp) {
@@ -241,10 +259,35 @@ const Platformer = {
   },
 
   update(dt) {
-    // Freeze movement while dialogue is active
-    if (window.GameState && GameState.dialogue && GameState.dialogue.active) {
+    const dialogueOpen = window.NPCSystem
+      ? NPCSystem.isDialogueOpen()
+      : !!(window.GameState && GameState.dialogue && GameState.dialogue.active);
+
+    // Keep idle animation playing even while the dialogue box is open.
+    this.frameTimer += dt * 1000;
+    if (this.frameTimer >= this.constants.animationSpeed) {
+      this.frameTimer = 0;
+      this.player.frame = (this.player.frame + 1) % 4;
+    }
+
+    this.npcFrameTimer += dt * 1000;
+    if (this.npcFrameTimer >= this.constants.npcAnimationSpeed) {
+      this.npcFrameTimer = 0;
+      this.npcs.forEach((npc) => {
+        npc.frame = (npc.frame + 1) % npc.frameCount;
+      });
+    }
+
+    this.nearestNpc = dialogueOpen || !window.NPCSystem
+      ? null
+      : NPCSystem.findNearestNpc(this.player, this.npcs);
+
+    // Player movement is disabled during dialogue.
+    if (dialogueOpen) {
       this.player.vx = 0;
       this.player.vy = 0;
+      this.player.state = 'idle';
+      if (window.NPCSystem) NPCSystem.handleInteractionInput(this.keys, null);
       return;
     }
 
@@ -286,21 +329,6 @@ const Platformer = {
     if (this.player.x < 0) this.player.x = 0;
     if (this.player.x + this.player.w > this.width) this.player.x = this.width - this.player.w;
 
-    // Animation
-    this.frameTimer += dt * 1000;
-    if (this.frameTimer >= this.constants.animationSpeed) {
-      this.frameTimer = 0;
-      this.player.frame = (this.player.frame + 1) % 4; // cycle through frames
-    }
-
-    this.npcFrameTimer += dt * 1000;
-    if (this.npcFrameTimer >= this.constants.npcAnimationSpeed) {
-      this.npcFrameTimer = 0;
-      this.npcs.forEach((npc) => {
-        npc.frame = (npc.frame + 1) % npc.frameCount;
-      });
-    }
-
     // Set animation state
     if (Math.abs(this.player.vx) > 10) {
       this.player.state = 'run';
@@ -310,13 +338,10 @@ const Platformer = {
       this.player.state = 'idle';
     }
 
-    // NPC interaction (press E when near) - only shown when no dialogue active
-    this.nearestNpc = this.getNearestNpc(72);
-    const ePressed = !!this.keys['KeyE'];
-    if (ePressed && !this.eKeyLast && this.nearestNpc) {
-      this.interactWithNpc(this.nearestNpc);
+    // Opening dialogue from the E key is centralized in NPCSystem.
+    if (window.NPCSystem) {
+      NPCSystem.handleInteractionInput(this.keys, this.nearestNpc);
     }
-    this.eKeyLast = ePressed;
   },
 
   draw() {
@@ -383,12 +408,31 @@ const Platformer = {
       this.ctx.fillRect(this.player.x, this.player.y, this.player.w, this.player.h);
     }
 
-    // Interaction prompt
+    // The floating E prompt is drawn here for the nearest NPC only.
     if (this.nearestNpc) {
-      this.ctx.font = '14px sans-serif';
-      this.ctx.fillStyle = 'rgba(255,255,255,0.95)';
-      this.ctx.fillText(`Press E to talk: ${this.nearestNpc.name}`, 14, 46);
+      this.drawInteractionPrompt(this.nearestNpc);
     }
+  },
+
+  drawInteractionPrompt(npc) {
+    const bobOffset = Math.sin(this.lastTimestamp * (window.NPCSystem ? NPCSystem.promptBobSpeed : 0.008))
+      * (window.NPCSystem ? NPCSystem.promptBobAmount : 4);
+    const promptX = npc.x;
+    const promptY = npc.y - 22 + bobOffset;
+
+    this.ctx.save();
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.font = 'bold 16px sans-serif';
+
+    this.ctx.fillStyle = 'rgba(10, 10, 18, 0.88)';
+    this.ctx.fillRect(promptX - 16, promptY - 16, 32, 32);
+    this.ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+    this.ctx.strokeRect(promptX - 16, promptY - 16, 32, 32);
+
+    this.ctx.fillStyle = 'rgba(255,255,255,1)';
+    this.ctx.fillText(window.NPCSystem ? NPCSystem.promptText : 'E', promptX, promptY + 1);
+    this.ctx.restore();
   },
 
   getCurrentFrame() {
@@ -421,15 +465,6 @@ const Platformer = {
       }
     });
     return best;
-  },
-
-  interactWithNpc(npc) {
-    if (!npc || !window.Chapter1Scene) return;
-    const role = npc.role;
-    if (role === 'elder' && typeof Chapter1Scene.talkToElder === 'function') Chapter1Scene.talkToElder();
-    else if (role === 'trainer' && typeof Chapter1Scene.talkToTrainer === 'function') Chapter1Scene.talkToTrainer();
-    else if (role === 'trainer' && typeof Chapter1Scene.talkToWizard === 'function') Chapter1Scene.talkToWizard();
-    else if (role === 'blacksmith' && typeof Chapter1Scene.talkToBlacksmith === 'function') Chapter1Scene.talkToBlacksmith();
   },
 
   resize() {
