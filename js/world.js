@@ -77,14 +77,10 @@ const World = {
             Utils.setActions([]);
         }
 
-        // If we're in the village platformer scene, make the world display use the village background
-        // Reuse worldDisplay from above
+        // Avoid stacking the same map image behind the platformer canvas.
+        // Chapter 1 platformer scenes already draw their own background inside Platformer.
         if (worldDisplay) {
-            if (sceneId === 'ch1_village_square' || sceneId === 'ch1_entrance') {
-                worldDisplay.style.background = 'url("assets/background/village.jpg") center top / cover no-repeat';
-            } else {
-                worldDisplay.style.background = 'var(--bg-darker)';
-            }
+            worldDisplay.style.background = 'var(--bg-darker)';
         }
 
         // Chapter 1 scenes use the platformer canvas (replaces Phaser for the village platformer)

@@ -30,14 +30,10 @@ if (typeof window !== 'undefined' && typeof window.World === 'undefined') {
                 Utils.hide('combat-interface');
                 Utils.hide('dialogue-box');
 
-                // Background handling (village vs other)
+                // Avoid stacking the same village map behind the platformer canvas.
                 const worldDisplay = Utils.$('world-display');
                 if (worldDisplay) {
-                    if (sceneId === 'ch1_village_square' || sceneId === 'ch1_entrance') {
-                        worldDisplay.style.background = 'url("assets/background/village.jpg") center top / cover no-repeat';
-                    } else {
-                        worldDisplay.style.background = 'var(--bg-darker)';
-                    }
+                    worldDisplay.style.background = 'var(--bg-darker)';
                 }
 
                 if (scene.art) {
