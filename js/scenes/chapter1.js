@@ -383,22 +383,22 @@ const Chapter1Scene = {
     },
 
     /**
-     * Talk to the village trainer (wizard)
+     * Talk to the village trainer
      */
-    async talkToWizard() {
+    async talkToTrainer() {
         if (GameState.hasFlag('ch1_training_complete')) {
-            await Dialogue.quick('wizard', 'Wizard Elyon',
+            await Dialogue.quick('trainer', 'Trainer Rowan',
                 `<em>You've already trained with the dummies. The forest awaits your return.</em>`,
-                '🧙‍♂️');
+                '🥋');
             return;
         }
 
         await Dialogue.start([
             {
-                speaker: 'wizard',
-                name: 'Wizard Elyon',
-                text: `Welcome, Guardian. I keep the Training Grounds ready for those who seek to master the Prime Scripts. When you're ready, <span class="highlight">press the Training button</span> or head to the grounds and begin.`,
-                portrait: '🧙‍♂️'
+                speaker: 'trainer',
+                name: 'Trainer Rowan',
+                text: `Welcome, Guardian. I oversee the <span class="highlight">Training Grounds</span> and prepare every new Code Guardian for the road ahead. Variables may look simple, but mastering them is where your strength begins.`,
+                portrait: '🥋'
             },
             {
                 speaker: 'player',
@@ -407,15 +407,19 @@ const Chapter1Scene = {
                 portrait: '🧑‍💻'
             },
             {
-                speaker: 'wizard',
-                name: 'Wizard Elyon',
-                text: `Remember: variables are like containers. Master them, and the Prime Script will start to obey.`,
-                portrait: '🧙‍♂️'
+                speaker: 'trainer',
+                name: 'Trainer Rowan',
+                text: `Remember: variables are like containers. Learn what each type can hold, and the Prime Script will start to obey your commands.`,
+                portrait: '🥋'
             }
         ]);
 
         // Kick off training for convenience
         await this.startTraining();
+    },
+
+    async talkToWizard() {
+        await this.talkToTrainer();
     },
 
     /**

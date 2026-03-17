@@ -16,6 +16,7 @@ const Platformer = {
   nearestNpc: null,
   eKeyLast: false,
   frameTimer: 0,
+  npcFrameTimer: 0,
   player: {
     x: 0,
     y: 0,
@@ -32,7 +33,8 @@ const Platformer = {
     moveSpeed: 280,
     jumpVelocity: -700,
     groundOffset: 210,
-    animationSpeed: 90
+    animationSpeed: 90,
+    npcAnimationSpeed: 180
   },
 
   init(containerId) {
@@ -57,6 +59,7 @@ const Platformer = {
       container.innerHTML = '';
       container.appendChild(this.canvas);
       this.ctx = this.canvas.getContext('2d');
+      this.ctx.imageSmoothingEnabled = false;
 
       // Input
       window.addEventListener('keydown', (e) => (this.keys[e.code] = true));
@@ -93,9 +96,8 @@ const Platformer = {
       jump_1: 'assets/sprites/mc/adventurer-jump-01.png',
       jump_2: 'assets/sprites/mc/adventurer-jump-02.png',
       jump_3: 'assets/sprites/mc/adventurer-jump-03.png',
-      npc_monk: 'assets/sprites/npc/Monk.png',
-      npc_villager: 'assets/sprites/npc/Villager.png',
-      npc_wizard: 'assets/sprites/npc/Wizard.png',
+      npc_elder: 'assets/sprites/npc/VillageElder.png',
+      npc_trainer: 'assets/sprites/npc/VillageTrainer.png',
       npc_blacksmith: 'assets/sprites/npc/Blacksmith.png'
     };
 
@@ -162,28 +164,68 @@ const Platformer = {
     this.player.frame = 0;
     this.player.dir = 1;
     this.frameTimer = 0;
+    this.npcFrameTimer = 0;
     this.eKeyLast = false;
     this.resetNpcs();
   },
 
   resetNpcs() {
     const groundY = this.groundY || 0;
-    const npcHeight = 64;
-    const baseY = groundY - npcHeight;
     const width = this.width || 800;
 
     const template = [
-      { role: 'monk', name: 'Monk Varion', relX: 0.18 },
-      { role: 'villager', name: 'Villager Ada', relX: 0.56 },
-      { role: 'wizard', name: 'Wizard Elyon', relX: 0.78 },
-      { role: 'blacksmith', name: 'Blacksmith Brawn', relX: 0.35 }
+      {
+        role: 'elder',
+        name: 'Elder Varion',
+        relX: 0.22,
+        assetKey: 'npc_elder',
+        frameCount: 4,
+        frameWidth: 160,
+        frameHeight: 144,
+        cropX: 66,
+        cropY: 50,
+        cropWidth: 24,
+        cropHeight: 46,
+        drawWidth: 44,
+        drawHeight: 84
+      },
+      {
+        role: 'blacksmith',
+        name: 'Blacksmith Brawn',
+        relX: 0.5,
+        assetKey: 'npc_blacksmith',
+        frameCount: 7,
+        frameWidth: 96,
+        frameHeight: 96,
+        cropX: 8,
+        cropY: 22,
+        cropWidth: 68,
+        cropHeight: 58,
+        drawWidth: 86,
+        drawHeight: 74
+      },
+      {
+        role: 'trainer',
+        name: 'Trainer Rowan',
+        relX: 0.78,
+        assetKey: 'npc_trainer',
+        frameCount: 4,
+        frameWidth: 160,
+        frameHeight: 144,
+        cropX: 66,
+        cropY: 50,
+        cropWidth: 24,
+        cropHeight: 46,
+        drawWidth: 44,
+        drawHeight: 84
+      }
     ];
 
     this.npcs = template.map((item, idx) => ({
       ...item,
       x: Math.floor(width * item.relX),
-      y: baseY,
-      bobPhase: idx * 1.2
+      y: groundY - item.drawHeight,
+      frame: idx % item.frameCount
     }));
   },
 
@@ -251,6 +293,14 @@ const Platformer = {
       this.player.frame = (this.player.frame + 1) % 4; // cycle through frames
     }
 
+    this.npcFrameTimer += dt * 1000;
+    if (this.npcFrameTimer >= this.constants.npcAnimationSpeed) {
+      this.npcFrameTimer = 0;
+      this.npcs.forEach((npc) => {
+        npc.frame = (npc.frame + 1) % npc.frameCount;
+      });
+    }
+
     // Set animation state
     if (Math.abs(this.player.vx) > 10) {
       this.player.state = 'run';
@@ -261,7 +311,7 @@ const Platformer = {
     }
 
     // NPC interaction (press E when near) - only shown when no dialogue active
-    this.nearestNpc = this.getNearestNpc(54);
+    this.nearestNpc = this.getNearestNpc(72);
     const ePressed = !!this.keys['KeyE'];
     if (ePressed && !this.eKeyLast && this.nearestNpc) {
       this.interactWithNpc(this.nearestNpc);
@@ -289,18 +339,27 @@ const Platformer = {
     this.ctx.fillRect(0, this.groundY, this.width, this.height - this.groundY);
 
     // Draw NPCs
-    const npcSize = 56;
-    const now = performance.now();
+    this.ctx.imageSmoothingEnabled = false;
     this.npcs.forEach((npc) => {
-      const bob = Math.sin((now / 520) + npc.bobPhase) * 4;
-      const img = this.assets[`npc_${npc.role}`];
-      const x = npc.x - npcSize / 2;
-      const y = npc.y + bob;
+      const img = this.assets[npc.assetKey];
+      const x = npc.x - npc.drawWidth / 2;
+      const y = npc.y;
       if (img) {
-        this.ctx.drawImage(img, x, y, npcSize, npcSize);
+        const sx = (npc.frame * npc.frameWidth) + npc.cropX;
+        this.ctx.drawImage(
+          img,
+          sx,
+          npc.cropY,
+          npc.cropWidth,
+          npc.cropHeight,
+          x,
+          y,
+          npc.drawWidth,
+          npc.drawHeight
+        );
       } else {
         this.ctx.fillStyle = 'rgba(120,160,200,0.85)';
-        this.ctx.fillRect(x, y, npcSize, npcSize);
+        this.ctx.fillRect(x, y, npc.drawWidth, npc.drawHeight);
       }
       // Name label
       this.ctx.font = '12px sans-serif';
@@ -323,11 +382,6 @@ const Platformer = {
       this.ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
       this.ctx.fillRect(this.player.x, this.player.y, this.player.w, this.player.h);
     }
-
-    // Debug: show that platformer is running
-    this.ctx.font = '14px sans-serif';
-    this.ctx.fillStyle = 'rgba(255,255,255,0.8)';
-    this.ctx.fillText('Platformer active', 12, 20);
 
     // Interaction prompt
     if (this.nearestNpc) {
@@ -357,7 +411,7 @@ const Platformer = {
     let best = null;
     let bestDist = Infinity;
     this.npcs.forEach((npc) => {
-      const npcCenterY = npc.y + 32; // approximate
+      const npcCenterY = npc.y + npc.drawHeight / 2;
       const dx = px - npc.x;
       const dy = py - npcCenterY;
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -372,9 +426,9 @@ const Platformer = {
   interactWithNpc(npc) {
     if (!npc || !window.Chapter1Scene) return;
     const role = npc.role;
-    if (role === 'monk' && typeof Chapter1Scene.talkToElder === 'function') Chapter1Scene.talkToElder();
-    else if (role === 'villager' && typeof Chapter1Scene.talkToVillager === 'function') Chapter1Scene.talkToVillager();
-    else if (role === 'wizard' && typeof Chapter1Scene.talkToWizard === 'function') Chapter1Scene.talkToWizard();
+    if (role === 'elder' && typeof Chapter1Scene.talkToElder === 'function') Chapter1Scene.talkToElder();
+    else if (role === 'trainer' && typeof Chapter1Scene.talkToTrainer === 'function') Chapter1Scene.talkToTrainer();
+    else if (role === 'trainer' && typeof Chapter1Scene.talkToWizard === 'function') Chapter1Scene.talkToWizard();
     else if (role === 'blacksmith' && typeof Chapter1Scene.talkToBlacksmith === 'function') Chapter1Scene.talkToBlacksmith();
   },
 
@@ -389,6 +443,7 @@ const Platformer = {
     this.canvas.width = this.width * window.devicePixelRatio;
     this.canvas.height = this.height * window.devicePixelRatio;
     this.ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
+    this.ctx.imageSmoothingEnabled = false;
 
     this.groundY = this.height - this.constants.groundOffset;
 
