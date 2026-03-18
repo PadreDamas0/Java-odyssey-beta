@@ -4,6 +4,51 @@
    ============================================ */
 
 const Game = {
+    activeShopId: null,
+    SHOP_ITEMS: {
+        blacksmith: [
+            {
+                id: 'iron_dagger',
+                name: 'Iron Dagger',
+                icon: '🗡️',
+                price: 50,
+                description: 'A balanced blade for close combat.',
+                effectText: '+5 damage permanently.'
+            },
+            {
+                id: 'scholar_tome',
+                name: 'Scholar\'s Tome',
+                icon: '📘',
+                price: 80,
+                description: 'A study tome that sharpens every lesson.',
+                effectText: '+3 XP from every future XP reward.'
+            },
+            {
+                id: 'reinforced_bracers',
+                name: 'Reinforced Bracers',
+                icon: '🛡️',
+                price: 65,
+                description: 'Forged bracers that help you weather harder fights.',
+                effectText: '+2 defense permanently.'
+            },
+            {
+                id: 'vitality_charm',
+                name: 'Vitality Charm',
+                icon: '❤️',
+                price: 75,
+                description: 'A rune charm that bolsters your stamina.',
+                effectText: '+20 max HP permanently.'
+            },
+            {
+                id: 'lucky_coin',
+                name: 'Lucky Coin',
+                icon: '🪙',
+                price: 90,
+                description: 'A polished coin said to draw extra treasure.',
+                effectText: '+10 gold after every future victory.'
+            }
+        ]
+    },
     
     /**
      * Initialize the game
@@ -197,6 +242,9 @@ const Game = {
      */
     closeModal(modalId) {
         Utils.$(modalId).style.display = 'none';
+        if (modalId === 'shop-modal') {
+            this.activeShopId = null;
+        }
     },
     
     /**
@@ -291,7 +339,13 @@ const Game = {
                         <div class="quest-title">📊 Performance</div>
                         <div class="quest-desc">
                             <p>Level: ${GameState.player.level}</p>
+                            <p>Gold: ${GameState.player.gold || 0}</p>
                             <p>Total XP Earned: ${GameState.player.xp + (GameState.player.level - 1) * 100}</p>
+                            <p>XP Bonus: +${GameState.player.xpBonus || 0}</p>
+                            <p>Gold Bonus Per Victory: +${GameState.player.coinBonus || 0}</p>
+                            <p>Attack: ${GameState.player.attack}</p>
+                            <p>Defense: ${GameState.player.defense}</p>
+                            <p>Max HP: ${GameState.player.maxHp}</p>
                             <p>Challenges Completed: ${perf.correctAnswers}</p>
                             <p>Total Attempts: ${perf.totalAttempts}</p>
                             <p>Hints Used: ${perf.hintsUsed}</p>
@@ -336,6 +390,98 @@ const Game = {
             slot.innerHTML = '<span class="item-icon" style="opacity:0.2">—</span>';
             grid.appendChild(slot);
         }
+    },
+
+    showBlacksmithShop() {
+        this.showShop('blacksmith');
+    },
+
+    showShop(shopId) {
+        this.activeShopId = shopId;
+        const modal = Utils.$('shop-modal');
+        if (!modal) return;
+        modal.style.display = 'flex';
+        this.renderShop();
+    },
+
+    renderShop() {
+        const shopId = this.activeShopId;
+        const items = this.SHOP_ITEMS[shopId] || [];
+        const list = Utils.$('shop-items');
+        const title = Utils.$('shop-title');
+        const goldEl = Utils.$('shop-gold');
+        if (!list || !title || !goldEl) return;
+
+        title.textContent = shopId === 'blacksmith' ? '⚒️ Blacksmith Brawn\'s Shop' : 'Shop';
+        goldEl.textContent = `${GameState.player.gold || 0} Gold`;
+        list.innerHTML = '';
+
+        items.forEach((item) => {
+            const owned = GameState.hasItem(item.id);
+            const affordable = (GameState.player.gold || 0) >= item.price;
+            const row = document.createElement('div');
+            row.className = `shop-item ${affordable && !owned ? 'affordable' : ''}`;
+
+            const actionLabel = owned ? 'Owned' : (affordable ? 'Buy' : 'Need Gold');
+            row.innerHTML = `
+                <div class="shop-item-icon">${item.icon}</div>
+                <div>
+                    <div class="shop-item-name">${item.name}</div>
+                    <div class="shop-item-desc">${item.description}</div>
+                    <div class="shop-item-desc">${item.effectText}</div>
+                    <div class="shop-item-price">Price: ${item.price} Gold</div>
+                </div>
+                <button class="menu-btn shop-buy-btn" ${(owned || !affordable) ? 'disabled' : ''} onclick="Game.purchaseShopItem('${item.id}')">${actionLabel}</button>
+            `;
+            list.appendChild(row);
+        });
+    },
+
+    purchaseShopItem(itemId) {
+        const shopId = this.activeShopId;
+        const item = (this.SHOP_ITEMS[shopId] || []).find(entry => entry.id === itemId);
+        if (!item) return;
+        if (GameState.hasItem(item.id)) {
+            Utils.notify(`${item.name} is already in your inventory.`, 'default');
+            this.renderShop();
+            return;
+        }
+        if (!GameState.spendGold(item.price)) {
+            Utils.notify(`You need ${item.price} Gold for ${item.name}.`, 'default');
+            this.renderShop();
+            return;
+        }
+
+        switch (item.id) {
+            case 'iron_dagger':
+                GameState.player.attack += 5;
+                break;
+            case 'scholar_tome':
+                GameState.player.xpBonus = (GameState.player.xpBonus || 0) + 3;
+                break;
+            case 'reinforced_bracers':
+                GameState.player.defense += 2;
+                break;
+            case 'vitality_charm':
+                GameState.player.maxHp += 20;
+                GameState.player.hp = Math.min(GameState.player.maxHp, GameState.player.hp + 20);
+                break;
+            case 'lucky_coin':
+                GameState.player.coinBonus = (GameState.player.coinBonus || 0) + 10;
+                break;
+            default:
+                break;
+        }
+
+        GameState.addItem({
+            id: item.id,
+            name: item.name,
+            icon: item.icon,
+            description: `${item.description} ${item.effectText}`
+        });
+        GameState.updateHUD();
+        Utils.notify(`${item.name} purchased. ${item.effectText}`, 'quest-update');
+        this.renderShop();
     },
     
     /**

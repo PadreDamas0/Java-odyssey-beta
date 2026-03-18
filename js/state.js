@@ -124,8 +124,9 @@ const GameState = {
      * Add XP and check for level up
      */
     addXP(amount) {
-        this.player.xp += amount;
-        Utils.notify(`+${amount} XP`, 'xp-gain');
+        const totalAmount = amount + (this.player.xpBonus || 0);
+        this.player.xp += totalAmount;
+        Utils.notify(`+${totalAmount} XP`, 'xp-gain');
         
         while (this.player.xp >= this.player.xpToNext) {
             this.player.xp -= this.player.xpToNext;
@@ -141,6 +142,27 @@ const GameState = {
         
         this.updateHUD();
     },
+
+    /**
+     * Add gold and update the HUD
+     */
+    addGold(amount, applyBonus = false) {
+        const totalAmount = amount + (applyBonus ? (this.player.coinBonus || 0) : 0);
+        this.player.gold = (this.player.gold || 0) + totalAmount;
+        Utils.notify(`+${totalAmount} Gold`, 'item-gain');
+        this.updateHUD();
+        return totalAmount;
+    },
+
+    /**
+     * Spend gold if possible
+     */
+    spendGold(amount) {
+        if ((this.player.gold || 0) < amount) return false;
+        this.player.gold -= amount;
+        this.updateHUD();
+        return true;
+    },
     
     /**
      * Add item to inventory
@@ -148,6 +170,10 @@ const GameState = {
     addItem(item) {
         this.inventory.push(item);
         Utils.notify(`📦 Obtained: ${item.name}`, 'item-gain');
+    },
+
+    hasItem(itemId) {
+        return this.inventory.some(item => item.id === itemId);
     },
     
     /**
@@ -278,11 +304,13 @@ const GameState = {
         const xpBar = Utils.$('hud-xp-bar');
         const xpText = Utils.$('hud-xp-text');
         const levelEl = Utils.$('hud-level');
+        const goldEl = Utils.$('hud-gold');
         
         if (nameEl) nameEl.textContent = this.player.name;
         if (xpBar) xpBar.style.width = (this.player.xp / this.player.xpToNext * 100) + '%';
         if (xpText) xpText.textContent = `XP: ${this.player.xp} / ${this.player.xpToNext}`;
         if (levelEl) levelEl.textContent = `Lv. ${this.player.level}`;
+        if (goldEl) goldEl.textContent = `${this.player.gold || 0} Gold`;
     },
     
     /**
@@ -307,7 +335,7 @@ const GameState = {
     load() {
         const data = Utils.loadFromStorage(CONFIG.SAVE_KEY);
         if (data) {
-            this.player = data.player || this.player;
+            this.player = { ...CONFIG.PLAYER_DEFAULTS, ...this.player, ...(data.player || {}) };
             this.progress = data.progress || this.progress;
             this.performance = data.performance || this.performance;
             this.inventory = data.inventory || this.inventory;

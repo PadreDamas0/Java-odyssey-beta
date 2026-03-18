@@ -20,6 +20,7 @@ const TutorialScene = {
             name: 'Syntax Bug',
             hp: 75,
             maxHp: 75,
+            coinReward: 40,
             art: 'enemyBug',
             description: 'A corrupted creature born from broken code. It feeds on syntax errors!',
             reward: {

@@ -355,6 +355,14 @@ const Combat = {
         
         return Math.max(damage, 5); // Minimum 5 damage
     },
+
+    calculateCoinReward() {
+        if (!this.enemy) return 25;
+        if (typeof this.enemy.coinReward === 'number') return this.enemy.coinReward;
+
+        const baseFromHp = Math.round(((this.enemy.maxHp || this.enemy.hp || 50) * 0.5) / 5) * 5;
+        return Math.max(25, baseFromHp);
+    },
     
     /**
      * Animate dealing damage to enemy
@@ -419,6 +427,7 @@ const Combat = {
         const combatUI = Utils.$('combat-interface');
         
         const victoryXpReward = this.enemy.victoryXpReward ?? CONFIG.XP_REWARDS.questComplete;
+        const victoryCoinReward = GameState.addGold(this.calculateCoinReward(), true);
 
         // Show victory overlay
         const victoryHTML = `
@@ -430,6 +439,7 @@ const Combat = {
                     </p>
                     <div class="victory-rewards">
                         <div class="reward-item">✨ XP Earned: <span class="reward-value">+${victoryXpReward}</span></div>
+                        <div class="reward-item">🪙 Gold Earned: <span class="reward-value">+${victoryCoinReward}</span></div>
                         ${this.enemy.reward ? `<div class="reward-item">📦 Obtained: <span class="reward-value">${this.enemy.reward.name}</span></div>` : ''}
                     </div>
                     <button class="menu-btn" onclick="Combat.endCombat()">Continue</button>

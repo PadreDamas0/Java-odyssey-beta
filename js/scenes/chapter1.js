@@ -465,6 +465,32 @@ const Chapter1Scene = {
      * Talk to the blacksmith
      */
     async talkToBlacksmith() {
+        const choice = await Dialogue.askChoice(
+            'blacksmith',
+            'Blacksmith Brawn',
+            `I've got steel, charms, and study gear for a growing Code Guardian. Want to browse my wares?`,
+            [
+                { text: 'Show me the shop.', value: 'shop' },
+                { text: 'Maybe later.', value: 'later' }
+            ],
+            '⚒️'
+        );
+
+        if (choice && choice.value === 'shop') {
+            if (typeof Game !== 'undefined' && typeof Game.showBlacksmithShop === 'function') {
+                Game.showBlacksmithShop();
+            }
+            return;
+        }
+
+        await Dialogue.quick(
+            'blacksmith',
+            'Blacksmith Brawn',
+            `No problem. Come back when you want to turn that gold into better gear.`,
+            '⚒️'
+        );
+        return;
+
         await Dialogue.start([
             {
                 speaker: 'blacksmith',
@@ -541,6 +567,7 @@ const Chapter1Scene = {
             name: 'Training Dummy',
             hp: 45,
             maxHp: 45,
+            coinReward: 25,
             art: `
     ╔═══════════════════════════════════╗
     ║   ┌─────────┐   ║
@@ -898,6 +925,7 @@ ______________________</pre>
             name: 'Data Glitch',
             hp: 150,
             maxHp: 150,
+            coinReward: 90,
             art: 'enemyGlitch',
             description: 'A powerful corrupted entity that distorts data types and variable values.',
             reward: {

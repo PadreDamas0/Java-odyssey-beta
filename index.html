@@ -120,6 +120,9 @@
                 <div class="player-level">
                     <span class="level-badge" id="hud-level">Lv. 1</span>
                 </div>
+                <div class="player-gold">
+                    <span class="gold-badge" id="hud-gold">0 Gold</span>
+                </div>
             </div>
             <div class="hud-center">
                 <span class="location-name" id="hud-location">Modern World</span>
@@ -252,6 +255,21 @@
                     <!-- Dynamic inventory items -->
                 </div>
                 <button class="menu-btn" onclick="Game.closeModal('inventory-modal')">Close</button>
+            </div>
+        </div>
+
+        <!-- Shop Modal -->
+        <div id="shop-modal" class="modal" style="display:none;">
+            <div class="modal-content shop-content">
+                <h2 class="modal-title" id="shop-title">⚒️ Blacksmith Shop</h2>
+                <div class="shop-gold-row">
+                    <span class="shop-gold-label">Available Gold</span>
+                    <span class="gold-badge" id="shop-gold">0 Gold</span>
+                </div>
+                <div id="shop-items" class="shop-list">
+                    <!-- Dynamic shop items -->
+                </div>
+                <button class="menu-btn" onclick="Game.closeModal('shop-modal')">Close</button>
             </div>
         </div>
 

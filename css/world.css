@@ -73,6 +73,17 @@
     border-radius: 4px;
 }
 
+.gold-badge {
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    color: var(--text-gold);
+    background: rgba(201, 168, 76, 0.15);
+    border: 1px solid var(--border-gold-dim);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
 .hud-center {
     text-align: center;
 }

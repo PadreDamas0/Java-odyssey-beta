@@ -21,10 +21,13 @@ const CONFIG = {
         level: 1,
         xp: 0,
         xpToNext: 100,
+        gold: 0,
         hp: 100,
         maxHp: 100,
         attack: 10,
-        defense: 5
+        defense: 5,
+        xpBonus: 0,
+        coinBonus: 0
     },
     
     // XP Rewards
