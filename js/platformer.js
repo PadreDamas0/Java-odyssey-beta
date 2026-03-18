@@ -16,6 +16,15 @@ const Platformer = {
   nearestNpc: null,
   frameTimer: 0,
   npcFrameTimer: 0,
+  assetsLoaded: false,
+  assetsLoadingPromise: null,
+  currentSceneId: null,
+  currentMap: null,
+  exitPrompt: {
+    active: false,
+    lock: false,
+    zone: null
+  },
   player: {
     x: 0,
     y: 0,
@@ -75,15 +84,89 @@ const Platformer = {
       }
     }
 
-    this.loadAssets(() => {
-      this.resize();
-      this.resetPlayer();
-    });
+    this.resize();
   },
 
-  loadAssets(callback) {
+  getSceneConfig(sceneId) {
+    const neutralScene = {
+      id: sceneId || 'ch1_generic',
+      backgroundKey: 'bg_village',
+      groundOffset: this.constants.groundOffset,
+      spawnX: 140,
+      npcScene: false
+    };
+
+    const sceneConfigs = {
+      ch1_village_square: {
+        id: 'ch1_village_square',
+        backgroundKey: 'bg_village',
+        groundOffset: this.constants.groundOffset,
+        spawnX: 140,
+        npcScene: true,
+        exitRight: {
+          zone: 'right',
+          threshold: 16,
+          prompt: 'Leave the village and head into the Corrupted Forest?',
+          onConfirm: async () => {
+            if (typeof Chapter1Scene !== 'undefined' && typeof Chapter1Scene.tryForest === 'function') {
+              await Chapter1Scene.tryForest();
+              return;
+            }
+            if (typeof World !== 'undefined' && typeof World.goTo === 'function') {
+              await World.goTo('ch1_corrupted_forest_1', 'Leaving the village...');
+            }
+          }
+        }
+      },
+      ch1_training: {
+        id: 'ch1_training',
+        backgroundKey: 'bg_village',
+        groundOffset: this.constants.groundOffset,
+        spawnX: 140,
+        npcScene: false
+      },
+      ch1_forest: {
+        id: 'ch1_forest',
+        backgroundKey: 'bg_corrupted_forest_1',
+        groundOffset: 168,
+        spawnX: 120,
+        npcScene: false
+      },
+      ch1_corrupted_forest_1: {
+        id: 'ch1_corrupted_forest_1',
+        backgroundKey: 'bg_corrupted_forest_1',
+        groundOffset: 168,
+        spawnX: 120,
+        npcScene: false,
+        exitLeft: {
+          zone: 'left',
+          threshold: 16,
+          prompt: 'Return to the Village of Variables?',
+          onConfirm: async () => {
+            if (typeof World !== 'undefined' && typeof World.goTo === 'function') {
+              await World.goTo('ch1_village_square', 'Returning to the village...');
+            }
+          }
+        }
+      }
+    };
+
+    return sceneConfigs[sceneId] || neutralScene;
+  },
+
+  loadAssets() {
+    if (this.assetsLoaded) {
+      return Promise.resolve();
+    }
+
+    if (this.assetsLoadingPromise) {
+      return this.assetsLoadingPromise;
+    }
+
     const images = {
-      bg: 'assets/background/village.jpg',
+      bg_village: 'assets/background/village.jpg',
+      bg_corrupted_forest_1: 'assets/background/corruptedforest.png',
+      ui_right_arrow: 'assets/UI/Right-Arrow.png',
       idle_0: 'assets/sprites/mc/adventurer-idle-00.png',
       idle_1: 'assets/sprites/mc/adventurer-idle-01.png',
       idle_2: 'assets/sprites/mc/adventurer-idle-02.png',
@@ -106,30 +189,59 @@ const Platformer = {
     let loaded = 0;
     const total = keys.length;
 
-    keys.forEach((key) => {
-      const img = new Image();
-      img.src = images[key];
-      img.onload = () => {
-        this.assets[key] = img;
-        loaded += 1;
-        if (loaded === total && typeof callback === 'function') callback();
-      };
-      img.onerror = () => {
-        console.warn('Platformer asset failed to load:', images[key]);
-        loaded += 1;
-        if (loaded === total && typeof callback === 'function') callback();
-      };
+    this.assetsLoadingPromise = new Promise((resolve) => {
+      keys.forEach((key) => {
+        const img = new Image();
+        img.src = images[key];
+        img.onload = () => {
+          this.assets[key] = img;
+          loaded += 1;
+          if (loaded === total) {
+            this.assetsLoaded = true;
+            resolve();
+          }
+        };
+        img.onerror = () => {
+          console.warn('Platformer asset failed to load:', images[key]);
+          loaded += 1;
+          if (loaded === total) {
+            this.assetsLoaded = true;
+            resolve();
+          }
+        };
+      });
     });
+
+    return this.assetsLoadingPromise;
+  },
+
+  syncSceneState(forceResetPlayer = false) {
+    const nextSceneId = (typeof World !== 'undefined' && World.currentScene)
+      ? World.currentScene
+      : 'ch1_village_square';
+    const sceneChanged = this.currentSceneId !== nextSceneId;
+    this.currentSceneId = nextSceneId;
+    this.currentMap = this.getSceneConfig(nextSceneId);
+    this.groundY = this.height - this.currentMap.groundOffset;
+
+    if (sceneChanged || forceResetPlayer) {
+      this.resetPlayer();
+    } else {
+      this.resetNpcs();
+    }
+
+    this.resetExitPrompt();
+    this.clampPlayerToGround();
   },
 
   async start(containerId) {
-    if (this.running) return;
-    this.running = true;
     this.init(containerId);
-    // Wait for assets to load
-    await new Promise(resolve => {
-      this.loadAssets(resolve);
-    });
+    await this.loadAssets();
+    this.syncSceneState(!this.running);
+
+    if (this.running) return;
+
+    this.running = true;
     this.lastTimestamp = performance.now();
     this.loop(this.lastTimestamp);
   },
@@ -157,7 +269,8 @@ const Platformer = {
   },
 
   resetPlayer() {
-    this.player.x = 140;
+    const spawnX = this.currentMap ? this.currentMap.spawnX : 140;
+    this.player.x = spawnX;
     this.player.y = this.groundY - this.player.h;
     this.player.vx = 0;
     this.player.vy = 0;
@@ -171,6 +284,11 @@ const Platformer = {
   },
 
   resetNpcs() {
+    if (!this.currentMap || !this.currentMap.npcScene) {
+      this.npcs = [];
+      return;
+    }
+
     const groundY = this.groundY || 0;
     const width = this.width || 800;
     const fallbackTemplate = [
@@ -264,6 +382,7 @@ const Platformer = {
     const dialogueOpen = window.NPCSystem
       ? NPCSystem.isDialogueOpen()
       : !!(window.GameState && GameState.dialogue && GameState.dialogue.active);
+    const combatOpen = !!(window.GameState && GameState.combat && GameState.combat.active);
 
     // Keep idle animation playing even while the dialogue box is open.
     this.frameTimer += dt * 1000;
@@ -285,7 +404,7 @@ const Platformer = {
       : NPCSystem.findNearestNpc(this.player, this.npcs);
 
     // Player movement is disabled during dialogue.
-    if (dialogueOpen) {
+    if (dialogueOpen || combatOpen) {
       this.player.vx = 0;
       this.player.vy = 0;
       this.player.state = 'idle';
@@ -344,6 +463,8 @@ const Platformer = {
     if (window.NPCSystem) {
       NPCSystem.handleInteractionInput(this.keys, this.nearestNpc);
     }
+
+    this.updateSceneExit(dialogueOpen, combatOpen);
   },
 
   draw() {
@@ -353,7 +474,7 @@ const Platformer = {
     this.ctx.clearRect(0, 0, this.width, this.height);
 
     // Background
-    const bg = this.assets.bg;
+    const bg = this.currentMap ? this.assets[this.currentMap.backgroundKey] : this.assets.bg_village;
     if (bg) {
       this.ctx.drawImage(bg, 0, 0, this.width, this.height);
     } else {
@@ -394,6 +515,10 @@ const Platformer = {
       this.ctx.textAlign = 'center';
       this.ctx.fillText(npc.name, npc.x, y - 8);
     });
+
+    if (this.shouldDrawVillageExitArrow()) {
+      this.drawVillageExitArrow();
+    }
 
     // Draw player (fallback to colored rectangle if sprite missing)
     const sprite = this.getCurrentFrame();
@@ -437,6 +562,22 @@ const Platformer = {
 
     this.ctx.fillStyle = 'rgba(255,255,255,1)';
     this.ctx.fillText(window.NPCSystem ? NPCSystem.promptText : 'E', promptX, promptY + 1);
+    this.ctx.restore();
+  },
+
+  drawVillageExitArrow() {
+    const arrow = this.assets.ui_right_arrow;
+    if (!arrow) return;
+
+    const bobOffset = Math.sin(this.lastTimestamp * 0.006) * 5;
+    const drawWidth = 34;
+    const drawHeight = 34;
+    const x = this.width - drawWidth - 18;
+    const y = this.groundY - 110 + bobOffset;
+
+    this.ctx.save();
+    this.ctx.globalAlpha = 0.95;
+    this.ctx.drawImage(arrow, x, y, drawWidth, drawHeight);
     this.ctx.restore();
   },
 
@@ -485,21 +626,119 @@ const Platformer = {
     this.ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
     this.ctx.imageSmoothingEnabled = false;
 
-    this.groundY = this.height - this.constants.groundOffset;
+    const groundOffset = this.currentMap ? this.currentMap.groundOffset : this.constants.groundOffset;
+    this.groundY = this.height - groundOffset;
 
     // Reposition player on the ground if it was already initialized
     if (this.player) {
-      // If the player is above the sky (y < 0), reset them to ground.
-      if (this.player.y < 0) {
-        this.player.y = this.groundY - this.player.h;
-      }
-      // Ensure the player never falls below ground
-      if (this.player.y + this.player.h > this.groundY) {
-        this.player.y = this.groundY - this.player.h;
-      }
+      this.clampPlayerToGround();
     }
 
     // Update NPC positions to stay on the ground
     this.resetNpcs();
+  },
+
+  clampPlayerToGround() {
+    if (!this.player) return;
+
+    if (this.player.y < 0) {
+      this.player.y = this.groundY - this.player.h;
+    }
+
+    if (this.player.y + this.player.h > this.groundY) {
+      this.player.y = this.groundY - this.player.h;
+    }
+  },
+
+  resetExitPrompt() {
+    this.exitPrompt.active = false;
+    this.exitPrompt.lock = false;
+    this.exitPrompt.zone = null;
+  },
+
+  isForestExitUnlocked() {
+    return !!(
+      typeof GameState !== 'undefined' &&
+      typeof GameState.hasFlag === 'function' &&
+      GameState.hasFlag('ch1_forest_path_unlocked')
+    );
+  },
+
+  shouldDrawVillageExitArrow() {
+    return this.currentSceneId === 'ch1_village_square' && this.isForestExitUnlocked();
+  },
+
+  canUseSceneExit(exit) {
+    if (!exit || !this.currentMap) return false;
+
+    if (this.currentSceneId === 'ch1_village_square' && exit.zone === 'right') {
+      return this.isForestExitUnlocked();
+    }
+
+    return true;
+  },
+
+  getTriggeredExit() {
+    if (!this.currentMap) return null;
+
+    if (this.currentMap.exitRight && this.canUseSceneExit(this.currentMap.exitRight)) {
+      const rightEdge = this.player.x + this.player.w;
+      if (rightEdge >= this.width - this.currentMap.exitRight.threshold) {
+        return this.currentMap.exitRight;
+      }
+    }
+
+    if (this.currentMap.exitLeft && this.canUseSceneExit(this.currentMap.exitLeft)) {
+      if (this.player.x <= this.currentMap.exitLeft.threshold) {
+        return this.currentMap.exitLeft;
+      }
+    }
+
+    return null;
+  },
+
+  updateSceneExit(dialogueOpen, combatOpen) {
+    const exit = this.getTriggeredExit();
+
+    if (!exit) {
+      this.exitPrompt.lock = false;
+      this.exitPrompt.zone = null;
+      return;
+    }
+
+    if (dialogueOpen || combatOpen || this.exitPrompt.active) return;
+
+    if (this.exitPrompt.lock && this.exitPrompt.zone === exit.zone) {
+      return;
+    }
+
+    this.exitPrompt.lock = true;
+    this.exitPrompt.zone = exit.zone;
+    this.promptSceneExit(exit);
+  },
+
+  async promptSceneExit(exit) {
+    this.exitPrompt.active = true;
+
+    const choice = await Dialogue.askChoice(
+      'narrator',
+      'Narrator',
+      exit.prompt,
+      [
+        { text: 'Yes', value: 'yes' },
+        { text: 'No', value: 'no' }
+      ],
+      '📜'
+    );
+
+    this.exitPrompt.active = false;
+
+    if (!choice || choice.value !== 'yes') {
+      return;
+    }
+
+    if (typeof exit.onConfirm === 'function') {
+      await exit.onConfirm();
+    }
   }
 };

@@ -138,6 +138,16 @@ const Chapter1Scene = {
             hidePhaser: false  // Show Phaser with player
         });
         
+        World.registerScene('ch1_corrupted_forest_1', {
+            locationName: 'Corrupted Forest 1',
+            art: 'forestPath',
+            artClass: 'dark-forest',
+            description: '',
+            actions: [],
+            fullScreenMap: false,
+            hidePhaser: false
+        });
+
         // Training Grounds
         World.registerScene('ch1_training', {
             locationName: 'Village of Variables — Training Grounds',
@@ -523,10 +533,42 @@ const Chapter1Scene = {
                 '📖');
             return;
         }
-        
-        await World.goTo('ch1_forest', 'Venturing into the forest...');
+
+        if (!GameState.hasFlag('ch1_forest_path_unlocked')) {
+            await Dialogue.quick('elder', 'Elder Varion',
+                `Return to me first, ${GameState.player.name}. I have final guidance before you enter the forest.`,
+                'ðŸ‘´');
+            return;
+        }
+
+        if (!GameState.hasFlag('ch1_forest_path_unlocked')) {
+            await Dialogue.quick('elder', 'Elder Varion',
+                `Return to me first, ${GameState.player.name}. I have final guidance before you enter the forest.`,
+                '👴');
+            return;
+        }
+
+        await World.goTo('ch1_corrupted_forest_1', 'Leaving the village...');
     },
     
+    async tryForest() {
+        if (!GameState.hasFlag('ch1_training_complete')) {
+            await Dialogue.quick('narrator', 'Narrator',
+                `<em>The path to the forest is blocked by a barrier of corrupted code. You'll need to complete your training at the Training Grounds before you can pass through.</em>`,
+                '📜');
+            return;
+        }
+
+        if (!GameState.hasFlag('ch1_forest_path_unlocked')) {
+            await Dialogue.quick('elder', 'Elder Varion',
+                `Return to me first, ${GameState.player.name}. I have final guidance before you enter the forest.`,
+                '👴');
+            return;
+        }
+
+        await World.goTo('ch1_corrupted_forest_1', 'Leaving the village...');
+    },
+
     /**
      * Training Grounds - coding practice
      */
@@ -547,6 +589,16 @@ const Chapter1Scene = {
         
         await Utils.showTransition('Rowan leads you to the Training Grounds...', 1200);
         await World.loadScene('ch1_training');
+        if (false) {
+
+        if (GameState.hasFlag('ch1_forest_path_unlocked')) {
+            await Dialogue.quick('elder', 'Elder Varion',
+                `The Corrupted Forest lies to the far right of the village, ${GameState.player.name}. Follow the marked path and recover the fragment.`,
+                'ðŸ‘´');
+            return;
+        }
+
+        }
 
         await Dialogue.start([
             {
@@ -859,6 +911,13 @@ ______________________</pre>
             await this.elderAfterForest();
             return;
         }
+
+        if (GameState.hasFlag('ch1_forest_path_unlocked')) {
+            await Dialogue.quick('elder', 'Elder Varion',
+                `The Corrupted Forest lies to the far right of the village, ${GameState.player.name}. Follow the marked path and recover the fragment.`,
+                '👴');
+            return;
+        }
         
         await Dialogue.start([
             {
@@ -887,6 +946,8 @@ ______________________</pre>
             }
         ]);
         
+        GameState.setFlag('ch1_forest_path_unlocked');
+
         // Update quest
         GameState.addQuest({
             id: 'ch1_forest_quest',

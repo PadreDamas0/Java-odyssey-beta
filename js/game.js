@@ -122,6 +122,10 @@ const Game = {
                 case 'chapter1':
                     // Load the appropriate scene
                     Chapter1Scene.registerScenes();
+                    if (GameState.progress.currentScene === 'ch1_corrupted_forest_1') {
+                        await World.loadScene('ch1_corrupted_forest_1');
+                        break;
+                    }
                     if (!GameState.hasFlag('ch1_elder_intro_complete')) {
                         GameState.addQuest({
                             id: 'ch1_meet_elder',
