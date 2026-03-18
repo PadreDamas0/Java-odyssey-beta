@@ -77,6 +77,19 @@ const Game = {
                 case 'chapter1':
                     // Load the appropriate scene
                     Chapter1Scene.registerScenes();
+                    if (!GameState.hasFlag('ch1_elder_intro_complete')) {
+                        GameState.addQuest({
+                            id: 'ch1_meet_elder',
+                            title: 'Talk to the Village Elder',
+                            description: 'Find Elder Varion in the village square and hear what is troubling the Village of Variables.'
+                        });
+                    } else if (!GameState.hasFlag('ch1_training_complete')) {
+                        GameState.addQuest({
+                            id: 'ch1_training',
+                            title: 'Train with Rowan',
+                            description: 'Complete Rowan\'s training dummy lesson before returning to Elder Varion.'
+                        });
+                    }
                     if (GameState.hasFlag('ch1_forest_complete')) {
                         await Chapter1Scene.chapterConclusion();
                     } else if (GameState.hasFlag('ch1_training_complete')) {

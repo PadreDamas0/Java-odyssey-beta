@@ -50,7 +50,7 @@ const Combat = {
         this.currentChallengeIndex = 0;
         this.attempts = 0;
         this.hintsShown = 0;
-        this.maxHints = CONFIG.COMBAT.maxHints;
+        this.maxHints = enemyData.maxHints ?? CONFIG.COMBAT.maxHints;
         this.startTime = Date.now();
         this.onVictory = onVictory;
         this.onDefeat = onDefeat;
@@ -153,6 +153,10 @@ const Combat = {
         this.startTime = Date.now();
         
         Utils.updateLineNumbers(codeInput);
+
+        if (challenge.autoShowHint || this.enemy.autoShowHint) {
+            setTimeout(() => this.showHint(), 350);
+        }
     },
     
     /**
@@ -192,7 +196,7 @@ const Combat = {
         const hintArea = Utils.$('hint-area');
         const hintText = Utils.$('hint-text');
         
-        if (!challenge.hints || this.hintsShown >= challenge.hints.length) {
+        if (!challenge.hints || this.hintsShown >= challenge.hints.length || this.hintsShown >= this.maxHints) {
             hintText.textContent = 'No more hints available! Try your best!';
             hintArea.style.display = 'flex';
             return;
@@ -257,7 +261,9 @@ const Combat = {
         }
         
         // Award XP
-        const xpReward = this.attempts === 1 ? CONFIG.XP_REWARDS.correctFirstTry : CONFIG.XP_REWARDS.correctAnswer;
+        const xpReward = this.attempts === 1
+            ? (this.enemy.firstTryXpReward ?? CONFIG.XP_REWARDS.correctFirstTry)
+            : (this.enemy.correctXpReward ?? CONFIG.XP_REWARDS.correctAnswer);
         GameState.addXP(xpReward);
         
         // Animate damage
@@ -412,6 +418,8 @@ const Combat = {
         // Hide combat interface
         const combatUI = Utils.$('combat-interface');
         
+        const victoryXpReward = this.enemy.victoryXpReward ?? CONFIG.XP_REWARDS.questComplete;
+
         // Show victory overlay
         const victoryHTML = `
             <div class="victory-overlay">
@@ -421,7 +429,7 @@ const Combat = {
                         You defeated the <strong>${this.enemy.name}</strong>!
                     </p>
                     <div class="victory-rewards">
-                        <div class="reward-item">✨ XP Earned: <span class="reward-value">+${CONFIG.XP_REWARDS.questComplete}</span></div>
+                        <div class="reward-item">✨ XP Earned: <span class="reward-value">+${victoryXpReward}</span></div>
                         ${this.enemy.reward ? `<div class="reward-item">📦 Obtained: <span class="reward-value">${this.enemy.reward.name}</span></div>` : ''}
                     </div>
                     <button class="menu-btn" onclick="Combat.endCombat()">Continue</button>
@@ -432,7 +440,7 @@ const Combat = {
         combatUI.insertAdjacentHTML('beforeend', victoryHTML);
         
         // Award quest completion XP
-        GameState.addXP(CONFIG.XP_REWARDS.questComplete);
+        GameState.addXP(victoryXpReward);
         
         // Add reward item if any
         if (this.enemy.reward) {

@@ -196,7 +196,7 @@ const Platformer = {
       {
         id: 'blacksmith',
         role: 'blacksmith',
-        name: 'Blacksmith',
+        name: 'Blacksmith Brawn',
         relX: 0.5,
         interactionRange: 108,
         dialogue: 'If your gear is dull, bring it here. I can forge it stronger.',
@@ -215,7 +215,7 @@ const Platformer = {
       {
         id: 'rowan',
         role: 'rowan',
-        name: 'Rowan',
+        name: 'Trainer Rowan',
         relX: 0.78,
         interactionRange: 96,
         dialogue: 'The forest hides many secrets. Stay alert on your journey.',

@@ -80,6 +80,14 @@ const Chapter1Scene = {
         // ✅ make sure the game UI is visible
         Utils.showScreen('game-container');
 
+        if (!GameState.hasFlag('ch1_elder_intro_complete')) {
+            GameState.addQuest({
+                id: 'ch1_meet_elder',
+                title: 'Talk to the Village Elder',
+                description: 'Find Elder Varion in the village square and hear what is troubling the Village of Variables.'
+            });
+        }
+
             // Register all Chapter 1 scenes
         this.registerScenes();
 
@@ -251,20 +259,27 @@ const Chapter1Scene = {
      * Talk to the Village Elder
      */
     async talkToElder() {
-        if (GameState.hasFlag('ch1_elder_talked') && GameState.hasFlag('ch1_training_complete')) {
+        if (GameState.hasFlag('ch1_elder_intro_complete') && GameState.hasFlag('ch1_training_complete')) {
             // After training, elder gives new info
             await this.elderPostTraining();
             return;
         }
         
-        if (GameState.hasFlag('ch1_elder_talked')) {
+        if (GameState.hasFlag('ch1_elder_intro_complete')) {
+            GameState.addQuest({
+                id: 'ch1_training',
+                title: 'Train with Rowan',
+                description: 'Complete Rowan\'s training dummy lesson before returning to Elder Varion.'
+            });
             await Dialogue.quick('elder', 'Elder Varion',
-                `Have you completed your training at the Training Grounds yet, ${GameState.player.name}? You'll need those skills to face the corruption in the forest.`,
+                `Have you trained with <span class="highlight">Rowan</span> yet, ${GameState.player.name}? Complete her dummy lesson first, then return to me.`,
                 '👴');
             return;
         }
         
         GameState.setFlag('ch1_elder_talked');
+        GameState.setFlag('ch1_elder_intro_complete');
+        GameState.completeQuest('ch1_meet_elder');
         
         await Dialogue.start([
             {
@@ -324,7 +339,7 @@ const Chapter1Scene = {
             {
                 speaker: 'elder',
                 name: 'Elder Varion',
-                text: `Go to the <span class="highlight">Training Grounds</span> east of the square. Practice your coding skills there before venturing into the forest.`,
+                text: `Go to the <span class="highlight">Training Grounds</span> east of the square and train with <span class="highlight">Rowan</span>. Return to me after you complete her dummy trial.`,
                 portrait: '👴'
             }
         ]);
@@ -345,8 +360,8 @@ const Chapter1Scene = {
         // Add training quest
         GameState.addQuest({
             id: 'ch1_training',
-            title: 'Training Grounds Practice',
-            description: 'Complete the coding challenges at the Training Grounds to prepare for the Corrupted Forest.'
+            title: 'Train with Rowan',
+            description: 'Complete Rowan\'s training dummy lesson before returning to Elder Varion.'
         });
     },
     
@@ -382,12 +397,40 @@ const Chapter1Scene = {
      * Talk to the village trainer
      */
     async talkToTrainer() {
-        if (GameState.hasFlag('ch1_training_complete')) {
+        if (!GameState.hasFlag('ch1_elder_talked')) {
             await Dialogue.quick('trainer', 'Trainer Rowan',
-                `<em>You've already trained with the dummies. The forest awaits your return.</em>`,
+                `Easy there, Guardian. Elder Varion asked to speak with you first. Hear the Elder's guidance, then come back and I'll get you started.`,
                 '🥋');
             return;
         }
+
+        if (GameState.hasFlag('ch1_training_complete')) {
+            await Dialogue.quick('trainer', 'Trainer Rowan',
+                `<em>You've already cleared my dummy trial. Report back to Elder Varion and be ready for what comes next.</em>`,
+                '🥋');
+            return;
+        }
+
+        const choice = await Dialogue.askChoice(
+            'trainer',
+            'Trainer Rowan',
+            `I'm Rowan, the village trainer. Want to do a quick round with the dummy? I'll keep it easy and give you hints if you need them.`,
+            [
+                { text: 'Yes, let\'s train.', value: 'train' },
+                { text: 'Not yet.', value: 'later' }
+            ],
+            '🥋'
+        );
+
+        if (!choice || choice.value !== 'train') {
+            await Dialogue.quick('trainer', 'Trainer Rowan',
+                `No rush. When you're ready, come back and I'll run you through the basics.`,
+                '🥋');
+            return;
+        }
+
+        await this.startTraining();
+        return;
 
         await Dialogue.start([
             {
@@ -462,6 +505,13 @@ const Chapter1Scene = {
      * Training Grounds - coding practice
      */
     async startTraining() {
+        if (!GameState.hasFlag('ch1_elder_talked')) {
+            await Dialogue.quick('trainer', 'Trainer Rowan',
+                `Talk to Elder Varion first. Once you've heard the village's situation, I'll take you through your first training round.`,
+                '🥋');
+            return;
+        }
+
         if (GameState.hasFlag('ch1_training_complete')) {
             await Dialogue.quick('narrator', 'Narrator',
                 `<em>You've already completed the training. The corrupted forest awaits!</em>`,
@@ -469,6 +519,51 @@ const Chapter1Scene = {
             return;
         }
         
+        await Utils.showTransition('Rowan leads you to the Training Grounds...', 1200);
+        await World.loadScene('ch1_training');
+
+        await Dialogue.start([
+            {
+                speaker: 'trainer',
+                name: 'Trainer Rowan',
+                text: `We'll start small. This dummy is tuned for beginners, and I'll give you hints as soon as the challenge begins.`,
+                portrait: '🥋'
+            },
+            {
+                speaker: 'trainer',
+                name: 'Trainer Rowan',
+                text: `Land a couple of clean answers, learn the basics, and then head back to Elder Varion.`,
+                portrait: '🥋'
+            }
+        ]);
+
+        const easyEnemy = {
+            name: 'Training Dummy',
+            hp: 45,
+            maxHp: 45,
+            art: `
+    ╔═══════════════════════════════════╗
+    ║   ┌─────────┐   ║
+    ║   │ TRAIN   │   ║
+    ║   │ DUMMY   │   ║
+    ║   └────┬────┘   ║
+    ║        │        ║
+    ║   ┌─────────┐   ║
+    ║   │ int     │   ║
+    ║   │ boolean │   ║
+    ║   └─────────┘   ║
+    ╚═══════════════════════════════════╝`,
+            description: 'A patient dummy built for first lessons in Java variables.',
+            maxHints: 3,
+            autoShowHint: true,
+            correctXpReward: 5,
+            firstTryXpReward: 10,
+            victoryXpReward: 20
+        };
+
+        Combat.start(easyEnemy, this.getTrainingChallenges(), () => this.onTrainingComplete());
+        return;
+
         await Dialogue.quick('narrator', 'Narrator',
             `<em>You approach the training dummies. Each one represents a coding challenge. Defeat them all to complete your training!</em>`,
             '📖');
@@ -503,6 +598,49 @@ const Chapter1Scene = {
      * Get training challenges
      */
     getTrainingChallenges() {
+        return [
+            {
+                id: 'ch1_train_1',
+                prompt: `
+                    <span class="challenge-title">📝 Training: Integer Variable</span>
+                    <p>Declare an <strong>integer variable</strong> named <code>score</code> with a value of <strong>10</strong>.</p>
+                    <pre>______________________</pre>
+                `,
+                narrative: 'Rowan calls out: start with a simple integer declaration!',
+                hints: [
+                    'Use the "int" keyword to declare an integer variable.',
+                    'Format: int variableName = value;',
+                    'Answer: int score = 10;'
+                ],
+                answers: ['int score = 10;', 'int score=10;', 'int score = 10'],
+                damage: 25,
+                autoShowHint: true,
+                explanation: 'int is used for whole numbers. Syntax: int variableName = value;',
+                concept: 'int_declaration',
+                conceptTitle: 'Integer Declaration'
+            },
+            {
+                id: 'ch1_train_2',
+                prompt: `
+                    <span class="challenge-title">📝 Training: Boolean Variable</span>
+                    <p>Declare a <strong>boolean variable</strong> named <code>isReady</code> and set it to <strong>true</strong>.</p>
+                    <pre>______________________</pre>
+                `,
+                narrative: 'Good. Now finish with a true-or-false variable.',
+                hints: [
+                    'Use the "boolean" keyword for true/false values.',
+                    'true and false are lowercase in Java.',
+                    'Answer: boolean isReady = true;'
+                ],
+                answers: ['boolean isReady = true;', 'boolean isReady=true;', 'boolean isReady = true'],
+                damage: 25,
+                autoShowHint: true,
+                explanation: 'boolean stores true or false values. Useful for conditions and flags.',
+                concept: 'boolean_declaration',
+                conceptTitle: 'Boolean Declaration'
+            }
+        ];
+
         const difficulty = GameState.performance.difficultyLevel;
         
         const beginnerChallenges = [
@@ -627,6 +765,33 @@ ______________________</pre>
     async onTrainingComplete() {
         GameState.setFlag('ch1_training_complete');
         GameState.completeQuest('ch1_training');
+
+        await Utils.showTransition('Rowan sends you back to the village square...', 1200);
+        await World.loadScene('ch1_village_square');
+
+        await Dialogue.start([
+            {
+                speaker: 'narrator',
+                name: 'Narrator',
+                text: `<em>The training dummy splinters apart. The basics of variables already feel much clearer in your hands.</em>`,
+                portrait: '📖'
+            },
+            {
+                speaker: 'trainer',
+                name: 'Trainer Rowan',
+                text: `Nice work. That's enough for your first lesson. Go report back to Elder Varion - he'll decide when you're ready for the forest.`,
+                portrait: '🥋'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `I get it now. Variables really are the foundation. I'd better return to the elder.`,
+                portrait: '🧑‍💻'
+            }
+        ]);
+
+        World.updateActions([]);
+        return;
         
         Utils.show('world-display');
         

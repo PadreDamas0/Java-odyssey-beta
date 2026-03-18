@@ -38,7 +38,7 @@ const NPCSystem = {
             {
                 id: 'blacksmith',
                 role: 'blacksmith',
-                name: 'Blacksmith',
+                name: 'Blacksmith Brawn',
                 relX: 0.5,
                 interactionRange: 108,
                 dialogue: 'If your gear is dull, bring it here. I can forge it stronger.',
@@ -59,7 +59,7 @@ const NPCSystem = {
             {
                 id: 'rowan',
                 role: 'rowan',
-                name: 'Rowan',
+                name: 'Trainer Rowan',
                 relX: 0.78,
                 interactionRange: 96,
                 dialogue: 'The forest hides many secrets. Stay alert on your journey.',
@@ -135,6 +135,22 @@ const NPCSystem = {
 
     openDialogue(npc) {
         if (!npc || this.isDialogueOpen() || typeof Dialogue === 'undefined') return false;
+
+        if (typeof Chapter1Scene !== 'undefined' && typeof GameState !== 'undefined' && GameState.phase === 'chapter1') {
+            if (npc.role === 'elder' && typeof Chapter1Scene.talkToElder === 'function') {
+                Chapter1Scene.talkToElder();
+                return true;
+            }
+            if ((npc.role === 'rowan' || npc.role === 'trainer') && typeof Chapter1Scene.talkToTrainer === 'function') {
+                Chapter1Scene.talkToTrainer();
+                return true;
+            }
+            if (npc.role === 'blacksmith' && typeof Chapter1Scene.talkToBlacksmith === 'function') {
+                Chapter1Scene.talkToBlacksmith();
+                return true;
+            }
+        }
+
         Dialogue.openNpcDialogue(npc);
         return true;
     },

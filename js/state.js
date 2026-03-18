@@ -154,6 +154,11 @@ const GameState = {
      * Add quest to journal
      */
     addQuest(quest) {
+        if (!quest || !quest.id) return;
+        if (this.journal.activeQuests.some(q => q.id === quest.id)) return;
+        if (this.journal.completedQuests.some(q => q.id === quest.id)) return;
+        if (this.progress.completedQuests.includes(quest.id)) return;
+
         this.journal.activeQuests.push(quest);
         Utils.notify(`📜 New Quest: ${quest.title}`, 'quest-update');
     },
