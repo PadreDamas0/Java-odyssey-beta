@@ -54,6 +54,10 @@ const Combat = {
         this.startTime = Date.now();
         this.onVictory = onVictory;
         this.onDefeat = onDefeat;
+
+        if (typeof Platformer !== 'undefined' && typeof Platformer.clearInputState === 'function') {
+            Platformer.clearInputState();
+        }
         
         GameState.combat.active = true;
         GameState.combat.enemy = this.enemy;
@@ -473,6 +477,9 @@ const Combat = {
         
         // Show world display
         Utils.show('world-display');
+        if (typeof Platformer !== 'undefined' && typeof Platformer.clearInputState === 'function') {
+            Platformer.clearInputState();
+        }
         if (
             CONFIG.ENABLE_PHASER_WORLD &&
             GameState.phase === 'chapter1' &&

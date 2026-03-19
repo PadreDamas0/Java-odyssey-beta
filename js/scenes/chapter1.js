@@ -148,6 +148,17 @@ const Chapter1Scene = {
             hidePhaser: false
         });
 
+        World.registerScene('ch1_corrupted_forest_2', {
+            locationName: 'Corrupted Forest 2',
+            art: 'forestPath',
+            artClass: 'dark-forest',
+            description: '',
+            actions: [],
+            fullScreenMap: false,
+            hidePhaser: false,
+            onEnter: async () => this.enterForest2()
+        });
+
         // Training Grounds
         World.registerScene('ch1_training', {
             locationName: 'Village of Variables — Training Grounds',
@@ -567,6 +578,267 @@ const Chapter1Scene = {
         }
 
         await World.goTo('ch1_corrupted_forest_1', 'Leaving the village...');
+    },
+
+    async talkToHera() {
+        if (GameState.hasFlag('ch1_goblin_defeated')) {
+            await Dialogue.quick(
+                'hera',
+                'Hera',
+                `You really saved me, ${GameState.player.name}. The goblin is gone, and the deeper trail is safe again.`,
+                '🧝'
+            );
+            return;
+        }
+
+        if (GameState.hasFlag('ch1_hera_help_started')) {
+            await Dialogue.quick(
+                'hera',
+                'Hera',
+                `Please hurry. The goblin is deeper in <span class="highlight">Corrupted Forest 2</span>. Take the path on the right.`,
+                '🧝'
+            );
+            return;
+        }
+
+        await Dialogue.start([
+            {
+                speaker: 'hera',
+                name: 'Hera',
+                text: `Wait! Please don't go any farther alone. I'm <span class="highlight">Hera</span>, and a corrupted goblin drove me back from the deeper trail.`,
+                portrait: '🧝'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `A goblin? Then that's what's been stalking this part of the forest.`,
+                portrait: 'ðŸ§‘â€ðŸ’»'
+            },
+            {
+                speaker: 'hera',
+                name: 'Hera',
+                text: `Yes. It's somewhere in <span class="highlight">Corrupted Forest 2</span>. If you can defeat it, the path should open again.`,
+                portrait: '🧝'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `Stay here and keep low. I'll handle the goblin and come back once the trail is clear.`,
+                portrait: 'ðŸ§‘â€ðŸ’»'
+            }
+        ]);
+
+        GameState.setFlag('ch1_hera_help_started');
+        GameState.addQuest({
+            id: 'ch1_help_hera',
+            title: 'Help Hera',
+            description: 'Travel into Corrupted Forest 2 and defeat the corrupted goblin threatening Hera.'
+        });
+    },
+
+    async goToForest2() {
+        if (!GameState.hasFlag('ch1_hera_help_started')) {
+            await Dialogue.quick(
+                'narrator',
+                'Narrator',
+                `<em>You should speak with Hera first. She knows what is waiting deeper in the forest.</em>`,
+                '📜'
+            );
+            return;
+        }
+
+        await World.goTo('ch1_corrupted_forest_2', 'Pushing deeper into the corrupted woods...');
+    },
+
+    async enterForest2() {
+        if (
+            !GameState.hasFlag('ch1_goblin_defeated') &&
+            typeof Platformer !== 'undefined' &&
+            typeof Platformer.beginForest2GoblinApproach === 'function'
+        ) {
+            Platformer.movementLocked = true;
+            await Utils.wait(150);
+            Platformer.beginForest2GoblinApproach();
+        }
+    },
+
+    async startGoblinEncounter() {
+        if (GameState.hasFlag('ch1_goblin_defeated')) {
+            if (typeof Platformer !== 'undefined' && typeof Platformer.releaseMovementLock === 'function') {
+                Platformer.releaseMovementLock();
+            }
+            return;
+        }
+
+        await Dialogue.start([
+            {
+                speaker: 'goblin',
+                name: 'Corrupted Goblin',
+                text: `Arrrrggh... me kill everyone... no one gets through!`,
+                portrait: '👹'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `You're done terrorizing this forest. I'm ending this now.`,
+                portrait: 'ðŸ§‘â€ðŸ’»'
+            }
+        ]);
+
+        const goblin = {
+            name: 'Corrupted Goblin',
+            hp: 120,
+            maxHp: 120,
+            coinReward: 30,
+            art: 'assets/sprites/enemies/code_goblin.png',
+            description: 'A vicious goblin warped by corrupted code and brute force.',
+            maxHints: 2,
+            correctXpReward: 20,
+            firstTryXpReward: 35,
+            victoryXpReward: 70
+        };
+
+        Combat.start(goblin, this.getGoblinChallenges(), () => this.onGoblinVictory());
+    },
+
+    getGoblinChallenges() {
+        return [
+            {
+                id: 'ch1_goblin_1',
+                prompt: `
+                    <span class="challenge-title">⚔️ Goblin Clash: Lock In The Type</span>
+                    <p>Declare an <strong>int</strong> named <code>goblinHp</code> with a value of <strong>45</strong>.</p>
+                    <pre>______________________</pre>
+                `,
+                narrative: 'The goblin lunges. Stabilize your first variable before it breaks through!',
+                hints: [
+                    'Use the int keyword for whole numbers.',
+                    'The variable name must be goblinHp.',
+                    'Answer: int goblinHp = 45;'
+                ],
+                answers: [
+                    'int goblinHp = 45;',
+                    'int goblinHp=45;',
+                    'int goblinHp = 45'
+                ],
+                damage: 28,
+                explanation: 'An int stores whole numbers like 45.',
+                concept: 'goblin_int_variable',
+                conceptTitle: 'Declaring Integer Variables'
+            },
+            {
+                id: 'ch1_goblin_2',
+                prompt: `
+                    <span class="challenge-title">⚔️ Goblin Clash: Name The Warning</span>
+                    <p>Declare a <strong>String</strong> named <code>warning</code> with the value <strong>"Stay back"</strong>.</p>
+                    <pre>______________________</pre>
+                `,
+                narrative: 'Dark code twists through the air. Anchor the warning phrase before it corrupts.',
+                hints: [
+                    'Strings need double quotes around the text.',
+                    'Use the name warning.',
+                    'Answer: String warning = "Stay back";'
+                ],
+                answers: [
+                    'String warning = "Stay back";',
+                    'String warning="Stay back";',
+                    'String warning = "Stay back"'
+                ],
+                damage: 30,
+                explanation: 'Strings hold text values wrapped in double quotes.',
+                concept: 'goblin_string_variable',
+                conceptTitle: 'Declaring String Variables'
+            },
+            {
+                id: 'ch1_goblin_3',
+                prompt: `
+                    <span class="challenge-title">⚔️ Goblin Clash: Add The Damage</span>
+                    <p>Given:</p>
+                    <pre>int dagger = 12;
+int spell = 8;</pre>
+                    <p>Declare an <strong>int</strong> named <code>totalDamage</code> that equals <code>dagger + spell</code>.</p>
+                    <pre>______________________</pre>
+                `,
+                narrative: 'The goblin braces itself. Combine your attacks into one clean strike!',
+                hints: [
+                    'Create a new int variable.',
+                    'Use dagger + spell on the right side.',
+                    'Answer: int totalDamage = dagger + spell;'
+                ],
+                answers: [
+                    'int totalDamage = dagger + spell;',
+                    'int totalDamage=dagger+spell;',
+                    'int totalDamage = dagger + spell'
+                ],
+                damage: 32,
+                explanation: 'Variables can be added together inside an expression.',
+                concept: 'goblin_damage_sum',
+                conceptTitle: 'Using Variables In Expressions'
+            },
+            {
+                id: 'ch1_goblin_4',
+                prompt: `
+                    <span class="challenge-title">⚔️ Final Blow: Print The Result</span>
+                    <p>Given:</p>
+                    <pre>String enemy = "Goblin";
+int totalDamage = 20;</pre>
+                    <p>Print: <strong>"Goblin took 20 damage"</strong> using the variables.</p>
+                    <pre>______________________</pre>
+                `,
+                narrative: 'Finish the corrupted goblin with one final statement!',
+                hints: [
+                    'Use System.out.println().',
+                    'Combine the text and variable with +.',
+                    'Answer: System.out.println(enemy + " took " + totalDamage + " damage");'
+                ],
+                answers: [
+                    'System.out.println(enemy + " took " + totalDamage + " damage");',
+                    'System.out.println(enemy+" took "+totalDamage+" damage");',
+                    'System.out.println(enemy + " took " + totalDamage + " damage")'
+                ],
+                damage: 38,
+                explanation: 'String concatenation lets you mix text and numbers in one output line.',
+                concept: 'goblin_print_damage',
+                conceptTitle: 'Printing With Concatenation'
+            }
+        ];
+    },
+
+    async onGoblinVictory() {
+        GameState.setFlag('ch1_goblin_defeated');
+        GameState.completeQuest('ch1_help_hera');
+
+        await Dialogue.start([
+            {
+                speaker: 'narrator',
+                name: 'Narrator',
+                text: `<em>The goblin collapses into fading strands of corrupted code. The deeper forest grows quiet for the first time in days.</em>`,
+                portrait: '📜'
+            },
+            {
+                speaker: 'hera',
+                name: 'Hera',
+                text: `You did it! The trail is safe again. Please, take this reward - <span class="highlight">15 gold</span> for your help.`,
+                portrait: '🧝'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `I'm glad I got here in time. Stay safe, Hera.`,
+                portrait: 'ðŸ§‘â€ðŸ’»'
+            }
+        ]);
+
+        GameState.addGold(15);
+
+        if (typeof Platformer !== 'undefined') {
+            if (typeof Platformer.releaseMovementLock === 'function') {
+                Platformer.releaseMovementLock();
+            }
+            if (typeof Platformer.resetNpcs === 'function') {
+                Platformer.resetNpcs();
+            }
+        }
     },
 
     /**

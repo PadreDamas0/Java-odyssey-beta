@@ -174,6 +174,10 @@ const Assets = {
      * Get enemy art
      */
     getEnemyArt(enemyId) {
+        if (typeof enemyId === 'string' && /\.(png|jpg|jpeg|gif|svg)$/i.test(enemyId)) {
+            return enemyId;
+        }
+
         // Map art keys from enemy objects to Assets enemy ids
         const artToIdMap = {
             'enemyBug': 'syntaxBug',

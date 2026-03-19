@@ -25,6 +25,8 @@ const Platformer = {
     lock: false,
     zone: null
   },
+  movementLocked: false,
+  autoWalk: null,
   player: {
     x: 0,
     y: 0,
@@ -88,6 +90,50 @@ const Platformer = {
   },
 
   getSceneConfig(sceneId) {
+    const heraDefinition = {
+      id: 'hera',
+      role: 'hera',
+      name: 'Hera',
+      relX: 0.52,
+      interactionRange: 104,
+      dialogue: 'Please, Guardian... a goblin is blocking the deeper forest path.',
+      portrait: '🧝',
+      sprite: {
+        assetKey: 'npc_hera',
+        frameCount: 6,
+        frameWidth: 128,
+        frameHeight: 128,
+        cropX: 8,
+        cropY: 8,
+        cropWidth: 56,
+        cropHeight: 112,
+        drawWidth: 52,
+        drawHeight: 94
+      }
+    };
+
+    const goblinDefinition = {
+      id: 'forest-goblin',
+      role: 'goblin',
+      name: 'Corrupted Goblin',
+      relX: 0.52,
+      interactionRange: 120,
+      dialogue: 'Arrrrggh... me kill everyone!',
+      portrait: '👹',
+      sprite: {
+        assetKey: 'enemy_goblin_idle',
+        frameCount: 4,
+        frameWidth: 150,
+        frameHeight: 150,
+        cropX: 0,
+        cropY: 0,
+        cropWidth: 150,
+        cropHeight: 150,
+        drawWidth: 86,
+        drawHeight: 86
+      }
+    };
+
     const neutralScene = {
       id: sceneId || 'ch1_generic',
       backgroundKey: 'bg_village',
@@ -137,7 +183,8 @@ const Platformer = {
         backgroundKey: 'bg_corrupted_forest_1',
         groundOffset: 168,
         spawnX: 120,
-        npcScene: false,
+        npcScene: true,
+        npcDefinitions: () => [heraDefinition],
         exitLeft: {
           zone: 'left',
           threshold: 16,
@@ -145,6 +192,38 @@ const Platformer = {
           onConfirm: async () => {
             if (typeof World !== 'undefined' && typeof World.goTo === 'function') {
               await World.goTo('ch1_village_square', 'Returning to the village...');
+            }
+          }
+        },
+        exitRight: {
+          zone: 'right',
+          threshold: 16,
+          prompt: 'Go deeper into Corrupted Forest 2?',
+          onConfirm: async () => {
+            if (typeof Chapter1Scene !== 'undefined' && typeof Chapter1Scene.goToForest2 === 'function') {
+              await Chapter1Scene.goToForest2();
+            }
+          }
+        }
+      },
+      ch1_corrupted_forest_2: {
+        id: 'ch1_corrupted_forest_2',
+        backgroundKey: 'bg_corrupted_forest_2',
+        groundOffset: 170,
+        spawnX: (width) => Math.max(96, width - 180),
+        npcScene: true,
+        npcDefinitions: () => (
+          typeof GameState !== 'undefined' &&
+          typeof GameState.hasFlag === 'function' &&
+          GameState.hasFlag('ch1_goblin_defeated')
+        ) ? [{ ...heraDefinition, relX: 0.52 }] : [goblinDefinition],
+        exitLeft: {
+          zone: 'left',
+          threshold: 16,
+          prompt: 'Return to Corrupted Forest 1?',
+          onConfirm: async () => {
+            if (typeof World !== 'undefined' && typeof World.goTo === 'function') {
+              await World.goTo('ch1_corrupted_forest_1', 'Heading back to Hera...');
             }
           }
         }
@@ -166,6 +245,7 @@ const Platformer = {
     const images = {
       bg_village: 'assets/background/village.jpg',
       bg_corrupted_forest_1: 'assets/background/corruptedforest.png',
+      bg_corrupted_forest_2: 'assets/background/corruptedforest2.png',
       ui_right_arrow: 'assets/UI/Right-Arrow.png',
       idle_0: 'assets/sprites/mc/adventurer-idle-00.png',
       idle_1: 'assets/sprites/mc/adventurer-idle-01.png',
@@ -182,7 +262,9 @@ const Platformer = {
       jump_3: 'assets/sprites/mc/adventurer-jump-03.png',
       npc_elder: 'assets/sprites/npc/VillageElder.png',
       npc_trainer: 'assets/sprites/npc/VillageTrainer.png',
-      npc_blacksmith: 'assets/sprites/npc/Blacksmith.png'
+      npc_blacksmith: 'assets/sprites/npc/Blacksmith.png',
+      npc_hera: 'assets/sprites/npc/Hera.png',
+      enemy_goblin_idle: 'assets/sprites/worldEnemies/goblinIdle.png'
     };
 
     const keys = Object.keys(images);
@@ -223,6 +305,8 @@ const Platformer = {
     this.currentSceneId = nextSceneId;
     this.currentMap = this.getSceneConfig(nextSceneId);
     this.groundY = this.height - this.currentMap.groundOffset;
+    this.autoWalk = null;
+    this.movementLocked = false;
 
     if (sceneChanged || forceResetPlayer) {
       this.resetPlayer();
@@ -269,7 +353,9 @@ const Platformer = {
   },
 
   resetPlayer() {
-    const spawnX = this.currentMap ? this.currentMap.spawnX : 140;
+    const spawnX = this.currentMap
+      ? (typeof this.currentMap.spawnX === 'function' ? this.currentMap.spawnX(this.width) : this.currentMap.spawnX)
+      : 140;
     this.player.x = spawnX;
     this.player.y = this.groundY - this.player.h;
     this.player.vx = 0;
@@ -291,6 +377,10 @@ const Platformer = {
 
     const groundY = this.groundY || 0;
     const width = this.width || 800;
+    const sceneDefinitions = typeof this.currentMap.npcDefinitions === 'function'
+      ? this.currentMap.npcDefinitions()
+      : this.currentMap.npcDefinitions;
+    const hasSceneDefinitions = Array.isArray(sceneDefinitions);
     const fallbackTemplate = [
       {
         id: 'elder-varion',
@@ -351,18 +441,28 @@ const Platformer = {
       }
     ];
 
-    const generatedNpcs = window.NPCSystem && typeof NPCSystem.createPlatformerNpcs === 'function'
-      ? NPCSystem.createPlatformerNpcs(width, groundY)
-      : null;
+    const generatedNpcs = hasSceneDefinitions
+      ? sceneDefinitions.map((definition, index) => ({
+          ...definition,
+          ...definition.sprite,
+          x: Math.floor(width * definition.relX),
+          y: groundY - definition.sprite.drawHeight,
+          frame: index % definition.sprite.frameCount
+        }))
+      : window.NPCSystem && typeof NPCSystem.createPlatformerNpcs === 'function'
+        ? NPCSystem.createPlatformerNpcs(width, groundY)
+        : null;
 
-    const npcSource = generatedNpcs && generatedNpcs.length > 0
+    const npcSource = hasSceneDefinitions
       ? generatedNpcs
-      : fallbackTemplate.map((item, index) => ({
-          ...item,
-          x: Math.floor(width * item.relX),
-          y: groundY - item.drawHeight,
-          frame: index % item.frameCount
-        }));
+      : generatedNpcs && generatedNpcs.length > 0
+        ? generatedNpcs
+        : fallbackTemplate.map((item, index) => ({
+            ...item,
+            x: Math.floor(width * item.relX),
+            y: groundY - item.drawHeight,
+            frame: index % item.frameCount
+          }));
 
     this.npcs = npcSource;
   },
@@ -409,6 +509,21 @@ const Platformer = {
       this.player.vy = 0;
       this.player.state = 'idle';
       if (window.NPCSystem) NPCSystem.handleInteractionInput(this.keys, null);
+      return;
+    }
+
+    if (this.autoWalk) {
+      this.nearestNpc = null;
+      this.updateAutoWalk(dt);
+      return;
+    }
+
+    if (this.movementLocked) {
+      this.nearestNpc = null;
+      this.player.vx = 0;
+      this.player.vy = 0;
+      this.player.state = 'idle';
+      this.player.y = this.groundY - this.player.h;
       return;
     }
 
@@ -656,6 +771,86 @@ const Platformer = {
     this.exitPrompt.zone = null;
   },
 
+  clearInputState() {
+    this.keys = {};
+    this.player.vx = 0;
+    this.player.vy = 0;
+    this.player.state = 'idle';
+    if (window.NPCSystem) NPCSystem.resetInputState();
+  },
+
+  getNpcById(npcId) {
+    return this.npcs.find((npc) => npc.id === npcId) || null;
+  },
+
+  startAutoWalk(targetX, onComplete = null) {
+    this.movementLocked = true;
+    this.autoWalk = {
+      targetX,
+      onComplete
+    };
+  },
+
+  updateAutoWalk(dt) {
+    if (!this.autoWalk) return;
+
+    const direction = this.autoWalk.targetX >= this.player.x ? 1 : -1;
+    const speed = this.constants.moveSpeed * 0.8;
+    const nextX = this.player.x + (direction * speed * dt);
+    const reachedTarget = direction > 0
+      ? nextX >= this.autoWalk.targetX
+      : nextX <= this.autoWalk.targetX;
+
+    this.player.dir = direction;
+    this.player.state = 'run';
+    this.player.vx = direction * speed;
+    this.player.vy = 0;
+    this.player.y = this.groundY - this.player.h;
+
+    if (reachedTarget) {
+      const callback = this.autoWalk.onComplete;
+      this.player.x = this.autoWalk.targetX;
+      this.player.vx = 0;
+      this.player.state = 'idle';
+      this.autoWalk = null;
+      if (typeof callback === 'function') {
+        callback();
+      }
+      return;
+    }
+
+    this.player.x = nextX;
+  },
+
+  releaseMovementLock() {
+    this.autoWalk = null;
+    this.movementLocked = false;
+    this.player.vx = 0;
+    this.player.vy = 0;
+    this.player.state = 'idle';
+    this.player.y = this.groundY - this.player.h;
+  },
+
+  beginForest2GoblinApproach() {
+    if (
+      this.currentSceneId !== 'ch1_corrupted_forest_2' ||
+      !this.getNpcById('forest-goblin') ||
+      !(typeof GameState !== 'undefined' && GameState.hasFlag && GameState.hasFlag('ch1_hera_help_started')) ||
+      (typeof GameState !== 'undefined' && GameState.hasFlag && GameState.hasFlag('ch1_goblin_defeated'))
+    ) {
+      return;
+    }
+
+    const goblin = this.getNpcById('forest-goblin');
+    const targetX = Math.max(64, goblin.x - 118);
+    this.startAutoWalk(targetX, () => {
+      this.movementLocked = true;
+      if (typeof Chapter1Scene !== 'undefined' && typeof Chapter1Scene.startGoblinEncounter === 'function') {
+        Chapter1Scene.startGoblinEncounter();
+      }
+    });
+  },
+
   isForestExitUnlocked() {
     return !!(
       typeof GameState !== 'undefined' &&
@@ -665,7 +860,12 @@ const Platformer = {
   },
 
   shouldDrawVillageExitArrow() {
-    return this.currentSceneId === 'ch1_village_square' && this.isForestExitUnlocked();
+    return !!(
+      this.currentMap &&
+      this.currentMap.exitRight &&
+      this.currentSceneId === 'ch1_village_square' &&
+      this.canUseSceneExit(this.currentMap.exitRight)
+    );
   },
 
   canUseSceneExit(exit) {
@@ -673,6 +873,14 @@ const Platformer = {
 
     if (this.currentSceneId === 'ch1_village_square' && exit.zone === 'right') {
       return this.isForestExitUnlocked();
+    }
+
+    if (this.currentSceneId === 'ch1_corrupted_forest_1' && exit.zone === 'right') {
+      return !!(
+        typeof GameState !== 'undefined' &&
+        typeof GameState.hasFlag === 'function' &&
+        GameState.hasFlag('ch1_hera_help_started')
+      );
     }
 
     return true;

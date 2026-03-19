@@ -149,6 +149,10 @@ const NPCSystem = {
                 Chapter1Scene.talkToBlacksmith();
                 return true;
             }
+            if (npc.role === 'hera' && typeof Chapter1Scene.talkToHera === 'function') {
+                Chapter1Scene.talkToHera();
+                return true;
+            }
         }
 
         Dialogue.openNpcDialogue(npc);
