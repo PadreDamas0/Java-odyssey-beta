@@ -44,7 +44,9 @@ const Platformer = {
     gravity: 1600,
     moveSpeed: 280,
     jumpVelocity: -700,
+    referenceHeight: 768,
     groundOffset: 210,
+    groundBaselineLift: 5,
     animationSpeed: 90,
     npcAnimationSpeed: 180
   },
@@ -297,6 +299,14 @@ const Platformer = {
     return this.assetsLoadingPromise;
   },
 
+  getGroundY(groundOffset) {
+    const designHeight = this.constants.referenceHeight || 768;
+    const scale = this.height > 0 ? this.height / designHeight : 1;
+    const scaledGroundOffset = groundOffset * scale;
+    const scaledBaselineLift = this.constants.groundBaselineLift * scale;
+    return this.height - scaledGroundOffset - scaledBaselineLift;
+  },
+
   syncSceneState(forceResetPlayer = false) {
     const nextSceneId = (typeof World !== 'undefined' && World.currentScene)
       ? World.currentScene
@@ -304,7 +314,7 @@ const Platformer = {
     const sceneChanged = this.currentSceneId !== nextSceneId;
     this.currentSceneId = nextSceneId;
     this.currentMap = this.getSceneConfig(nextSceneId);
-    this.groundY = this.height - this.currentMap.groundOffset;
+    this.groundY = this.getGroundY(this.currentMap.groundOffset);
     this.autoWalk = null;
     this.movementLocked = false;
 
@@ -742,7 +752,7 @@ const Platformer = {
     this.ctx.imageSmoothingEnabled = false;
 
     const groundOffset = this.currentMap ? this.currentMap.groundOffset : this.constants.groundOffset;
-    this.groundY = this.height - groundOffset;
+    this.groundY = this.getGroundY(groundOffset);
 
     // Reposition player on the ground if it was already initialized
     if (this.player) {
