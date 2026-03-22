@@ -29,6 +29,9 @@ const World = {
         
         this.currentScene = sceneId;
         GameState.progress.currentScene = sceneId;
+        if (typeof Game !== 'undefined' && typeof Game.updateWorldMapUi === 'function') {
+            Game.updateWorldMapUi(sceneId);
+        }
 
         const gameContainer = Utils.$('game-container');
         const phaserContainer = Utils.$('phaser-container');

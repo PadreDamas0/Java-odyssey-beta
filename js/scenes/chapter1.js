@@ -23,6 +23,9 @@ if (typeof window !== 'undefined' && typeof window.World === 'undefined') {
             if (window.GameState) {
                 window.GameState.progress.currentScene = sceneId;
             }
+            if (typeof Game !== 'undefined' && typeof Game.updateWorldMapUi === 'function') {
+                Game.updateWorldMapUi(sceneId);
+            }
 
             // Basic UI adjustments
             if (window.Utils) {

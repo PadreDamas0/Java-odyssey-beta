@@ -399,6 +399,17 @@ const Game = {
         }
     },
 
+    handleWorldMapClick() {
+        Utils.notify('World map button clicked. Map screen coming soon.', 'default');
+    },
+
+    updateWorldMapUi(sceneId) {
+        const button = Utils.$('world-map-ui-button');
+        if (!button) return;
+
+        button.style.display = sceneId === 'ch1_village_square' ? 'flex' : 'none';
+    },
+
     showBlacksmithShop() {
         this.showShop('blacksmith');
     },
