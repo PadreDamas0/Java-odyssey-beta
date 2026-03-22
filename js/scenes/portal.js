@@ -126,20 +126,15 @@ const PortalScene = {
         // Fade out current music
         Audio.stopBgm(true);
         
-        // Play portal video with music
-        try {
-            await Audio.playVideo('portalTransition', {
-                loop: false,
-                autoplay: true,
-                onEnd: () => {
-                    // Play menu music when video ends
-                    Audio.playBgm('mainMenu', true);
-                }
-            });
-        } catch (e) {
-            console.warn('Portal video not available, skipping:', e);
-            Audio.playBgm('mainMenu', true);
-        }
+        // Use an in-game transition instead of the broken placeholder portal video.
+        await Utils.showTransition(`
+            <div class="chapter-title-display" style="position:relative;background:transparent;">
+                <div class="chapter-name">The Portal Engulfs You</div>
+                <div class="chapter-subtitle">Light floods your vision as the Java Realm draws you in.</div>
+            </div>
+        `, 1800);
+
+        Audio.playBgm('mainMenu', true);
         
         // Portal entry cutscene
         await Cutscene.play([

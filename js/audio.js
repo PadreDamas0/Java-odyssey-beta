@@ -9,6 +9,9 @@ const Audio = {
     currentBgmKey: null,
     sfxTracks: {},
     videoElement: null,
+    pendingBgmRequest: null,
+    unlockHandlerRegistered: false,
+    userInteracted: false,
     
     // Volume settings
     bgmVolume: 0.7,
@@ -24,11 +27,57 @@ const Audio = {
         this.bgmTrack.loop = true;
         this.bgmTrack.volume = this.bgmVolume;
         this.bgmTrack.muted = this.muted;
+        this.registerUnlockHandler();
         
         // Create video element for cutscenes
         this.videoElement = document.createElement('video');
         this.videoElement.style.display = 'none';
         document.body.appendChild(this.videoElement);
+    },
+
+    /**
+     * Enable queued audio after the first user interaction
+     */
+    registerUnlockHandler() {
+        if (this.unlockHandlerRegistered) return;
+
+        const unlockAudio = () => {
+            this.userInteracted = true;
+            if (!this.pendingBgmRequest) return;
+
+            const pending = this.pendingBgmRequest;
+            this.pendingBgmRequest = null;
+            this.playBgm(pending.bgmKey, pending.fade);
+        };
+
+        ['pointerdown', 'keydown', 'touchstart'].forEach((eventName) => {
+            document.addEventListener(eventName, unlockAudio, { passive: true });
+        });
+
+        this.unlockHandlerRegistered = true;
+    },
+
+    /**
+     * Safely play media without uncaught autoplay errors
+     */
+    async tryPlay(mediaElement, pendingRequest = null) {
+        try {
+            const playPromise = mediaElement.play();
+            if (playPromise !== undefined) {
+                await playPromise;
+            }
+            return true;
+        } catch (err) {
+            if (err?.name === 'NotAllowedError') {
+                if (pendingRequest) {
+                    this.pendingBgmRequest = pendingRequest;
+                }
+                return false;
+            }
+
+            console.error('Audio playback failed:', err);
+            return false;
+        }
     },
     
     /**
@@ -39,6 +88,12 @@ const Audio = {
     playBgm(bgmKey, fade = false) {
         if (!Assets.sounds.bgm[bgmKey]) {
             console.warn(`BGM key not found: ${bgmKey}`);
+            return;
+        }
+
+        if (!this.userInteracted) {
+            this.pendingBgmRequest = { bgmKey, fade };
+            this.currentBgmKey = bgmKey;
             return;
         }
         
@@ -61,18 +116,26 @@ const Audio = {
         if (fade) {
             this.bgmTrack.volume = 0;
             this.bgmTrack.muted = this.muted;
-            this.bgmTrack.play();
-            // Fade in over 1 second
-            let volume = 0;
-            const fadeInterval = setInterval(() => {
-                volume = Math.min(volume + 0.05, this.bgmVolume);
-                this.bgmTrack.volume = volume;
-                if (volume >= this.bgmVolume) clearInterval(fadeInterval);
-            }, 50);
+            this.tryPlay(this.bgmTrack, { bgmKey, fade }).then((started) => {
+                if (!started || this.currentBgmKey !== bgmKey) return;
+
+                // Fade in over 1 second
+                let volume = 0;
+                const fadeInterval = setInterval(() => {
+                    if (this.currentBgmKey !== bgmKey || this.bgmTrack.paused) {
+                        clearInterval(fadeInterval);
+                        return;
+                    }
+
+                    volume = Math.min(volume + 0.05, this.bgmVolume);
+                    this.bgmTrack.volume = volume;
+                    if (volume >= this.bgmVolume) clearInterval(fadeInterval);
+                }, 50);
+            });
         } else {
             this.bgmTrack.volume = this.bgmVolume;
             this.bgmTrack.muted = this.muted;
-            this.bgmTrack.play();
+            this.tryPlay(this.bgmTrack, { bgmKey, fade });
         }
     },
     
@@ -117,7 +180,8 @@ const Audio = {
         sfx.src = sfxPath;
         sfx.volume = this.sfxVolume;
         sfx.muted = this.muted;
-        sfx.play();
+        if (!this.userInteracted) return;
+        this.tryPlay(sfx);
         
         // Clean up after playing
         sfx.onended = () => {
@@ -157,36 +221,56 @@ const Audio = {
             videoElem.loop = options.loop || false;
             videoElem.muted = false;
             videoElem.controls = false;
+            videoElem.preload = 'auto';
+            videoElem.playsInline = true;
             videoElem.src = videoPath;
+
+            let settled = false;
+            let started = false;
+            let loadTimeoutId = null;
+
+            const cleanup = () => {
+                if (loadTimeoutId) {
+                    clearTimeout(loadTimeoutId);
+                    loadTimeoutId = null;
+                }
+                videoElem.removeEventListener('ended', handleVideoEnd);
+                videoElem.removeEventListener('error', handleError);
+                videoElem.removeEventListener('canplay', handleCanPlay);
+                videoElem.removeEventListener('loadeddata', handleCanPlay);
+            };
             
             // Add to body
             document.body.appendChild(videoElem);
             
             // Handle video end
             const handleVideoEnd = () => {
+                if (settled) return;
+                settled = true;
                 console.log('Video ended');
+                cleanup();
                 videoElem.remove();
-                videoElem.removeEventListener('ended', handleVideoEnd);
                 if (options.onEnd) options.onEnd();
                 resolve();
             };
             
             // Handle errors
             const handleError = (e) => {
+                if (settled) return;
+                settled = true;
                 console.error('Video playback error:', e);
+                cleanup();
                 videoElem.remove();
-                videoElem.removeEventListener('error', handleError);
                 if (options.onError) options.onError(e);
                 reject(e);
             };
-            
-            videoElem.addEventListener('ended', handleVideoEnd);
-            videoElem.addEventListener('error', handleError);
-            
-            // Wait for video to be playable
+
             const handleCanPlay = () => {
+                if (settled || started) return;
+
+                started = true;
+                cleanup();
                 console.log('Video can play');
-                videoElem.removeEventListener('canplay', handleCanPlay);
                 const playPromise = videoElem.play();
                 if (playPromise !== undefined) {
                     playPromise.catch(err => {
@@ -195,16 +279,25 @@ const Audio = {
                     });
                 }
             };
-            
+
+            videoElem.addEventListener('ended', handleVideoEnd);
+            videoElem.addEventListener('error', handleError);
             videoElem.addEventListener('canplay', handleCanPlay);
+            videoElem.addEventListener('loadeddata', handleCanPlay);
             
             // Timeout in case video never loads
-            setTimeout(() => {
-                if (videoElem.parentNode) {
+            loadTimeoutId = setTimeout(() => {
+                if (!settled && !started && videoElem.parentNode) {
                     console.warn('Video timeout');
                     handleError(new Error('Video load timeout'));
                 }
             }, 5000);
+
+            if (videoElem.readyState >= 2) {
+                handleCanPlay();
+            } else {
+                videoElem.load();
+            }
         });
     },
     
@@ -269,7 +362,17 @@ const Audio = {
      */
     resumeBgm() {
         if (this.bgmTrack && this.currentBgmKey) {
-            this.bgmTrack.play();
+            if (!this.userInteracted) {
+                this.pendingBgmRequest = {
+                    bgmKey: this.currentBgmKey,
+                    fade: false
+                };
+                return;
+            }
+            this.tryPlay(this.bgmTrack, {
+                bgmKey: this.currentBgmKey,
+                fade: false
+            });
         }
     },
     
