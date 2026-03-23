@@ -105,12 +105,12 @@ const Platformer = {
         frameCount: 6,
         frameWidth: 128,
         frameHeight: 128,
-        cropX: 8,
-        cropY: 8,
-        cropWidth: 56,
-        cropHeight: 112,
-        drawWidth: 52,
-        drawHeight: 94
+        cropX: 0,
+        cropY: 0,
+        cropWidth: 84,
+        cropHeight: 128,
+        drawWidth: 64,
+        drawHeight: 96
       }
     };
 
@@ -133,6 +133,28 @@ const Platformer = {
         cropHeight: 150,
         drawWidth: 86,
         drawHeight: 86
+      }
+    };
+
+    const abandonedGoblinDefinition = {
+      id: 'abandoned-goblin',
+      role: 'abandoned_goblin',
+      name: 'Village Goblin',
+      relX: 0.52,
+      interactionRange: 120,
+      dialogue: 'Raaagh! No heroes past this place!',
+      portrait: '👹',
+      sprite: {
+        assetKey: 'enemy_goblin_idle',
+        frameCount: 4,
+        frameWidth: 150,
+        frameHeight: 150,
+        cropX: 0,
+        cropY: 0,
+        cropWidth: 150,
+        cropHeight: 150,
+        drawWidth: 82,
+        drawHeight: 82
       }
     };
 
@@ -186,7 +208,11 @@ const Platformer = {
         groundOffset: 168,
         spawnX: 120,
         npcScene: true,
-        npcDefinitions: () => [heraDefinition],
+        npcDefinitions: () => (
+          typeof GameState !== 'undefined' &&
+          typeof GameState.hasFlag === 'function' &&
+          !GameState.hasFlag('ch1_goblin_defeated')
+        ) ? [heraDefinition] : [],
         exitLeft: {
           zone: 'left',
           threshold: 16,
@@ -214,11 +240,13 @@ const Platformer = {
         groundOffset: 170,
         spawnX: (width) => Math.max(96, width - 180),
         npcScene: true,
-        npcDefinitions: () => (
-          typeof GameState !== 'undefined' &&
-          typeof GameState.hasFlag === 'function' &&
-          GameState.hasFlag('ch1_goblin_defeated')
-        ) ? [{ ...heraDefinition, relX: 0.52 }] : [goblinDefinition],
+        npcDefinitions: () => {
+          const hasState = typeof GameState !== 'undefined' && typeof GameState.hasFlag === 'function';
+          if (!hasState) return [goblinDefinition];
+          if (GameState.hasFlag('ch1_abandoned_goblin_defeated')) return [];
+          if (GameState.hasFlag('ch1_goblin_defeated')) return [{ ...heraDefinition, relX: 0.52 }];
+          return [goblinDefinition];
+        },
         exitLeft: {
           zone: 'left',
           threshold: 16,
@@ -226,6 +254,38 @@ const Platformer = {
           onConfirm: async () => {
             if (typeof World !== 'undefined' && typeof World.goTo === 'function') {
               await World.goTo('ch1_corrupted_forest_1', 'Heading back to Hera...');
+            }
+          }
+        },
+        exitRight: {
+          zone: 'right',
+          threshold: 16,
+          prompt: 'Follow the deeper trail into the abandoned village?',
+          onConfirm: async () => {
+            if (typeof Chapter1Scene !== 'undefined' && typeof Chapter1Scene.goToAbandonedVillage === 'function') {
+              await Chapter1Scene.goToAbandonedVillage();
+            }
+          }
+        }
+      },
+      ch1_abandoned_village: {
+        id: 'ch1_abandoned_village',
+        backgroundKey: 'bg_abandoned_village',
+        groundOffset: 182,
+        spawnX: 180,
+        npcScene: true,
+        npcDefinitions: () => (
+          typeof GameState !== 'undefined' &&
+          typeof GameState.hasFlag === 'function' &&
+          GameState.hasFlag('ch1_abandoned_goblin_defeated')
+        ) ? [{ ...heraDefinition, relX: 0.52 }] : [abandonedGoblinDefinition],
+        exitLeft: {
+          zone: 'left',
+          threshold: 16,
+          prompt: 'Head back to Corrupted Forest 2?',
+          onConfirm: async () => {
+            if (typeof World !== 'undefined' && typeof World.goTo === 'function') {
+              await World.goTo('ch1_corrupted_forest_2', 'Heading back through the deeper forest...');
             }
           }
         }
@@ -248,6 +308,8 @@ const Platformer = {
       bg_village: 'assets/background/village.jpg',
       bg_corrupted_forest_1: 'assets/background/corruptedforest.png',
       bg_corrupted_forest_2: 'assets/background/corruptedforest2.png',
+      bg_abandoned_village: 'assets/background/abandonedvillage.png',
+      bg_cave_entrance: 'assets/background/caveEntrance.png',
       ui_right_arrow: 'assets/UI/Right-Arrow.png',
       idle_0: 'assets/sprites/mc/adventurer-idle-00.png',
       idle_1: 'assets/sprites/mc/adventurer-idle-01.png',
@@ -890,6 +952,14 @@ const Platformer = {
         typeof GameState !== 'undefined' &&
         typeof GameState.hasFlag === 'function' &&
         GameState.hasFlag('ch1_hera_help_started')
+      );
+    }
+
+    if (this.currentSceneId === 'ch1_corrupted_forest_2' && exit.zone === 'right') {
+      return !!(
+        typeof GameState !== 'undefined' &&
+        typeof GameState.hasFlag === 'function' &&
+        GameState.hasFlag('ch1_abandoned_village_unlocked')
       );
     }
 

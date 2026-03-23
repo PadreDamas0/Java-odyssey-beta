@@ -162,6 +162,17 @@ const Chapter1Scene = {
             onEnter: async () => this.enterForest2()
         });
 
+        World.registerScene('ch1_abandoned_village', {
+            locationName: 'Abandoned Village',
+            art: 'forestPath',
+            artClass: 'dark-forest',
+            description: '',
+            actions: [],
+            fullScreenMap: false,
+            hidePhaser: false,
+            onEnter: async () => this.enterAbandonedVillage()
+        });
+
         // Training Grounds
         World.registerScene('ch1_training', {
             locationName: 'Village of Variables — Training Grounds',
@@ -583,7 +594,91 @@ const Chapter1Scene = {
         await World.goTo('ch1_corrupted_forest_1', 'Leaving the village...');
     },
 
+    syncQuest(quest) {
+        if (!quest || !quest.id || !GameState || !GameState.journal) return;
+
+        const activeQuest = GameState.journal.activeQuests.find((entry) => entry.id === quest.id);
+        if (activeQuest) {
+            activeQuest.title = quest.title;
+            activeQuest.description = quest.description;
+            return;
+        }
+
+        const completed = GameState.journal.completedQuests.some((entry) => entry.id === quest.id)
+            || GameState.progress.completedQuests.includes(quest.id);
+        if (!completed) {
+            GameState.addQuest(quest);
+        }
+    },
+
     async talkToHera() {
+        if (GameState.hasFlag('ch1_report_to_elder_after_abandoned')) {
+            await Dialogue.quick(
+                'hera',
+                'Hera',
+                `We're close now, ${GameState.player.name}. Take the map back to Elder Varion so he can guide the final push toward the fragment.`,
+                'ðŸ§'
+            );
+            return;
+        }
+
+        if (GameState.hasFlag('ch1_abandoned_goblin_defeated')) {
+            await Dialogue.quick(
+                'hera',
+                'Hera',
+                `The abandoned village is clear. Elder Varion needs to see the route I marked on the map.`,
+                'ðŸ§'
+            );
+            return;
+        }
+
+        if (GameState.hasFlag('ch1_abandoned_village_unlocked')) {
+            await Dialogue.quick(
+                'hera',
+                'Hera',
+                `The trail beyond this grove leads to an <span class="highlight">abandoned village</span>. Take the right path when you're ready, and stay sharp.`,
+                'ðŸ§'
+            );
+            return;
+        }
+
+        if (GameState.hasFlag('ch1_goblin_defeated') && !GameState.hasFlag('ch1_abandoned_village_unlocked')) {
+            await Dialogue.start([
+                {
+                    speaker: 'hera',
+                    name: 'Hera',
+                    text: `You really saved me, ${GameState.player.name}. That goblin was guarding the route to the real corruption source.`,
+                    portrait: 'ðŸ§'
+                },
+                {
+                    speaker: 'player',
+                    name: GameState.player.name,
+                    text: `Then the Prime Script fragment is still deeper in the forest.`,
+                    portrait: 'Ã°Å¸Â§â€˜Ã¢â‚¬ÂÃ°Å¸â€™Â»'
+                },
+                {
+                    speaker: 'hera',
+                    name: 'Hera',
+                    text: `Yes. I can sense the Data Glitch's trail from here. It leads through an <span class="highlight">abandoned village</span> farther east.`,
+                    portrait: 'ðŸ§'
+                },
+                {
+                    speaker: 'hera',
+                    name: 'Hera',
+                    text: `Take the path on the right when you're ready. I'll guide you as far as I can.`,
+                    portrait: 'ðŸ§'
+                }
+            ]);
+
+            GameState.setFlag('ch1_abandoned_village_unlocked');
+            this.syncQuest({
+                id: 'ch1_forest_quest',
+                title: 'Follow Hera Deeper',
+                description: 'Follow Hera toward the abandoned village and trace the route to the Prime Script fragment.'
+            });
+            return;
+        }
+
         if (GameState.hasFlag('ch1_goblin_defeated')) {
             await Dialogue.quick(
                 'hera',
@@ -665,6 +760,40 @@ const Chapter1Scene = {
         }
     },
 
+    async goToAbandonedVillage() {
+        if (!GameState.hasFlag('ch1_goblin_defeated')) {
+            await Dialogue.quick(
+                'hera',
+                'Hera',
+                `We can't risk the deeper trail until that first goblin is down.`,
+                'ðŸ§'
+            );
+            return;
+        }
+
+        if (!GameState.hasFlag('ch1_abandoned_village_unlocked')) {
+            await Dialogue.quick(
+                'hera',
+                'Hera',
+                `Talk to me first. I need to explain where the corruption trail leads next.`,
+                'ðŸ§'
+            );
+            return;
+        }
+
+        await World.goTo('ch1_abandoned_village', 'Following the corruption trail into the abandoned village...');
+    },
+
+    async enterAbandonedVillage() {
+        if (
+            GameState.hasFlag('ch1_abandoned_goblin_defeated') &&
+            typeof Platformer !== 'undefined' &&
+            typeof Platformer.releaseMovementLock === 'function'
+        ) {
+            Platformer.releaseMovementLock();
+        }
+    },
+
     async startGoblinEncounter() {
         if (GameState.hasFlag('ch1_goblin_defeated')) {
             if (typeof Platformer !== 'undefined' && typeof Platformer.releaseMovementLock === 'function') {
@@ -702,6 +831,48 @@ const Chapter1Scene = {
         };
 
         Combat.start(goblin, this.getGoblinChallenges(), () => this.onGoblinVictory());
+    },
+
+    async startAbandonedVillageGoblinEncounter() {
+        if (GameState.hasFlag('ch1_abandoned_goblin_defeated')) {
+            return;
+        }
+
+        await Dialogue.start([
+            {
+                speaker: 'narrator',
+                name: 'Narrator',
+                text: `<em>The abandoned village is nearly silent. Then a smaller goblin darts from the rubble and lunges at you.</em>`,
+                portrait: 'ðŸ“œ'
+            },
+            {
+                speaker: 'goblin',
+                name: 'Village Goblin',
+                text: `Raaagh! No heroes past this place!`,
+                portrait: 'ðŸ‘¹'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `One more guard. Fine - let's clear the road.`,
+                portrait: 'Ã°Å¸Â§â€˜Ã¢â‚¬ÂÃ°Å¸â€™Â»'
+            }
+        ]);
+
+        const goblin = {
+            name: 'Village Goblin',
+            hp: 82,
+            maxHp: 82,
+            coinReward: 30,
+            art: 'assets/sprites/enemies/code_goblin.png',
+            description: 'A corrupted goblin left behind to guard the abandoned village approach.',
+            maxHints: 1,
+            correctXpReward: 14,
+            firstTryXpReward: 22,
+            victoryXpReward: 40
+        };
+
+        Combat.start(goblin, this.getAbandonedVillageChallenges(), () => this.onAbandonedVillageGoblinVictory());
     },
 
     getGoblinChallenges() {
@@ -807,9 +978,64 @@ int totalDamage = 20;</pre>
         ];
     },
 
+    getAbandonedVillageChallenges() {
+        return [
+            {
+                id: 'ch1_abandoned_goblin_1',
+                prompt: `
+                    <span class="challenge-title">⚔️ Village Ambush: Set The Value</span>
+                    <p>Declare an <strong>int</strong> named <code>supplies</code> with a value of <strong>3</strong>.</p>
+                    <pre>______________________</pre>
+                `,
+                narrative: 'A goblin scrambles across the broken road. Lock in the supply count before it closes the gap!',
+                hints: [
+                    'Use the int keyword.',
+                    'Answer: int supplies = 3;'
+                ],
+                answers: [
+                    'int supplies = 3;',
+                    'int supplies=3;',
+                    'int supplies = 3'
+                ],
+                damage: 32,
+                explanation: 'Whole numbers like 3 use the int type.',
+                concept: 'abandoned_supplies_int',
+                conceptTitle: 'Declaring Integer Variables'
+            },
+            {
+                id: 'ch1_abandoned_goblin_2',
+                prompt: `
+                    <span class="challenge-title">⚔️ Village Ambush: Clear The Path</span>
+                    <p>Declare a <strong>boolean</strong> named <code>pathClear</code> with the value <strong>true</strong>.</p>
+                    <pre>______________________</pre>
+                `,
+                narrative: 'The last corrupted guard stumbles back. Finish the fight by restoring a clear true/false state!',
+                hints: [
+                    'Use the boolean keyword.',
+                    'true is written without quotes.',
+                    'Answer: boolean pathClear = true;'
+                ],
+                answers: [
+                    'boolean pathClear = true;',
+                    'boolean pathClear=true;',
+                    'boolean pathClear = true'
+                ],
+                damage: 40,
+                explanation: 'boolean variables store only true or false values.',
+                concept: 'abandoned_path_boolean',
+                conceptTitle: 'Declaring Boolean Variables'
+            }
+        ];
+    },
+
     async onGoblinVictory() {
         GameState.setFlag('ch1_goblin_defeated');
         GameState.completeQuest('ch1_help_hera');
+        this.syncQuest({
+            id: 'ch1_forest_quest',
+            title: 'Speak with Hera',
+            description: 'Return to Hera in Corrupted Forest 2 and learn where the corruption trail leads next.'
+        });
 
         await Dialogue.start([
             {
@@ -844,6 +1070,70 @@ int totalDamage = 20;</pre>
         }
     },
 
+    async onAbandonedVillageGoblinVictory() {
+        GameState.setFlag('ch1_abandoned_goblin_defeated');
+        GameState.setFlag('ch1_world_map_unlocked');
+        GameState.setFlag('ch1_report_to_elder_after_abandoned');
+
+        this.syncQuest({
+            id: 'ch1_forest_quest',
+            title: 'Report Back to Elder Varion',
+            description: 'Return to the Village of Variables and tell Elder Varion what Hera discovered near the corruption source.'
+        });
+
+        await Dialogue.start([
+            {
+                speaker: 'narrator',
+                name: 'Narrator',
+                text: `<em>The last goblin falls into static. The abandoned village quiets, leaving only the hum of corrupted code deeper ahead.</em>`,
+                portrait: 'ðŸ“œ'
+            },
+            {
+                speaker: 'hera',
+                name: 'Hera',
+                text: `I'm sensing we're near, but I need you to report back to Elder Varion first. Take this map with you.`,
+                portrait: 'ðŸ§'
+            },
+            {
+                speaker: 'hera',
+                name: 'Hera',
+                text: `It marks the route from this village toward the fragment. Once the elder sees it, he'll know how to prepare you for the Data Glitch.`,
+                portrait: 'ðŸ§'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `I'll bring it to him right away. Wait here - we're close to ending this.`,
+                portrait: 'Ã°Å¸Â§â€˜Ã¢â‚¬ÂÃ°Å¸â€™Â»'
+            }
+        ]);
+
+        if (typeof Game !== 'undefined' && typeof Game.updateWorldMapUi === 'function') {
+            Game.updateWorldMapUi(World.currentScene || GameState.progress.currentScene);
+        }
+
+        if (typeof Platformer !== 'undefined') {
+            if (typeof Platformer.releaseMovementLock === 'function') {
+                Platformer.releaseMovementLock();
+            }
+            if (Platformer.player && typeof Platformer.width === 'number') {
+                const safeX = Math.floor(Platformer.width * 0.35);
+                const maxX = Math.max(72, Platformer.width - Platformer.player.w - 72);
+                Platformer.player.x = Math.max(72, Math.min(safeX, maxX));
+                Platformer.player.y = Platformer.groundY - Platformer.player.h;
+            }
+            if (typeof Platformer.resetExitPrompt === 'function') {
+                Platformer.resetExitPrompt();
+            }
+            if (typeof Platformer.clearInputState === 'function') {
+                Platformer.clearInputState();
+            }
+            if (typeof Platformer.resetNpcs === 'function') {
+                Platformer.resetNpcs();
+            }
+        }
+    },
+
     /**
      * Training Grounds - coding practice
      */
@@ -868,7 +1158,7 @@ int totalDamage = 20;</pre>
 
         if (GameState.hasFlag('ch1_forest_path_unlocked')) {
             await Dialogue.quick('elder', 'Elder Varion',
-                `The Corrupted Forest lies to the far right of the village, ${GameState.player.name}. Follow the marked path and recover the fragment.`,
+                `The Corrupted Forest lies to the far right of the village, ${GameState.player.name}. Follow the trail, find Hera, and discover where the fragment is hidden.`,
                 'ðŸ‘´');
             return;
         }
@@ -1187,9 +1477,53 @@ ______________________</pre>
             return;
         }
 
+        if (GameState.hasFlag('ch1_report_to_elder_after_abandoned')) {
+            await Dialogue.start([
+                {
+                    speaker: 'elder',
+                    name: 'Elder Varion',
+                    text: `So Hera found the abandoned village... then the corruption source truly is close.`,
+                    portrait: 'ðŸ‘´'
+                },
+                {
+                    speaker: 'player',
+                    name: GameState.player.name,
+                    text: `She gave me a map. It points deeper into the forest, near where the Prime Script fragment should be hidden.`,
+                    portrait: 'ðŸ§‘â€ðŸ’»'
+                },
+                {
+                    speaker: 'elder',
+                    name: 'Elder Varion',
+                    text: `Good. Keep that map close. The Data Glitch must be beyond the abandoned village, and I want you prepared before you descend any farther.`,
+                    portrait: 'ðŸ‘´'
+                },
+                {
+                    speaker: 'elder',
+                    name: 'Elder Varion',
+                    text: `Rest, study the route, and speak with me again when you are ready for the final push toward the fragment.`,
+                    portrait: 'ðŸ‘´'
+                }
+            ]);
+
+            GameState.setFlag('ch1_report_to_elder_after_abandoned', false);
+            GameState.setFlag('ch1_elder_has_map_report', true);
+            GameState.completeQuest('ch1_forest_quest');
+            return;
+        }
+
+        if (GameState.hasFlag('ch1_elder_has_map_report')) {
+            await Dialogue.quick(
+                'elder',
+                'Elder Varion',
+                `Keep Hera's map with you, ${GameState.player.name}. The path to the fragment is marked now - we only need the right moment to push deeper.`,
+                '👴'
+            );
+            return;
+        }
+
         if (GameState.hasFlag('ch1_forest_path_unlocked')) {
             await Dialogue.quick('elder', 'Elder Varion',
-                `The Corrupted Forest lies to the far right of the village, ${GameState.player.name}. Follow the marked path and recover the fragment.`,
+                `The Corrupted Forest lies to the far right of the village, ${GameState.player.name}. Follow the trail, find Hera, and discover where the fragment is hidden.`,
                 '👴');
             return;
         }
@@ -1204,30 +1538,29 @@ ______________________</pre>
             {
                 speaker: 'elder',
                 name: 'Elder Varion',
-                text: `You're ready to face the <span class="highlight">Corrupted Forest</span>. The Prime Script fragment is guarded by a powerful creature — the <span class="highlight">Data Glitch</span>.`,
+                text: `You're ready to enter the <span class="highlight">Corrupted Forest</span>. Somewhere deeper inside, the Prime Script fragment is being guarded by the corruption source.`,
                 portrait: '👴'
             },
             {
                 speaker: 'elder',
                 name: 'Elder Varion',
-                text: `The Data Glitch corrupts variable types — it turns integers into strings, booleans into nulls. You'll need all your knowledge to defeat it.`,
+                text: `Hera was scouting the trail before the forest turned on her. Find her, follow the signs of corruption, and learn where the <span class="highlight">Data Glitch</span> is hiding.`,
                 portrait: '👴'
             },
             {
                 speaker: 'elder',
                 name: 'Elder Varion',
-                text: `Go north to the forest. May the clean code guide your way, Guardian.`,
+                text: `Go north to the forest. Recover what you can, then report back if the trail changes. May the clean code guide your way, Guardian.`,
                 portrait: '👴'
             }
         ]);
         
         GameState.setFlag('ch1_forest_path_unlocked');
 
-        // Update quest
-        GameState.addQuest({
+        this.syncQuest({
             id: 'ch1_forest_quest',
-            title: 'Defeat the Data Glitch',
-            description: 'Enter the Corrupted Forest and defeat the Data Glitch to recover the Prime Script fragment.'
+            title: 'Investigate the Corrupted Forest',
+            description: 'Enter the Corrupted Forest, find Hera, and trace the route to the Prime Script fragment.'
         });
     },
     

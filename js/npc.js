@@ -153,6 +153,10 @@ const NPCSystem = {
                 Chapter1Scene.talkToHera();
                 return true;
             }
+            if (npc.role === 'abandoned_goblin' && typeof Chapter1Scene.startAbandonedVillageGoblinEncounter === 'function') {
+                Chapter1Scene.startAbandonedVillageGoblinEncounter();
+                return true;
+            }
         }
 
         Dialogue.openNpcDialogue(npc);

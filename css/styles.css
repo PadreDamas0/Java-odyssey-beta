@@ -612,6 +612,29 @@ html, body {
   outline-offset: 2px;
 }
 
+.world-map-content {
+  width: min(92vw, 960px);
+  max-width: 960px;
+  padding: 1.2rem;
+}
+
+.world-map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.world-map-full-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(201, 168, 76, 0.45);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
+}
+
 /* Ensure the world-display area fills available space and is never shorter than the canvas */
 .world-display {
   flex: 1;

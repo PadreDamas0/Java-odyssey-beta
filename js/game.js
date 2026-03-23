@@ -124,7 +124,8 @@ const Game = {
                     Chapter1Scene.registerScenes();
                     if (
                         GameState.progress.currentScene === 'ch1_corrupted_forest_1' ||
-                        GameState.progress.currentScene === 'ch1_corrupted_forest_2'
+                        GameState.progress.currentScene === 'ch1_corrupted_forest_2' ||
+                        GameState.progress.currentScene === 'ch1_abandoned_village'
                     ) {
                         await World.loadScene(GameState.progress.currentScene);
                         break;
@@ -400,14 +401,28 @@ const Game = {
     },
 
     handleWorldMapClick() {
-        Utils.notify('World map button clicked. Map screen coming soon.', 'default');
+        if (!GameState.hasFlag('ch1_world_map_unlocked')) {
+            Utils.notify('You do not have the world map yet.', 'default');
+            return;
+        }
+        if (GameState.combat && GameState.combat.active) {
+            Utils.notify('You cannot open the world map during combat.', 'default');
+            return;
+        }
+
+        const modal = Utils.$('world-map-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
     },
 
     updateWorldMapUi(sceneId) {
         const button = Utils.$('world-map-ui-button');
         if (!button) return;
 
-        button.style.display = sceneId === 'ch1_village_square' ? 'flex' : 'none';
+        const unlocked = GameState.hasFlag('ch1_world_map_unlocked');
+        const isChapter1Scene = typeof sceneId === 'string' && sceneId.startsWith('ch1_');
+        button.style.display = unlocked && isChapter1Scene ? 'flex' : 'none';
     },
 
     showBlacksmithShop() {
