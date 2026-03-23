@@ -635,6 +635,311 @@ html, body {
   box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
 }
 
+.world-map-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 850;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2vh 2vw;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  background: rgba(5, 5, 8, 0.26);
+  backdrop-filter: blur(9px) brightness(0.52) saturate(0.8);
+  transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+}
+
+.world-map-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+.world-map-overlay-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(78vw, 1120px);
+  height: min(78vh, 720px);
+  opacity: 0;
+  transform: translateY(22px) scale(0.965) rotate(-0.7deg);
+  transition: transform 0.45s ease, opacity 0.35s ease;
+}
+
+.world-map-overlay.is-open .world-map-overlay-stage {
+  opacity: 1;
+  transform: translateY(0) scale(1) rotate(-0.25deg);
+}
+
+.world-map-parchment {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(70vw, 980px);
+  height: min(72vh, 640px);
+  padding: 0.45rem 0.45rem 0.7rem;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.world-map-parchment::before,
+.world-map-parchment::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: none;
+}
+
+.world-map-scroll-edge {
+  display: none;
+}
+
+.world-map-heading {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  margin-bottom: 0.45rem;
+}
+
+.world-map-heading-kicker {
+  margin: 0 0 0.3rem;
+  color: rgba(236, 206, 156, 0.88);
+  font-family: var(--font-fancy);
+  font-size: clamp(0.72rem, 1vw, 0.9rem);
+  letter-spacing: 0.18em;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+  text-transform: uppercase;
+}
+
+.world-map-overlay-title {
+  margin: 0;
+  color: #f2d9ab;
+  font-family: var(--font-title);
+  font-size: clamp(1.2rem, 2.1vw, 2rem);
+  text-align: center;
+  letter-spacing: 0.05em;
+  text-shadow: 0 3px 18px rgba(0, 0, 0, 0.45);
+}
+
+.world-map-canvas {
+  position: relative;
+  flex: 0 0 auto;
+  align-self: center;
+  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  min-height: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: transparent;
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.38);
+}
+
+.world-map-overlay-image {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  object-position: center center;
+  filter: sepia(0.12) saturate(0.92) contrast(0.98) brightness(0.98);
+  opacity: 1;
+  mix-blend-mode: normal;
+}
+
+.world-map-canvas::before,
+.world-map-canvas::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.world-map-canvas::before {
+  background: none;
+}
+
+.world-map-canvas::after {
+  inset: 0;
+  border-radius: 18px;
+  box-shadow: inset 0 0 0 1px rgba(81, 49, 23, 0.12);
+}
+
+.world-map-roads {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.world-map-roads path {
+  fill: none;
+  stroke: rgba(109, 62, 30, 0.72);
+  stroke-width: 0.5;
+  stroke-linecap: round;
+  stroke-dasharray: 1.4 1.3;
+  filter: drop-shadow(0 1px 0 rgba(255, 235, 197, 0.22));
+}
+
+.world-map-location {
+  position: absolute;
+  z-index: 2;
+  color: #4f2b15;
+  font-family: var(--font-fancy);
+  font-size: clamp(0.8rem, 1vw, 1rem);
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 0 rgba(255, 240, 212, 0.45);
+}
+
+.world-map-location::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.25rem);
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 999px;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(circle at 30% 30%, #f8ebcb 0%, #c28c4d 45%, #75421c 100%);
+  box-shadow: 0 2px 4px rgba(74, 35, 12, 0.18);
+}
+
+.world-map-location-village {
+  left: 15%;
+  bottom: 18%;
+}
+
+.world-map-location-forest {
+  left: 33%;
+  top: 44%;
+}
+
+.world-map-location-castle {
+  right: 17%;
+  top: 18%;
+}
+
+.world-map-location-ruins {
+  right: 22%;
+  bottom: 16%;
+}
+
+.world-map-compass {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.4rem;
+  z-index: 2;
+  width: clamp(88px, 10vw, 128px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(255, 240, 210, 0.5) 0%, rgba(255, 240, 210, 0.08) 42%, rgba(0, 0, 0, 0) 43%),
+    radial-gradient(circle, rgba(95, 53, 23, 0.08) 0%, rgba(95, 53, 23, 0.18) 70%, rgba(95, 53, 23, 0) 72%);
+  box-shadow: inset 0 0 0 1px rgba(102, 57, 28, 0.18);
+}
+
+.world-map-compass::before,
+.world-map-compass::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: rgba(99, 56, 27, 0.72);
+  transform: translate(-50%, -50%);
+}
+
+.world-map-compass::before {
+  width: 2px;
+  height: 76%;
+}
+
+.world-map-compass::after {
+  width: 76%;
+  height: 2px;
+}
+
+.world-map-compass span {
+  position: absolute;
+  color: #60361a;
+  font-family: var(--font-heading);
+  font-size: clamp(0.72rem, 0.95vw, 0.9rem);
+  font-weight: 700;
+}
+
+.world-map-compass-n {
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.world-map-compass-e {
+  top: 50%;
+  right: 10%;
+  transform: translateY(-50%);
+}
+
+.world-map-compass-s {
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.world-map-compass-w {
+  top: 50%;
+  left: 10%;
+  transform: translateY(-50%);
+}
+
+.world-map-overlay-close {
+  position: absolute;
+  top: clamp(0.6rem, 1.2vw, 1rem);
+  right: clamp(1rem, 1.8vw, 1.8rem);
+  z-index: 4;
+  border: 0;
+  background: transparent;
+  color: rgba(252, 234, 195, 0.96);
+  font-family: var(--font-heading);
+  font-size: clamp(1.4rem, 2vw, 1.9rem);
+  line-height: 1;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+}
+
+.world-map-overlay-close:hover {
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+.world-map-overlay-close:focus-visible {
+  outline: 2px solid var(--text-gold);
+  outline-offset: 2px;
+}
+
+@media (max-width: 900px) {
+  .world-map-parchment {
+    width: min(84vw, 980px);
+    height: min(68vh, 640px);
+    padding: 0.35rem 0.35rem 0.55rem;
+  }
+
+  .world-map-compass {
+    width: clamp(72px, 16vw, 96px);
+    top: 0.8rem;
+    right: 0.9rem;
+  }
+}
+
 /* Ensure the world-display area fills available space and is never shorter than the canvas */
 .world-display {
   flex: 1;
