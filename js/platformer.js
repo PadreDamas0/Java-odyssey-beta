@@ -159,6 +159,60 @@ const Platformer = {
       }
     };
 
+    const caveHeraDefinition = {
+      ...heraDefinition,
+      id: 'cave-hera',
+      role: 'cave_hera',
+      relX: 0.16,
+      dialogue: `Good, you're here. I'm sensing the fragment is in that cave.`
+    };
+
+    const caveEntryDefinition = {
+      id: 'cave-entry',
+      role: 'cave_entry',
+      name: '',
+      relX: 0.53,
+      interactionRange: 88,
+      hidden: true,
+      hideLabel: true,
+      dialogue: 'The cave hums with corrupted power.',
+      portrait: '📜',
+      sprite: {
+        assetKey: null,
+        frameCount: 1,
+        frameWidth: 1,
+        frameHeight: 1,
+        cropX: 0,
+        cropY: 0,
+        cropWidth: 1,
+        cropHeight: 1,
+        drawWidth: 0,
+        drawHeight: 72
+      }
+    };
+
+    const fireWormDefinition = {
+      id: 'fire-worm-boss',
+      role: 'fire_worm_boss',
+      name: 'Small Fire Worm',
+      relX: 0.76,
+      interactionRange: 0,
+      dialogue: 'The tunnel burns with a sudden hiss.',
+      portrait: '🔥',
+      sprite: {
+        assetKey: 'enemy_fire_worm_world',
+        frameCount: 9,
+        frameWidth: 90,
+        frameHeight: 90,
+        cropX: 0,
+        cropY: 0,
+        cropWidth: 90,
+        cropHeight: 90,
+        drawWidth: 188,
+        drawHeight: 146
+      }
+    };
+
     const neutralScene = {
       id: sceneId || 'ch1_generic',
       backgroundKey: 'bg_village',
@@ -290,6 +344,35 @@ const Platformer = {
             }
           }
         }
+      },
+      ch1_cave_entrance: {
+        id: 'ch1_cave_entrance',
+        backgroundKey: 'bg_cave_entrance',
+        groundOffset: 196,
+        spawnX: 120,
+        npcScene: true,
+        npcDefinitions: () => [caveHeraDefinition, caveEntryDefinition]
+      },
+      ch1_cave_rush: {
+        id: 'ch1_cave_rush',
+        backgroundKey: 'bg_cave_rush',
+        groundOffset: 204,
+        spawnX: 140,
+        npcScene: false
+      },
+      ch1_cave_inner: {
+        id: 'ch1_cave_inner',
+        backgroundKey: 'bg_cave_1',
+        groundOffset: 204,
+        spawnX: 150,
+        npcScene: true,
+        npcDefinitions: () => {
+          const hasState = typeof GameState !== 'undefined' && typeof GameState.hasFlag === 'function';
+          if (!hasState) return [caveHeraDefinition];
+          if (GameState.hasFlag('ch1_fire_worm_defeated')) return [caveHeraDefinition];
+          if (GameState.hasFlag('ch1_fire_worm_revealed')) return [caveHeraDefinition, fireWormDefinition];
+          return [caveHeraDefinition];
+        }
       }
     };
 
@@ -311,6 +394,8 @@ const Platformer = {
       bg_corrupted_forest_2: 'assets/background/corruptedforest2.png',
       bg_abandoned_village: 'assets/background/abandonedvillage.png',
       bg_cave_entrance: 'assets/background/caveEntrance.png',
+      bg_cave_1: 'assets/background/cave1.png',
+      bg_cave_rush: 'assets/background/cave2.png',
       ui_right_arrow: 'assets/UI/Right-Arrow.png',
       idle_0: 'assets/sprites/mc/adventurer-idle-00.png',
       idle_1: 'assets/sprites/mc/adventurer-idle-01.png',
@@ -329,7 +414,8 @@ const Platformer = {
       npc_trainer: 'assets/sprites/npc/VillageTrainer.png',
       npc_blacksmith: 'assets/sprites/npc/Blacksmith.png',
       npc_hera: 'assets/sprites/npc/Hera.png',
-      enemy_goblin_idle: 'assets/sprites/worldEnemies/goblinIdle.png'
+      enemy_goblin_idle: 'assets/sprites/worldEnemies/goblinIdle.png',
+      enemy_fire_worm_world: 'assets/sprites/worldEnemies/SmallFireWorm.png'
     };
 
     const keys = Object.keys(images);
@@ -677,6 +763,9 @@ const Platformer = {
     // Draw NPCs
     this.ctx.imageSmoothingEnabled = false;
     this.npcs.forEach((npc) => {
+      if (npc.hidden) {
+        return;
+      }
       const img = this.assets[npc.assetKey];
       const x = npc.x - npc.drawWidth / 2;
       const y = npc.y;
@@ -698,10 +787,12 @@ const Platformer = {
         this.ctx.fillRect(x, y, npc.drawWidth, npc.drawHeight);
       }
       // Name label
-      this.ctx.font = '12px sans-serif';
-      this.ctx.fillStyle = 'rgba(255,255,255,0.9)';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText(npc.name, npc.x, y - 8);
+      if (!npc.hideLabel && npc.name) {
+        this.ctx.font = '12px sans-serif';
+        this.ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText(npc.name, npc.x, y - 8);
+      }
     });
 
     if (this.shouldDrawVillageExitArrow()) {

@@ -229,6 +229,9 @@
                         </button>
                     </div>
                 </div>
+                <div class="multiple-choice-area" id="multiple-choice-area" style="display:none;">
+                    <div class="multiple-choice-options" id="multiple-choice-options"></div>
+                </div>
                 <div class="feedback-area" id="feedback-area" style="display:none;">
                     <div class="feedback-content" id="feedback-content"></div>
                 </div>
@@ -330,11 +333,11 @@
                             <path d="M21 24 C28 30, 34 33, 44 36 S57 40, 66 51 S73 65, 81 76"></path>
                             <path d="M43 57 C47 60, 52 64, 58 68 S69 75, 77 80"></path>
                         </svg>
-                        <button class="world-map-hotspot world-map-hotspot-village is-unlocked" type="button" aria-label="Travel to Village of Variables" data-label="Village of Variables" data-state="Available" onclick="Game.handleWorldMapTravel('village')"></button>
-                        <button class="world-map-hotspot world-map-hotspot-forest is-unlocked" type="button" aria-label="Travel to Corrupted Forest" data-label="Corrupted Forest" data-state="Available" onclick="Game.handleWorldMapTravel('corrupted_forest')"></button>
+                        <button class="world-map-hotspot world-map-hotspot-village is-unlocked" type="button" aria-label="Travel to Village of Variables" data-destination="village" data-label="Village of Variables" data-state="Available" onclick="Game.handleWorldMapTravel('village')"></button>
+                        <button class="world-map-hotspot world-map-hotspot-forest is-unlocked" type="button" aria-label="Travel to Corrupted Forest" data-destination="corrupted_forest" data-label="Corrupted Forest" data-state="Available" onclick="Game.handleWorldMapTravel('corrupted_forest')"></button>
                         <button class="world-map-hotspot world-map-hotspot-syntax is-locked" type="button" aria-label="Syntax City locked" data-label="Syntax City" data-state="Locked" onclick="Game.handleWorldMapTravel('syntax_city')" title="Locked for now"></button>
                         <button class="world-map-hotspot world-map-hotspot-arena is-locked" type="button" aria-label="Arena of Heroes locked" data-label="Arena of Heroes" data-state="Locked" onclick="Game.handleWorldMapTravel('arena_of_heroes')" title="Locked for now"></button>
-                        <button class="world-map-hotspot world-map-hotspot-cave is-locked" type="button" aria-label="Cave locked" data-label="Cave" data-state="Locked" onclick="Game.handleWorldMapTravel('cave')" title="Locked for now"></button>
+                        <button class="world-map-hotspot world-map-hotspot-cave is-locked" type="button" aria-label="Cave locked" data-destination="cave" data-label="Cave" data-state="Locked" onclick="Game.handleWorldMapTravel('cave')" title="Locked for now"></button>
                         <button class="world-map-hotspot world-map-hotspot-ice is-locked" type="button" aria-label="The Ice Gates locked" data-label="The Ice Gates" data-state="Locked" onclick="Game.handleWorldMapTravel('ice_gates')" title="Locked for now"></button>
                         <button class="world-map-hotspot world-map-hotspot-boolean is-locked" type="button" aria-label="Boolean City locked" data-label="Boolean City" data-state="Locked" onclick="Game.handleWorldMapTravel('boolean_city')" title="Locked for now"></button>
                         <button class="world-map-hotspot world-map-hotspot-tower is-locked" type="button" aria-label="Teleportation Tower locked" data-label="Teleportation Tower" data-state="Locked" onclick="Game.handleWorldMapTravel('teleportation_tower')" title="Locked for now"></button>

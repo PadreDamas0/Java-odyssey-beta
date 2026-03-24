@@ -32,6 +32,13 @@ const World = {
         if (typeof Game !== 'undefined' && typeof Game.updateWorldMapUi === 'function') {
             Game.updateWorldMapUi(sceneId);
         }
+        if (typeof Audio !== 'undefined') {
+            if (sceneId.startsWith('ch1_cave_')) {
+                Audio.stopBgm(true);
+            } else if (sceneId.startsWith('ch1_')) {
+                Audio.playBgm('mainMenu', true);
+            }
+        }
 
         const gameContainer = Utils.$('game-container');
         const phaserContainer = Utils.$('phaser-container');
