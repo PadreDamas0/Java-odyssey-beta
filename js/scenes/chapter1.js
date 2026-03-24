@@ -1071,6 +1071,13 @@ int totalDamage = 20;</pre>
     },
 
     async onAbandonedVillageGoblinVictory() {
+        if (typeof Platformer !== 'undefined') {
+            Platformer.movementLocked = true;
+            if (typeof Platformer.suppressSceneExit === 'function') {
+                Platformer.suppressSceneExit(2200);
+            }
+        }
+
         GameState.setFlag('ch1_abandoned_goblin_defeated');
         GameState.setFlag('ch1_world_map_unlocked');
         GameState.setFlag('ch1_report_to_elder_after_abandoned');
@@ -1115,6 +1122,9 @@ int totalDamage = 20;</pre>
         if (typeof Platformer !== 'undefined') {
             if (typeof Platformer.releaseMovementLock === 'function') {
                 Platformer.releaseMovementLock();
+            }
+            if (typeof Platformer.suppressSceneExit === 'function') {
+                Platformer.suppressSceneExit(1600);
             }
             if (Platformer.player && typeof Platformer.width === 'number') {
                 const safeX = Math.floor(Platformer.width * 0.35);

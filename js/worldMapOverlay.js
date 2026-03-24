@@ -1,7 +1,5 @@
 (function () {
     function initWorldMapOverlay() {
-        const worldMapButton = document.querySelector('.world-map-ui-button');
-        const legacyModal = document.getElementById('world-map-modal');
         const overlay = document.getElementById('world-map-overlay');
         const closeButton = document.getElementById('world-map-overlay-close');
         const parchment = overlay ? overlay.querySelector('.world-map-parchment') : null;
@@ -10,15 +8,11 @@
         const image = overlay ? overlay.querySelector('.world-map-overlay-image') : null;
         let lastFocusedElement = null;
 
-        if (!worldMapButton || !legacyModal || !overlay || !closeButton || !parchment || !heading || !canvas || !image) {
+        if (!overlay || !closeButton || !parchment || !heading || !canvas || !image) {
             return;
         }
 
-        function isLegacyModalOpen() {
-            return window.getComputedStyle(legacyModal).display !== 'none';
-        }
-
-        function isOverlayOpen() {
+        function isOpen() {
             return overlay.classList.contains('is-open');
         }
 
@@ -46,16 +40,15 @@
             canvas.style.height = `${Math.floor(fittedHeight)}px`;
         }
 
-        function openOverlay() {
+        function open() {
             lastFocusedElement = document.activeElement;
-            legacyModal.style.display = 'none';
             overlay.classList.add('is-open');
             overlay.setAttribute('aria-hidden', 'false');
             fitCanvasToImage();
             closeButton.focus();
         }
 
-        function closeOverlay() {
+        function close() {
             overlay.classList.remove('is-open');
             overlay.setAttribute('aria-hidden', 'true');
             if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
@@ -63,29 +56,28 @@
             }
         }
 
-        worldMapButton.addEventListener('click', function () {
-            window.requestAnimationFrame(function () {
-                if (isLegacyModalOpen()) {
-                    openOverlay();
-                }
-            });
-        });
+        window.WorldMapOverlay = {
+            open,
+            close,
+            fitCanvasToImage,
+            isOpen
+        };
 
-        closeButton.addEventListener('click', closeOverlay);
+        closeButton.addEventListener('click', close);
         overlay.addEventListener('click', function (event) {
             if (event.target === overlay) {
-                closeOverlay();
+                close();
             }
         });
         window.addEventListener('resize', fitCanvasToImage);
         image.addEventListener('load', fitCanvasToImage);
 
         document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape' && isOverlayOpen()) {
+            if (event.key === 'Escape' && isOpen()) {
                 event.preventDefault();
                 event.stopPropagation();
                 event.stopImmediatePropagation();
-                closeOverlay();
+                close();
             }
         }, true);
     }

@@ -5,6 +5,18 @@
 
 const Game = {
     activeShopId: null,
+    WORLD_MAP_DESTINATIONS: {
+        village: {
+            sceneId: 'ch1_village_square',
+            label: 'Village of Variables',
+            transitionText: 'Travelling to the Village of Variables...'
+        },
+        corrupted_forest: {
+            sceneId: 'ch1_corrupted_forest_1',
+            label: 'Corrupted Forest',
+            transitionText: 'Travelling to the Corrupted Forest...'
+        }
+    },
     SHOP_ITEMS: {
         blacksmith: [
             {
@@ -107,6 +119,13 @@ const Game = {
         if (GameState.load()) {
             Utils.showScreen('game-container');
             GameState.updateHUD();
+
+            if (typeof Platformer !== 'undefined' && typeof Platformer.stop === 'function' && Platformer.running) {
+                Platformer.stop();
+            }
+            if (typeof World !== 'undefined') {
+                World.currentScene = null;
+            }
             
             // Resume from saved phase
             switch (GameState.phase) {
@@ -249,7 +268,11 @@ const Game = {
      * Close a modal
      */
     closeModal(modalId) {
-        Utils.$(modalId).style.display = 'none';
+        const modal = Utils.$(modalId);
+        if (modal) modal.style.display = 'none';
+        if (modalId === 'world-map-modal' && typeof window.WorldMapOverlay !== 'undefined' && typeof window.WorldMapOverlay.close === 'function') {
+            window.WorldMapOverlay.close();
+        }
         if (modalId === 'shop-modal') {
             this.activeShopId = null;
         }
@@ -409,11 +432,45 @@ const Game = {
             Utils.notify('You cannot open the world map during combat.', 'default');
             return;
         }
+        if (GameState.dialogue && GameState.dialogue.active) {
+            Utils.notify('Finish the current dialogue before opening the world map.', 'default');
+            return;
+        }
+
+        if (typeof window.WorldMapOverlay !== 'undefined' && typeof window.WorldMapOverlay.open === 'function') {
+            window.WorldMapOverlay.open();
+            return;
+        }
 
         const modal = Utils.$('world-map-modal');
-        if (modal) {
-            modal.style.display = 'flex';
+        if (modal) modal.style.display = 'flex';
+    },
+
+    async handleWorldMapTravel(destinationId) {
+        if (!GameState.hasFlag('ch1_world_map_unlocked')) {
+            Utils.notify('You do not have the world map yet.', 'default');
+            return;
         }
+
+        const destination = this.WORLD_MAP_DESTINATIONS[destinationId];
+        if (!destination) {
+            Utils.notify('That destination is still locked for now.', 'default');
+            return;
+        }
+
+        if (World && World.currentScene === destination.sceneId) {
+            Utils.notify(`You are already at the ${destination.label}.`, 'default');
+            return;
+        }
+
+        if (typeof window.WorldMapOverlay !== 'undefined' && typeof window.WorldMapOverlay.close === 'function') {
+            window.WorldMapOverlay.close();
+        }
+        const modal = Utils.$('world-map-modal');
+        if (modal) modal.style.display = 'none';
+
+        await World.goTo(destination.sceneId, destination.transitionText);
+        GameState.save();
     },
 
     updateWorldMapUi(sceneId) {
@@ -531,6 +588,22 @@ const Game = {
         if (GameState.combat.active) {
             Utils.$('combat-interface').style.display = 'none';
             GameState.combat.active = false;
+        }
+
+        ['shop-modal', 'world-map-modal', 'inventory-modal', 'journal-modal', 'settings-modal'].forEach((modalId) => {
+            const modal = Utils.$(modalId);
+            if (modal) modal.style.display = 'none';
+        });
+        if (typeof window.WorldMapOverlay !== 'undefined' && typeof window.WorldMapOverlay.close === 'function') {
+            window.WorldMapOverlay.close();
+        }
+        this.activeShopId = null;
+
+        if (typeof Platformer !== 'undefined' && typeof Platformer.stop === 'function' && Platformer.running) {
+            Platformer.stop();
+        }
+        if (typeof World !== 'undefined') {
+            World.currentScene = null;
         }
         
         // Show continue button

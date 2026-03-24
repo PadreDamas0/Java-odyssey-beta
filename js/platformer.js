@@ -25,6 +25,7 @@ const Platformer = {
     lock: false,
     zone: null
   },
+  exitSuppressedUntil: 0,
   movementLocked: false,
   autoWalk: null,
   player: {
@@ -153,8 +154,8 @@ const Platformer = {
         cropY: 0,
         cropWidth: 150,
         cropHeight: 150,
-        drawWidth: 82,
-        drawHeight: 82
+        drawWidth: 104,
+        drawHeight: 104
       }
     };
 
@@ -205,7 +206,7 @@ const Platformer = {
       ch1_corrupted_forest_1: {
         id: 'ch1_corrupted_forest_1',
         backgroundKey: 'bg_corrupted_forest_1',
-        groundOffset: 168,
+        groundOffset: 176,
         spawnX: 120,
         npcScene: true,
         npcDefinitions: () => (
@@ -843,6 +844,11 @@ const Platformer = {
     this.exitPrompt.zone = null;
   },
 
+  suppressSceneExit(durationMs = 1000) {
+    this.exitSuppressedUntil = performance.now() + durationMs;
+    this.resetExitPrompt();
+  },
+
   clearInputState() {
     this.keys = {};
     this.player.vx = 0;
@@ -986,6 +992,10 @@ const Platformer = {
   },
 
   updateSceneExit(dialogueOpen, combatOpen) {
+    if (performance.now() < this.exitSuppressedUntil) {
+      return;
+    }
+
     const exit = this.getTriggeredExit();
 
     if (!exit) {
