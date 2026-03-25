@@ -246,9 +246,17 @@ const Game = {
      * Keep settings UI in sync with current audio state
      */
     refreshAudioSettingsUi() {
+        const musicSlider = Utils.$('music-volume');
+        const sfxSlider = Utils.$('sfx-volume');
         const musicVal = Utils.$('music-volume-value');
         const sfxVal = Utils.$('sfx-volume-value');
         const muteBtn = Utils.$('mute-toggle-btn');
+        if (musicSlider) {
+            musicSlider.style.setProperty('--range-fill', `${GameState.settings.musicVolume}%`);
+        }
+        if (sfxSlider) {
+            sfxSlider.style.setProperty('--range-fill', `${GameState.settings.sfxVolume}%`);
+        }
         if (musicVal) musicVal.textContent = `${GameState.settings.musicVolume}%`;
         if (sfxVal) sfxVal.textContent = `${GameState.settings.sfxVolume}%`;
         if (muteBtn) muteBtn.textContent = `Mute: ${GameState.settings.muted ? 'On' : 'Off'}`;
