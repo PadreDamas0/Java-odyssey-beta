@@ -6,6 +6,7 @@
 const Combat = {
     enemy: null,
     challenges: [],
+    currentChallenge: null,
     currentChallengeIndex: 0,
     attempts: 0,
     hintsShown: 0,
@@ -13,6 +14,9 @@ const Combat = {
     startTime: null,
     onVictory: null,
     onDefeat: null,
+    multipleChoiceWrongSelections: 0,
+    multipleChoiceLocked: false,
+    codeInputReady: false,
     
     /**
      * Start a combat encounter
@@ -47,9 +51,12 @@ const Combat = {
         
         this.enemy = { ...enemyData };
         this.challenges = challenges;
+        this.currentChallenge = null;
         this.currentChallengeIndex = 0;
         this.attempts = 0;
         this.hintsShown = 0;
+        this.multipleChoiceWrongSelections = 0;
+        this.multipleChoiceLocked = false;
         this.maxHints = enemyData.maxHints ?? CONFIG.COMBAT.maxHints;
         this.startTime = Date.now();
         this.onVictory = onVictory;
@@ -125,14 +132,17 @@ const Combat = {
             // All challenges done but enemy still alive - repeat
             this.currentChallengeIndex = 0;
         }
-        
+
         const challenge = this.challenges[this.currentChallengeIndex];
+        this.currentChallenge = challenge;
         const promptEl = Utils.$('challenge-prompt');
         const narrativeEl = Utils.$('combat-narrative');
         const hintArea = Utils.$('hint-area');
         const feedbackArea = Utils.$('feedback-area');
         const codeInput = Utils.$('code-input');
-        
+        const codeInputArea = document.querySelector('.code-input-area');
+        const multipleChoiceArea = Utils.$('multiple-choice-area');
+
         // Set challenge prompt
         promptEl.innerHTML = challenge.prompt;
         
@@ -146,17 +156,34 @@ const Combat = {
         // Reset hint and feedback
         hintArea.style.display = 'none';
         feedbackArea.style.display = 'none';
-        
+        this.multipleChoiceWrongSelections = 0;
+        this.multipleChoiceLocked = false;
+
         // Clear code input
         codeInput.value = '';
-        codeInput.focus();
-        
+
         // Reset attempts for this challenge
         this.attempts = 0;
         this.hintsShown = 0;
         this.startTime = Date.now();
-        
+        GameState.combat.currentChallenge = challenge;
+        GameState.combat.challengeIndex = this.currentChallengeIndex;
+
         Utils.updateLineNumbers(codeInput);
+
+        if (this.isMultipleChoiceChallenge(challenge)) {
+            if (codeInputArea) codeInputArea.style.display = 'none';
+            if (multipleChoiceArea) multipleChoiceArea.style.display = 'block';
+            this.renderMultipleChoiceOptions(challenge);
+        } else {
+            if (codeInputArea) codeInputArea.style.display = 'block';
+            if (multipleChoiceArea) {
+                multipleChoiceArea.style.display = 'none';
+                const optionsEl = Utils.$('multiple-choice-options');
+                if (optionsEl) optionsEl.innerHTML = '';
+            }
+            codeInput.focus();
+        }
 
         if (challenge.autoShowHint || this.enemy.autoShowHint) {
             setTimeout(() => this.showHint(), 350);
@@ -167,8 +194,10 @@ const Combat = {
      * Set up code input event listeners
      */
     setupCodeInput() {
+        if (this.codeInputReady) return;
+
         const codeInput = Utils.$('code-input');
-        
+
         codeInput.addEventListener('input', () => {
             Utils.updateLineNumbers(codeInput);
         });
@@ -190,6 +219,132 @@ const Combat = {
                 this.submitAnswer();
             }
         });
+
+        this.codeInputReady = true;
+    },
+
+    isMultipleChoiceChallenge(challenge) {
+        return challenge && challenge.type === 'multiple_choice';
+    },
+
+    renderMultipleChoiceOptions(challenge) {
+        const optionsEl = Utils.$('multiple-choice-options');
+        if (!optionsEl) return;
+
+        optionsEl.innerHTML = '';
+        (challenge.choices || []).forEach((choice, index) => {
+            const optionText = typeof choice === 'string' ? choice : choice.text;
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'multiple-choice-option';
+            button.innerHTML = `
+                <span class="multiple-choice-option-letter">${String.fromCharCode(65 + index)}</span>
+                <span class="multiple-choice-option-text">${optionText}</span>
+            `;
+            button.addEventListener('click', () => this.selectMultipleChoiceAnswer(index, button));
+            optionsEl.appendChild(button);
+        });
+    },
+
+    getCorrectChoiceIndex(challenge) {
+        if (typeof challenge.correctOption === 'number') {
+            return challenge.correctOption;
+        }
+
+        if (Array.isArray(challenge.choices)) {
+            return challenge.choices.findIndex((choice) => typeof choice === 'object' && choice.correct);
+        }
+
+        return -1;
+    },
+
+    async selectMultipleChoiceAnswer(optionIndex, buttonEl) {
+        const challenge = this.currentChallenge;
+        if (!challenge || !this.isMultipleChoiceChallenge(challenge) || this.multipleChoiceLocked) {
+            return;
+        }
+
+        const correctIndex = this.getCorrectChoiceIndex(challenge);
+        if (optionIndex < 0 || optionIndex === correctIndex && buttonEl?.disabled) {
+            return;
+        }
+
+        this.attempts++;
+        GameState.performance.totalAttempts++;
+
+        if (optionIndex === correctIndex) {
+            this.multipleChoiceLocked = true;
+            buttonEl?.classList.add('correct');
+            this.lockMultipleChoiceOptions();
+            await this.handleCorrectAnswer(challenge);
+            return;
+        }
+
+        GameState.performance.incorrectAnswers++;
+        this.multipleChoiceWrongSelections++;
+
+        if (buttonEl) {
+            buttonEl.classList.add('incorrect');
+            buttonEl.disabled = true;
+        }
+
+        this.showFeedback(
+            `Not quite. That option is out, but you can still recover. Each wrong choice only lowers your damage a little.`,
+            'partial'
+        );
+
+        if (this.attempts >= 2 && this.hintsShown === 0) {
+            setTimeout(() => this.showHint(), 700);
+        }
+    },
+
+    lockMultipleChoiceOptions() {
+        document.querySelectorAll('.multiple-choice-option').forEach((button) => {
+            button.disabled = true;
+        });
+    },
+
+    buildCodexSolutionEntry(challenge) {
+        const answerText = this.getPrimaryAnswerText(challenge);
+        const explanation = challenge.explanation || 'A correct answer strengthens your understanding of this concept.';
+        return {
+            id: challenge.codexId || `lesson_${challenge.id}`,
+            title: challenge.codexTitle || `${challenge.conceptTitle || 'Combat Lesson'} Solution`,
+            description: `${explanation}<br><br><strong>Correct answer:</strong>${answerText.startsWith('<pre>') ? answerText : `<pre>${answerText}</pre>`}`
+        };
+    },
+
+    getPrimaryAnswerText(challenge) {
+        if (this.isMultipleChoiceChallenge(challenge)) {
+            const correctIndex = this.getCorrectChoiceIndex(challenge);
+            const choice = Array.isArray(challenge.choices) ? challenge.choices[correctIndex] : '';
+            return typeof choice === 'string' ? choice : (choice?.text || '');
+        }
+
+        return (challenge.answers && challenge.answers[0]) || '';
+    },
+
+    resumeSceneBgm() {
+        const sceneId = (typeof World !== 'undefined' && World.currentScene)
+            || GameState.progress.currentScene
+            || '';
+
+        if (!sceneId) {
+            Audio.stopBgm(true);
+            return;
+        }
+
+        if (sceneId.startsWith('ch1_cave_')) {
+            Audio.stopBgm(true);
+            return;
+        }
+
+        if (sceneId.startsWith('ch1_')) {
+            Audio.playBgm('mainMenu', true);
+            return;
+        }
+
+        Audio.stopBgm(true);
     },
     
     /**
@@ -217,6 +372,11 @@ const Combat = {
      * Submit answer for current challenge
      */
     async submitAnswer() {
+        if (this.isMultipleChoiceChallenge(this.currentChallenge)) {
+            this.showFeedback('Choose one of the answers below to attack.', 'partial');
+            return;
+        }
+
         const codeInput = Utils.$('code-input');
         const userCode = codeInput.value.trim();
         
@@ -263,6 +423,8 @@ const Combat = {
                 description: challenge.explanation || ''
             });
         }
+
+        GameState.addCodexEntry(this.buildCodexSolutionEntry(challenge));
         
         // Award XP
         const xpReward = this.attempts === 1
@@ -279,7 +441,7 @@ const Combat = {
         } else {
             // Move to next challenge
             this.currentChallengeIndex++;
-            await Utils.wait(1500);
+            await Utils.wait(challenge.feedbackDuration || 2800);
             this.showChallenge();
         }
     },
@@ -288,6 +450,10 @@ const Combat = {
      * Handle incorrect answer
      */
     handleIncorrectAnswer(challenge) {
+        if (this.isMultipleChoiceChallenge(challenge)) {
+            return;
+        }
+
         GameState.performance.incorrectAnswers++;
         
         let feedbackMsg = '';
@@ -356,7 +522,12 @@ const Combat = {
         if (this.hintsShown > 0) {
             damage = Math.floor(damage * CONFIG.COMBAT.hintPenalty);
         }
-        
+
+        if (this.isMultipleChoiceChallenge(challenge) && this.multipleChoiceWrongSelections > 0) {
+            const penaltyMultiplier = Math.max(0.62, 1 - (this.multipleChoiceWrongSelections * 0.12));
+            damage = Math.floor(damage * penaltyMultiplier);
+        }
+
         return Math.max(damage, 5); // Minimum 5 damage
     },
 
@@ -461,7 +632,6 @@ const Combat = {
             GameState.addItem(this.enemy.reward);
         }
         
-        GameState.combat.active = false;
     },
     
     /**
@@ -477,6 +647,7 @@ const Combat = {
         
         // Show world display
         Utils.show('world-display');
+        this.resumeSceneBgm();
         if (typeof Platformer !== 'undefined' && typeof Platformer.clearInputState === 'function') {
             Platformer.clearInputState();
         }
@@ -488,11 +659,16 @@ const Combat = {
         ) {
             PhaserWorld.refreshLayout();
         }
-        
+
         // Reset combat state
+        GameState.combat.active = false;
         this.enemy = null;
         this.challenges = [];
+        this.currentChallenge = null;
         this.currentChallengeIndex = 0;
+        this.multipleChoiceWrongSelections = 0;
+        this.multipleChoiceLocked = false;
+        GameState.combat.currentChallenge = null;
         
         // Call victory callback
         if (this.onVictory) {

@@ -26,6 +26,13 @@ if (typeof window !== 'undefined' && typeof window.World === 'undefined') {
             if (typeof Game !== 'undefined' && typeof Game.updateWorldMapUi === 'function') {
                 Game.updateWorldMapUi(sceneId);
             }
+            if (typeof Audio !== 'undefined') {
+                if (sceneId.startsWith('ch1_cave_')) {
+                    Audio.stopBgm(true);
+                } else if (sceneId.startsWith('ch1_')) {
+                    Audio.playBgm('mainMenu', true);
+                }
+            }
 
             // Basic UI adjustments
             if (window.Utils) {
@@ -171,6 +178,39 @@ const Chapter1Scene = {
             fullScreenMap: false,
             hidePhaser: false,
             onEnter: async () => this.enterAbandonedVillage()
+        });
+
+        World.registerScene('ch1_cave_entrance', {
+            locationName: 'Cave Entrance',
+            art: 'forestPath',
+            artClass: 'dark-forest',
+            description: '',
+            actions: [],
+            fullScreenMap: false,
+            hidePhaser: false,
+            onEnter: async () => this.enterCaveEntrance()
+        });
+
+        World.registerScene('ch1_cave_rush', {
+            locationName: 'Cave Depths',
+            art: 'forestPath',
+            artClass: 'dark-forest',
+            description: '',
+            actions: [],
+            fullScreenMap: false,
+            hidePhaser: false,
+            onEnter: async () => this.enterCaveRush()
+        });
+
+        World.registerScene('ch1_cave_inner', {
+            locationName: 'Inner Cave',
+            art: 'forestPath',
+            artClass: 'dark-forest',
+            description: '',
+            actions: [],
+            fullScreenMap: false,
+            hidePhaser: false,
+            onEnter: async () => this.enterCaveInner()
         });
 
         // Training Grounds
@@ -794,6 +834,549 @@ const Chapter1Scene = {
         }
     },
 
+    async talkToCaveHera() {
+        if (GameState.hasFlag('ch1_fragment_recovered')) {
+            await Dialogue.quick(
+                'hera',
+                'Hera',
+                `The fragment is finally safe. Open the map and let's get back to the village.`,
+                '🧝'
+            );
+            return;
+        }
+
+        await Dialogue.quick(
+            'hera',
+            'Hera',
+            `Good, you're here. I'm sensing the fragment is in that cave.`,
+            '🧝'
+        );
+    },
+
+    async enterCaveEntrance() {
+        if (!GameState.hasFlag('ch1_cave_intro_done')) {
+            GameState.setFlag('ch1_cave_intro_done');
+            await Dialogue.start([
+                {
+                    speaker: 'hera',
+                    name: 'Hera',
+                    text: `Good, you're here. I'm sensing the fragment is in that cave.`,
+                    portrait: '🧝'
+                },
+                {
+                    speaker: 'player',
+                    name: GameState.player.name,
+                    text: `Then this is it. I'll head inside and flush out whatever is guarding it.`,
+                    portrait: '🧑‍💻'
+                }
+            ]);
+        }
+    },
+
+    async enterCaveDepths() {
+        if (GameState.hasFlag('ch1_cave_entered')) {
+            return;
+        }
+
+        GameState.setFlag('ch1_cave_entered');
+
+        if (typeof Platformer !== 'undefined') {
+            Platformer.movementLocked = true;
+            if (typeof Platformer.suppressSceneExit === 'function') {
+                Platformer.suppressSceneExit(2200);
+            }
+        }
+
+        await Cutscene.play([
+            {
+                art: 'assets/background/caveEntrance.png',
+                text: `You are entering the cave. The air grows colder, and every step carries a warning through the stone.`,
+                duration: 1800
+            },
+            {
+                art: 'assets/background/cave2.png',
+                text: `You sense creatures lurking in the dark ahead. Something corrupted is moving fast through the tunnel.`,
+                duration: 2200
+            }
+        ]);
+
+        await World.goTo('ch1_cave_rush', 'Entering the cave...');
+    },
+
+    async enterCaveRush() {
+        if (!GameState.hasFlag('ch1_shroom_defeated')) {
+            await this.startEvilShroomEncounter();
+        }
+    },
+
+    async startEvilShroomEncounter() {
+        await Dialogue.start([
+            {
+                speaker: 'narrator',
+                name: 'Narrator',
+                text: `<em>A twisted mushroom creature bursts from the dark, rushing straight toward you on a trail of spores.</em>`,
+                portrait: '📜'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `So this is what was lurking in the tunnel. Come on, then.`,
+                portrait: '🧑‍💻'
+            }
+        ]);
+
+        const shroom = {
+            name: 'Evil Java Shroom',
+            hp: 135,
+            maxHp: 135,
+            coinReward: 45,
+            art: 'assets/sprites/enemies/evilshroom.png',
+            description: 'A corrupted cave predator that thrives on bad logic and unstable variables.',
+            maxHints: 2,
+            correctXpReward: 22,
+            firstTryXpReward: 36,
+            victoryXpReward: 75
+        };
+
+        Combat.start(shroom, this.getEvilShroomChallenges(), () => this.onEvilShroomVictory());
+    },
+
+    getEvilShroomChallenges() {
+        return [
+            {
+                id: 'ch1_shroom_1',
+                prompt: `
+                    <span class="challenge-title">ðŸ„ Shroom Rush: Stabilize The Spores</span>
+                    <p>Write <strong>two lines</strong>:</p>
+                    <pre>int spores = 6;
+boolean tunnelSafe = false;</pre>
+                `,
+                narrative: 'The shroom floods the tunnel with spores. Lock the cave state down before it overruns you!',
+                hints: [
+                    'The first line is an int declaration.',
+                    'The second line is a boolean declaration.',
+                    'Answer:\nint spores = 6;\nboolean tunnelSafe = false;'
+                ],
+                answers: [
+                    'int spores = 6;\nboolean tunnelSafe = false;',
+                    'boolean tunnelSafe = false;\nint spores = 6;'
+                ],
+                damage: 34,
+                explanation: 'Different variable types can be declared on separate lines in the same answer.',
+                concept: 'shroom_multi_type_setup',
+                conceptTitle: 'Declaring Multiple Variables',
+                codexTitle: 'Shroom Rush - Stabilize The Spores',
+                feedbackDuration: 3000
+            },
+            {
+                id: 'ch1_shroom_2',
+                type: 'multiple_choice',
+                prompt: `
+                    <span class="challenge-title">ðŸ„ Shroom Rush: Pick The Safe Expression</span>
+                    <p>Given:</p>
+                    <pre>int wand = 7;
+int slash = 5;</pre>
+                    <p>Which answer correctly declares <code>burstDamage</code> as <code>(wand * 2) + slash</code>?</p>
+                `,
+                narrative: 'The shroom recoils, but only the correct expression will burst through its cap.',
+                hints: [
+                    'Create a new int variable named burstDamage.',
+                    'Use parentheses around wand * 2.',
+                    'Answer: int burstDamage = (wand * 2) + slash;'
+                ],
+                choices: [
+                    'int burstDamage = wand * (2 + slash);',
+                    'int burstDamage = (wand * 2) + slash;',
+                    'burstDamage = (wand * 2) + slash;',
+                    'int burstDamage = wand * 2 + "slash";'
+                ],
+                correctOption: 1,
+                answers: ['int burstDamage = (wand * 2) + slash;'],
+                damage: 38,
+                explanation: 'Parentheses make the intended order of operations clear inside an expression.',
+                concept: 'shroom_expression_order',
+                conceptTitle: 'Expressions With Parentheses',
+                codexTitle: 'Shroom Rush - Expression Choice',
+                feedbackDuration: 3000
+            },
+            {
+                id: 'ch1_shroom_3',
+                prompt: `
+                    <span class="challenge-title">ðŸ„ Shroom Rush: Report The Breach</span>
+                    <p>Write <strong>two lines</strong>:</p>
+                    <pre>String threat = "Java Shroom";
+System.out.println(threat + " blocked the tunnel");</pre>
+                `,
+                narrative: 'Finish the ambush by recording exactly what attacked you.',
+                hints: [
+                    'The first line declares a String named threat.',
+                    'The second line prints using concatenation.',
+                    'Answer:\nString threat = "Java Shroom";\nSystem.out.println(threat + " blocked the tunnel");'
+                ],
+                answers: [
+                    'String threat = "Java Shroom";\nSystem.out.println(threat + " blocked the tunnel");',
+                    'String threat="Java Shroom";\nSystem.out.println(threat+" blocked the tunnel");'
+                ],
+                damage: 42,
+                explanation: 'You can declare a variable and use it on the next line in output.',
+                concept: 'shroom_string_report',
+                conceptTitle: 'Using Variables Across Lines',
+                codexTitle: 'Shroom Rush - Report The Breach',
+                feedbackDuration: 3000
+            }
+        ];
+
+        return [
+            {
+                id: 'ch1_shroom_1',
+                prompt: `
+                    <span class="challenge-title">🍄 Shroom Rush: Stabilize The Spores</span>
+                    <p>Write <strong>two lines</strong>:</p>
+                    <pre>int spores = 6;
+boolean tunnelSafe = false;</pre>
+                `,
+                narrative: 'The shroom floods the tunnel with spores. Lock the cave state down before it overruns you!',
+                hints: [
+                    'The first line is an int declaration.',
+                    'The second line is a boolean declaration.',
+                    'Answer:\nint spores = 6;\nboolean tunnelSafe = false;'
+                ],
+                answers: [
+                    'int spores = 6;\nboolean tunnelSafe = false;',
+                    'boolean tunnelSafe = false;\nint spores = 6;'
+                ],
+                damage: 34,
+                explanation: 'Different variable types can be declared on separate lines in the same answer.',
+                concept: 'shroom_multi_type_setup',
+                conceptTitle: 'Declaring Multiple Variables'
+            },
+            {
+                id: 'ch1_shroom_2',
+                prompt: `
+                    <span class="challenge-title">🍄 Shroom Rush: Mix The Damage</span>
+                    <p>Given:</p>
+                    <pre>int wand = 7;
+int slash = 5;</pre>
+                    <p>Declare an <strong>int</strong> named <code>burstDamage</code> equal to <code>(wand * 2) + slash</code>.</p>
+                    <pre>______________________</pre>
+                `,
+                narrative: 'The shroom recoils, but only a stronger expression will break through its cap.',
+                hints: [
+                    'Create a new int variable named burstDamage.',
+                    'Use parentheses around wand * 2.',
+                    'Answer: int burstDamage = (wand * 2) + slash;'
+                ],
+                answers: [
+                    'int burstDamage = (wand * 2) + slash;',
+                    'int burstDamage=(wand*2)+slash;',
+                    'int burstDamage = (wand * 2) + slash'
+                ],
+                damage: 38,
+                explanation: 'Parentheses make the intended order of operations clear inside an expression.',
+                concept: 'shroom_expression_order',
+                conceptTitle: 'Expressions With Parentheses'
+            },
+            {
+                id: 'ch1_shroom_3',
+                prompt: `
+                    <span class="challenge-title">🍄 Shroom Rush: Report The Breach</span>
+                    <p>Write <strong>two lines</strong>:</p>
+                    <pre>String threat = "Java Shroom";
+System.out.println(threat + " blocked the tunnel");</pre>
+                `,
+                narrative: 'Finish the ambush by recording exactly what attacked you.',
+                hints: [
+                    'The first line declares a String named threat.',
+                    'The second line prints using concatenation.',
+                    'Answer:\nString threat = "Java Shroom";\nSystem.out.println(threat + " blocked the tunnel");'
+                ],
+                answers: [
+                    'String threat = "Java Shroom";\nSystem.out.println(threat + " blocked the tunnel");',
+                    'String threat="Java Shroom";\nSystem.out.println(threat+" blocked the tunnel");'
+                ],
+                damage: 42,
+                explanation: 'You can declare a variable and use it on the next line in output.',
+                concept: 'shroom_string_report',
+                conceptTitle: 'Using Variables Across Lines'
+            }
+        ];
+    },
+
+    async onEvilShroomVictory() {
+        GameState.setFlag('ch1_shroom_defeated');
+
+        await World.goTo('ch1_cave_inner', 'Pressing deeper into the cave...');
+    },
+
+    async enterCaveInner() {
+        if (GameState.hasFlag('ch1_fire_worm_defeated')) {
+            return;
+        }
+
+        if (!GameState.hasFlag('ch1_shroom_question_done')) {
+            GameState.setFlag('ch1_shroom_question_done');
+            await Dialogue.start([
+                {
+                    speaker: 'hera',
+                    name: 'Hera',
+                    text: `The shroom didn't drop a fragment... why?`,
+                    portrait: '🧝'
+                },
+                {
+                    speaker: 'player',
+                    name: GameState.player.name,
+                    text: `Then it was only guarding the way. Something stronger must still be deeper in here.`,
+                    portrait: '🧑‍💻'
+                }
+            ]);
+        }
+
+        if (!GameState.hasFlag('ch1_fire_worm_revealed')) {
+            await Utils.showTransition('A dark heat rolls through the cave...', 1400);
+            GameState.setFlag('ch1_fire_worm_revealed');
+            if (typeof Platformer !== 'undefined' && typeof Platformer.resetNpcs === 'function') {
+                Platformer.resetNpcs();
+            }
+            await Dialogue.start([
+                {
+                    speaker: 'narrator',
+                    name: 'Narrator',
+                    text: `<em>The darkness ripples. A <span class="highlight">Small Fire Worm</span> erupts beside the tunnel wall, far larger than anything you've faced here so far.</em>`,
+                    portrait: '📜'
+                },
+                {
+                    speaker: 'player',
+                    name: GameState.player.name,
+                    text: `There you are. That heat... you must be the real guardian of the fragment.`,
+                    portrait: '🧑‍💻'
+                }
+            ]);
+        }
+
+        await this.startFireWormEncounter();
+    },
+
+    async startFireWormEncounter() {
+        const fireWorm = {
+            name: 'Small Fire Worm',
+            hp: 220,
+            maxHp: 220,
+            coinReward: 100,
+            art: 'assets/sprites/enemies/smallworm.png',
+            description: 'A blazing tunnel boss wrapped in corrupted heat and guarded by harder logic.',
+            maxHints: 2,
+            correctXpReward: 28,
+            firstTryXpReward: 45,
+            victoryXpReward: 110,
+            reward: {
+                id: 'prime_fragment_variables',
+                name: 'Prime Script Fragment - Variables',
+                icon: '📜',
+                description: 'A restored fragment recovered from the cave guardian.'
+            }
+        };
+
+        Combat.start(fireWorm, this.getFireWormChallenges(), () => this.onFireWormVictory());
+    },
+
+    getFireWormChallenges() {
+        return [
+            {
+                id: 'ch1_fire_worm_1',
+                prompt: `
+                    <span class="challenge-title">ðŸ”¥ Fire Worm: Build The Shield</span>
+                    <p>Write <strong>two lines</strong>:</p>
+                    <pre>int shield = 18;
+boolean ready = true;</pre>
+                `,
+                narrative: 'The worm surges forward in a wave of heat. Build your defense in two clean lines!',
+                hints: [
+                    'First declare shield as an int.',
+                    'Then declare ready as a boolean.',
+                    'Answer:\nint shield = 18;\nboolean ready = true;'
+                ],
+                answers: [
+                    'int shield = 18;\nboolean ready = true;',
+                    'boolean ready = true;\nint shield = 18;'
+                ],
+                damage: 46,
+                explanation: 'A stronger encounter can still be stabilized one declaration at a time.',
+                concept: 'fire_worm_shield_setup',
+                conceptTitle: 'Multi-Line Setup',
+                codexTitle: 'Fire Worm - Build The Shield',
+                feedbackDuration: 3200
+            },
+            {
+                id: 'ch1_fire_worm_2',
+                type: 'multiple_choice',
+                prompt: `
+                    <span class="challenge-title">ðŸ”¥ Fire Worm: Choose The Counter</span>
+                    <p>Given:</p>
+                    <pre>int flame = 12;
+int strike = 9;</pre>
+                    <p>Which answer correctly creates <code>totalDamage</code> and prints it?</p>
+                `,
+                narrative: 'The cave trembles. Pick the correct two-line counter before the worm crashes through your guard.',
+                hints: [
+                    'Line 1 declares totalDamage with parentheses.',
+                    'Line 2 prints totalDamage.',
+                    'Answer:\nint totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);'
+                ],
+                choices: [
+                    'int totalDamage = flame + strike * 2;\nSystem.out.println(flame);',
+                    'int totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);',
+                    'totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);',
+                    'int totalDamage = (flame + strike) * 2;\nSystem.out.println("totalDamage");'
+                ],
+                correctOption: 1,
+                answers: ['int totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);'],
+                damage: 54,
+                explanation: 'You can combine arithmetic and output across multiple lines.',
+                concept: 'fire_worm_counter_combo',
+                conceptTitle: 'Multi-Line Combat Expressions',
+                codexTitle: 'Fire Worm - Counter Choice',
+                feedbackDuration: 3200
+            },
+            {
+                id: 'ch1_fire_worm_3',
+                prompt: `
+                    <span class="challenge-title">ðŸ”¥ Fire Worm: Seal The Fragment</span>
+                    <p>Write <strong>two lines</strong>:</p>
+                    <pre>String fragment = "secured";
+System.out.println("Fragment " + fragment);</pre>
+                `,
+                narrative: 'The fire worm weakens. Seal the fragment state before the cave collapses around it!',
+                hints: [
+                    'First declare the fragment String.',
+                    'Then print "Fragment " plus fragment.',
+                    'Answer:\nString fragment = "secured";\nSystem.out.println("Fragment " + fragment);'
+                ],
+                answers: [
+                    'String fragment = "secured";\nSystem.out.println("Fragment " + fragment);',
+                    'String fragment="secured";\nSystem.out.println("Fragment " + fragment);',
+                    'String fragment = "secured";\nSystem.out.println("Fragment "+fragment);'
+                ],
+                damage: 62,
+                explanation: 'A variable declared on one line can be used immediately on the next line.',
+                concept: 'fire_worm_fragment_finish',
+                conceptTitle: 'Completing A Multi-Line Finish',
+                codexTitle: 'Fire Worm - Seal The Fragment',
+                feedbackDuration: 3200
+            }
+        ];
+
+        return [
+            {
+                id: 'ch1_fire_worm_1',
+                prompt: `
+                    <span class="challenge-title">🔥 Fire Worm: Build The Shield</span>
+                    <p>Write <strong>two lines</strong>:</p>
+                    <pre>int shield = 18;
+boolean ready = true;</pre>
+                `,
+                narrative: 'The worm surges forward in a wave of heat. Build your defense in two clean lines!',
+                hints: [
+                    'First declare shield as an int.',
+                    'Then declare ready as a boolean.',
+                    'Answer:\nint shield = 18;\nboolean ready = true;'
+                ],
+                answers: [
+                    'int shield = 18;\nboolean ready = true;',
+                    'boolean ready = true;\nint shield = 18;'
+                ],
+                damage: 46,
+                explanation: 'A stronger encounter can still be stabilized one declaration at a time.',
+                concept: 'fire_worm_shield_setup',
+                conceptTitle: 'Multi-Line Setup'
+            },
+            {
+                id: 'ch1_fire_worm_2',
+                prompt: `
+                    <span class="challenge-title">🔥 Fire Worm: Calculate The Counter</span>
+                    <p>Given:</p>
+                    <pre>int flame = 12;
+int strike = 9;</pre>
+                    <p>Write <strong>two lines</strong>:</p>
+                    <pre>int totalDamage = (flame + strike) * 2;
+System.out.println(totalDamage);</pre>
+                `,
+                narrative: 'The cave trembles. Only a stronger two-line counterattack will break its guard.',
+                hints: [
+                    'Line 1 declares totalDamage with parentheses.',
+                    'Line 2 prints totalDamage.',
+                    'Answer:\nint totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);'
+                ],
+                answers: [
+                    'int totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);',
+                    'int totalDamage=(flame+strike)*2;\nSystem.out.println(totalDamage);'
+                ],
+                damage: 54,
+                explanation: 'You can combine arithmetic and output across multiple lines.',
+                concept: 'fire_worm_counter_combo',
+                conceptTitle: 'Multi-Line Combat Expressions'
+            },
+            {
+                id: 'ch1_fire_worm_3',
+                prompt: `
+                    <span class="challenge-title">🔥 Fire Worm: Seal The Fragment</span>
+                    <p>Write <strong>two lines</strong>:</p>
+                    <pre>String fragment = "secured";
+System.out.println("Fragment " + fragment);</pre>
+                `,
+                narrative: 'The fire worm weakens. Seal the fragment state before the cave collapses around it!',
+                hints: [
+                    'First declare the fragment String.',
+                    'Then print "Fragment " plus fragment.',
+                    'Answer:\nString fragment = "secured";\nSystem.out.println("Fragment " + fragment);'
+                ],
+                answers: [
+                    'String fragment = "secured";\nSystem.out.println("Fragment " + fragment);',
+                    'String fragment="secured";\nSystem.out.println("Fragment " + fragment);',
+                    'String fragment = "secured";\nSystem.out.println("Fragment "+fragment);'
+                ],
+                damage: 62,
+                explanation: 'A variable declared on one line can be used immediately on the next line.',
+                concept: 'fire_worm_fragment_finish',
+                conceptTitle: 'Completing A Multi-Line Finish'
+            }
+        ];
+    },
+
+    async onFireWormVictory() {
+        GameState.setFlag('ch1_fire_worm_defeated');
+        GameState.setFlag('ch1_fragment_recovered');
+        GameState.setFlag('ch1_cave_return_ready');
+
+        if (typeof Platformer !== 'undefined' && typeof Platformer.resetNpcs === 'function') {
+            Platformer.resetNpcs();
+        }
+
+        await Dialogue.start([
+            {
+                speaker: 'hera',
+                name: 'Hera',
+                text: `You did it. The fragment is finally ours.`,
+                portrait: '🧝'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `Then let's use the map and head back to the village. Elder Varion needs to see this.`,
+                portrait: '🧑‍💻'
+            }
+        ]);
+
+        this.syncQuest({
+            id: 'ch1_forest_quest',
+            title: 'Return to the Village',
+            description: 'Open the map and travel back to the Village of Variables with the recovered fragment.'
+        });
+
+        if (typeof Game !== 'undefined' && typeof Game.updateWorldMapUi === 'function') {
+            Game.updateWorldMapUi(World.currentScene || GameState.progress.currentScene);
+        }
+    },
+
     async startGoblinEncounter() {
         if (GameState.hasFlag('ch1_goblin_defeated')) {
             if (typeof Platformer !== 'undefined' && typeof Platformer.releaseMovementLock === 'function') {
@@ -1071,6 +1654,13 @@ int totalDamage = 20;</pre>
     },
 
     async onAbandonedVillageGoblinVictory() {
+        if (typeof Platformer !== 'undefined') {
+            Platformer.movementLocked = true;
+            if (typeof Platformer.suppressSceneExit === 'function') {
+                Platformer.suppressSceneExit(2200);
+            }
+        }
+
         GameState.setFlag('ch1_abandoned_goblin_defeated');
         GameState.setFlag('ch1_world_map_unlocked');
         GameState.setFlag('ch1_report_to_elder_after_abandoned');
@@ -1115,6 +1705,9 @@ int totalDamage = 20;</pre>
         if (typeof Platformer !== 'undefined') {
             if (typeof Platformer.releaseMovementLock === 'function') {
                 Platformer.releaseMovementLock();
+            }
+            if (typeof Platformer.suppressSceneExit === 'function') {
+                Platformer.suppressSceneExit(1600);
             }
             if (Platformer.player && typeof Platformer.width === 'number') {
                 const safeX = Math.floor(Platformer.width * 0.35);
@@ -1182,8 +1775,8 @@ int totalDamage = 20;</pre>
 
         const easyEnemy = {
             name: 'Training Dummy',
-            hp: 45,
-            maxHp: 45,
+            hp: 72,
+            maxHp: 72,
             coinReward: 25,
             art: `
     ╔═══════════════════════════════════╗
@@ -1242,6 +1835,60 @@ int totalDamage = 20;</pre>
      * Get training challenges
      */
     getTrainingChallenges() {
+        return [
+            {
+                id: 'ch1_train_1',
+                prompt: `
+                    <span class="challenge-title">ðŸ“ Training: Integer Variable</span>
+                    <p>Declare an <strong>integer variable</strong> named <code>score</code> with a value of <strong>10</strong>.</p>
+                    <pre>______________________</pre>
+                `,
+                narrative: 'Rowan calls out: start with a simple integer declaration!',
+                hints: [
+                    'Use the "int" keyword to declare an integer variable.',
+                    'Format: int variableName = value;',
+                    'Answer: int score = 10;'
+                ],
+                answers: ['int score = 10;', 'int score=10;', 'int score = 10'],
+                damage: 18,
+                autoShowHint: true,
+                explanation: 'int is used for whole numbers. Syntax: int variableName = value;',
+                concept: 'int_declaration',
+                conceptTitle: 'Integer Declaration',
+                codexTitle: 'Training Dummy - Integer Variable',
+                feedbackDuration: 3200
+            },
+            {
+                id: 'ch1_train_2',
+                type: 'multiple_choice',
+                prompt: `
+                    <span class="challenge-title">ðŸ“¯ Training: Boolean Check</span>
+                    <p>Which line correctly declares a <strong>boolean variable</strong> named <code>isReady</code> and sets it to <strong>true</strong>?</p>
+                `,
+                narrative: 'Good. Now finish with a quick choice attack and spot the correct boolean declaration.',
+                hints: [
+                    'Use the "boolean" keyword for true/false values.',
+                    'true and false are lowercase in Java.',
+                    'Answer: boolean isReady = true;'
+                ],
+                choices: [
+                    'Boolean isReady = true;',
+                    'boolean ready = "true";',
+                    'boolean isReady = true;',
+                    'int isReady = true;'
+                ],
+                correctOption: 2,
+                answers: ['boolean isReady = true;'],
+                damage: 20,
+                autoShowHint: true,
+                explanation: 'boolean stores true or false values. Useful for conditions and flags.',
+                concept: 'boolean_declaration',
+                conceptTitle: 'Boolean Declaration',
+                codexTitle: 'Training Dummy - Boolean Variable',
+                feedbackDuration: 3200
+            }
+        ];
+
         return [
             {
                 id: 'ch1_train_1',
@@ -1423,7 +2070,7 @@ ______________________</pre>
             {
                 speaker: 'trainer',
                 name: 'Trainer Rowan',
-                text: `Nice work. That's enough for your first lesson. Go report back to Elder Varion - he'll decide when you're ready for the forest.`,
+                text: `Nice work. That's enough for your first lesson. Go report back to Elder Varion, and remember to check your Codex whenever you want to review your attacks.`,
                 portrait: '🥋'
             },
             {
@@ -1488,26 +2135,54 @@ ______________________</pre>
                 {
                     speaker: 'player',
                     name: GameState.player.name,
-                    text: `She gave me a map. It points deeper into the forest, near where the Prime Script fragment should be hidden.`,
+                    text: `She gave me a map. It points to a cave beyond the old ruins. Hera thinks the fragment is there.`,
                     portrait: 'ðŸ§‘â€ðŸ’»'
                 },
                 {
                     speaker: 'elder',
                     name: 'Elder Varion',
-                    text: `Good. Keep that map close. The Data Glitch must be beyond the abandoned village, and I want you prepared before you descend any farther.`,
+                    text: `Then the cave is the next step. I am unlocking it on your map now. Travel there, meet Hera, and claim the fragment before the corruption closes in around it.`,
                     portrait: 'ðŸ‘´'
                 },
                 {
                     speaker: 'elder',
                     name: 'Elder Varion',
-                    text: `Rest, study the route, and speak with me again when you are ready for the final push toward the fragment.`,
+                    text: `Be careful inside. The things hiding in that darkness will be fiercer than the goblins you faced outside.`,
                     portrait: 'ðŸ‘´'
                 }
             ]);
 
             GameState.setFlag('ch1_report_to_elder_after_abandoned', false);
-            GameState.setFlag('ch1_elder_has_map_report', true);
-            GameState.completeQuest('ch1_forest_quest');
+            GameState.setFlag('ch1_cave_unlocked');
+            GameState.setFlag('ch1_elder_has_map_report', false);
+            this.syncQuest({
+                id: 'ch1_forest_quest',
+                title: 'Travel to the Cave',
+                description: 'Open the map, travel to the cave, and meet Hera at the entrance.'
+            });
+            if (typeof Game !== 'undefined' && typeof Game.updateWorldMapUi === 'function') {
+                Game.updateWorldMapUi(World.currentScene || GameState.progress.currentScene);
+            }
+            return;
+        }
+
+        if (GameState.hasFlag('ch1_fragment_recovered')) {
+            await Dialogue.quick(
+                'elder',
+                'Elder Varion',
+                `You have the fragment. Use the map and return to the village, ${GameState.player.name}.`,
+                '👴'
+            );
+            return;
+        }
+
+        if (GameState.hasFlag('ch1_cave_unlocked') && !GameState.hasFlag('ch1_fragment_recovered')) {
+            await Dialogue.quick(
+                'elder',
+                'Elder Varion',
+                `The cave is marked on your map now. Travel there and meet Hera at the entrance.`,
+                '👴'
+            );
             return;
         }
 

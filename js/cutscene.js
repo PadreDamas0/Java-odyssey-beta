@@ -68,14 +68,15 @@ const Cutscene = {
          // Show art
          if (frame.art) {
              const sceneArt = Assets.getSceneArt(frame.art);
+             const resolvedArt = sceneArt || (typeof frame.art === 'string' ? frame.art : '');
              if (ASCII_ART[frame.art] && CONFIG.PLACEHOLDER_SPRITES) {
                  // Show ASCII art if using placeholders
                  artEl.textContent = ASCII_ART[frame.art];
                  artEl.style.backgroundImage = 'none';
-             } else if (sceneArt && sceneArt.includes('.png') || sceneArt.includes('.jpg') || sceneArt.includes('.jpeg')) {
+             } else if (typeof resolvedArt === 'string' && /\.(png|jpg|jpeg)$/i.test(resolvedArt)) {
                  // Show image if it's a file path
                  artEl.textContent = '';
-                 artEl.style.backgroundImage = `url('${sceneArt}')`;
+                 artEl.style.backgroundImage = `url('${resolvedArt}')`;
                  artEl.style.backgroundSize = 'contain';
                  artEl.style.backgroundPosition = 'center';
                  artEl.style.backgroundRepeat = 'no-repeat';

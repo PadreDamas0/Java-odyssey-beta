@@ -153,6 +153,14 @@ const NPCSystem = {
                 Chapter1Scene.talkToHera();
                 return true;
             }
+            if (npc.role === 'cave_hera' && typeof Chapter1Scene.talkToCaveHera === 'function') {
+                Chapter1Scene.talkToCaveHera();
+                return true;
+            }
+            if (npc.role === 'cave_entry' && typeof Chapter1Scene.enterCaveDepths === 'function') {
+                Chapter1Scene.enterCaveDepths();
+                return true;
+            }
             if (npc.role === 'abandoned_goblin' && typeof Chapter1Scene.startAbandonedVillageGoblinEncounter === 'function') {
                 Chapter1Scene.startAbandonedVillageGoblinEncounter();
                 return true;

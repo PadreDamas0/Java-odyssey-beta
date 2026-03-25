@@ -5,6 +5,25 @@
 
 const Game = {
     activeShopId: null,
+    activeCodexCategory: null,
+    WORLD_MAP_DESTINATIONS: {
+        village: {
+            sceneId: 'ch1_village_square',
+            label: 'Village of Variables',
+            transitionText: 'Travelling to the Village of Variables...'
+        },
+        corrupted_forest: {
+            sceneId: 'ch1_corrupted_forest_1',
+            label: 'Corrupted Forest',
+            transitionText: 'Travelling to the Corrupted Forest...'
+        },
+        cave: {
+            sceneId: 'ch1_cave_entrance',
+            label: 'Cave Entrance',
+            transitionText: 'Travelling to the Cave Entrance...',
+            unlockFlag: 'ch1_cave_unlocked'
+        }
+    },
     SHOP_ITEMS: {
         blacksmith: [
             {
@@ -107,6 +126,13 @@ const Game = {
         if (GameState.load()) {
             Utils.showScreen('game-container');
             GameState.updateHUD();
+
+            if (typeof Platformer !== 'undefined' && typeof Platformer.stop === 'function' && Platformer.running) {
+                Platformer.stop();
+            }
+            if (typeof World !== 'undefined') {
+                World.currentScene = null;
+            }
             
             // Resume from saved phase
             switch (GameState.phase) {
@@ -122,12 +148,15 @@ const Game = {
                 case 'chapter1':
                     // Load the appropriate scene
                     Chapter1Scene.registerScenes();
+                    const savedScene = GameState.progress.currentScene;
                     if (
-                        GameState.progress.currentScene === 'ch1_corrupted_forest_1' ||
-                        GameState.progress.currentScene === 'ch1_corrupted_forest_2' ||
-                        GameState.progress.currentScene === 'ch1_abandoned_village'
+                        savedScene &&
+                        typeof World !== 'undefined' &&
+                        World.scenes &&
+                        World.scenes[savedScene] &&
+                        !GameState.hasFlag('ch1_forest_complete')
                     ) {
-                        await World.loadScene(GameState.progress.currentScene);
+                        await World.loadScene(savedScene);
                         break;
                     }
                     if (!GameState.hasFlag('ch1_elder_intro_complete')) {
@@ -249,7 +278,11 @@ const Game = {
      * Close a modal
      */
     closeModal(modalId) {
-        Utils.$(modalId).style.display = 'none';
+        const modal = Utils.$(modalId);
+        if (modal) modal.style.display = 'none';
+        if (modalId === 'world-map-modal' && typeof window.WorldMapOverlay !== 'undefined' && typeof window.WorldMapOverlay.close === 'function') {
+            window.WorldMapOverlay.close();
+        }
         if (modalId === 'shop-modal') {
             this.activeShopId = null;
         }
@@ -271,19 +304,139 @@ const Game = {
      * Show journal
      */
     showJournal() {
+        this.activeCodexCategory = null;
         Utils.$('journal-modal').style.display = 'flex';
         this.showJournalTab('quests');
+    },
+
+    setJournalTabActive(tab) {
+        document.querySelectorAll('.journal-tab').forEach((button) => {
+            const label = (button.textContent || '').trim().toLowerCase();
+            button.classList.toggle('active', label === tab);
+        });
+    },
+
+    getCodexCategories() {
+        return [
+            {
+                id: 'print_statements',
+                title: 'PRINT STATEMENTS',
+                matchers: [/system\.out\.println/i, /\bprint/i, /\boutput\b/i]
+            },
+            {
+                id: 'integer',
+                title: 'INTEGER',
+                matchers: [/\binteger\b/i, /\bint\b/i]
+            },
+            {
+                id: 'variables',
+                title: 'VARIABLES',
+                matchers: [/\bvariable/i, /\bvariables\b/i, /\bboolean\b/i, /\bstring\b/i, /\bdata type\b/i]
+            }
+        ];
+    },
+
+    getGroupedCodexEntries() {
+        const categories = this.getCodexCategories().map((category) => ({ ...category, entries: [] }));
+        GameState.journal.codex.forEach((entry) => {
+            const searchable = `${entry.title} ${entry.description}`;
+            const matchedCategory = categories.find((category) =>
+                category.matchers.some((matcher) => matcher.test(searchable))
+            ) || categories[categories.length - 1];
+            matchedCategory.entries.push(entry);
+        });
+        return categories;
+    },
+
+    openCodexCategory(categoryId) {
+        this.activeCodexCategory = categoryId;
+        this.setJournalTabActive('codex');
+        const body = Utils.$('journal-body');
+        if (body) {
+            body.innerHTML = this.renderCodexContent();
+        }
+    },
+
+    renderCodexContent() {
+        const groupedCodexEntries = this.getGroupedCodexEntries();
+        const selectedCategory = groupedCodexEntries.find((category) => category.id === this.activeCodexCategory) || null;
+
+        if (!selectedCategory) {
+            let codexHomeHTML = `
+                <h3 style="color: var(--text-gold); font-family: var(--font-heading); margin-bottom: 0.5rem;">Java Codex</h3>
+                <p style="color: var(--text-light); margin-bottom: 0.9rem; line-height: 1.6;">
+                    This is where you review your attacks, lessons, and correct answers as your Codex grows.
+                </p>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.85rem; margin-bottom:1rem;">
+            `;
+
+            groupedCodexEntries.forEach((category) => {
+                const unlocked = category.entries.length > 0;
+                codexHomeHTML += `
+                    <button
+                        type="button"
+                        class="journal-entry codex-category-card"
+                        ${unlocked ? `onclick="Game.openCodexCategory('${category.id}')"` : 'disabled'}
+                        style="margin:0; text-align:left; border-color:${unlocked ? 'rgba(240, 208, 96, 0.45)' : 'rgba(255,255,255,0.12)'}; background:${unlocked ? 'rgba(240,208,96,0.06)' : 'rgba(255,255,255,0.03)'}; width:100%; cursor:${unlocked ? 'pointer' : 'default'};"
+                    >
+                        <div class="quest-title" style="margin-bottom:0.35rem;">${category.title}</div>
+                        <div class="quest-desc">
+                            <p style="margin:0 0 0.35rem 0;">${unlocked ? `${category.entries.length} lesson${category.entries.length === 1 ? '' : 's'} ready to review.` : 'This section unlocks as the story progresses.'}</p>
+                            <p style="margin:0; color: var(--text-dim); font-size:0.88rem;">${unlocked ? 'Click to review this topic.' : 'Keep learning to fill this section.'}</p>
+                        </div>
+                    </button>
+                `;
+            });
+
+            codexHomeHTML += '</div>';
+
+            if (GameState.journal.codex.length === 0) {
+                codexHomeHTML += '<p style="color: var(--text-dim); font-style: italic;">No codex entries yet. Complete challenges to start filling these sections.</p>';
+            }
+
+            return codexHomeHTML;
+        }
+
+        let categoryHTML = `
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:0.85rem;">
+                <div>
+                    <h3 style="color: var(--text-gold); font-family: var(--font-heading); margin:0 0 0.25rem 0;">${selectedCategory.title}</h3>
+                    <p style="color: var(--text-light); margin:0;">Review the attacks, tips, and correct answers you've learned for this topic.</p>
+                </div>
+                <button class="menu-btn" type="button" onclick="Game.openCodexCategory(null)">Back</button>
+            </div>
+        `;
+
+        if (selectedCategory.entries.length === 0) {
+            categoryHTML += '<p style="color: var(--text-dim); font-style: italic;">Nothing here yet. Learn more in the story to unlock this topic.</p>';
+            return categoryHTML;
+        }
+
+        selectedCategory.entries.forEach((entry) => {
+            categoryHTML += `
+                <div class="journal-entry">
+                    <div class="quest-title">${entry.title}</div>
+                    <div class="quest-desc">${entry.description}</div>
+                </div>
+            `;
+        });
+
+        return categoryHTML;
     },
     
     /**
      * Show journal tab
      */
     showJournalTab(tab) {
-        // Update tab buttons
-        document.querySelectorAll('.journal-tab').forEach(t => t.classList.remove('active'));
-        event.target?.classList.add('active');
+        this.setJournalTabActive(tab);
         
         const body = Utils.$('journal-body');
+
+        if (tab === 'codex') {
+            this.activeCodexCategory = null;
+            body.innerHTML = this.renderCodexContent();
+            return;
+        }
         
         switch (tab) {
             case 'quests':
@@ -321,6 +474,77 @@ const Game = {
                 break;
                 
             case 'codex':
+                {
+                    const codexCategories = [
+                        {
+                            id: 'print_statements',
+                            title: 'PRINT STATEMENTS',
+                            matchers: [/system\.out\.println/i, /\bprint/i, /\boutput\b/i]
+                        },
+                        {
+                            id: 'integer',
+                            title: 'INTEGER',
+                            matchers: [/\binteger\b/i, /\bint\b/i]
+                        },
+                        {
+                            id: 'variables',
+                            title: 'VARIABLES',
+                            matchers: [/\bvariable/i, /\bvariables\b/i, /\bboolean\b/i, /\bstring\b/i, /\bdata type\b/i]
+                        }
+                    ];
+
+                    const groupedCodexEntries = codexCategories.map(category => ({ ...category, entries: [] }));
+                    GameState.journal.codex.forEach(entry => {
+                        const searchable = `${entry.title} ${entry.description}`;
+                        const matchedCategory = groupedCodexEntries.find(category =>
+                            category.matchers.some((matcher) => matcher.test(searchable))
+                        ) || groupedCodexEntries[groupedCodexEntries.length - 1];
+                        matchedCategory.entries.push(entry);
+                    });
+
+                    let codexReviewHTML = `
+                        <h3 style="color: var(--text-gold); font-family: var(--font-heading); margin-bottom: 0.5rem;">Java Codex</h3>
+                        <p style="color: var(--text-light); margin-bottom: 0.9rem; line-height: 1.6;">
+                            This is where you review your attacks, lessons, and correct answers as your Codex grows.
+                        </p>
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.85rem; margin-bottom:1rem;">
+                    `;
+
+                    groupedCodexEntries.forEach(category => {
+                        const unlocked = category.entries.length > 0;
+                        codexReviewHTML += `
+                            <div class="journal-entry" style="margin:0; border-color:${unlocked ? 'rgba(240, 208, 96, 0.45)' : 'rgba(255,255,255,0.12)'}; background:${unlocked ? 'rgba(240,208,96,0.06)' : 'rgba(255,255,255,0.03)'};">
+                                <div class="quest-title" style="margin-bottom:0.35rem;">${category.title}</div>
+                                <div class="quest-desc">
+                                    <p style="margin:0 0 0.35rem 0;">${unlocked ? `${category.entries.length} lesson${category.entries.length === 1 ? '' : 's'} ready to review.` : 'This section unlocks as the story progresses.'}</p>
+                                    <p style="margin:0; color: var(--text-dim); font-size:0.88rem;">${unlocked ? 'Open the entries below to review exact answers.' : 'Keep learning to fill this section.'}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    codexReviewHTML += '</div>';
+
+                    if (GameState.journal.codex.length === 0) {
+                        codexReviewHTML += '<p style="color: var(--text-dim); font-style: italic;">No codex entries yet. Complete challenges to start filling these sections.</p>';
+                    } else {
+                        groupedCodexEntries.forEach(category => {
+                            if (category.entries.length === 0) return;
+                            codexReviewHTML += `<h3 style="color: var(--text-gold); font-family: var(--font-heading); margin: 1rem 0 0.5rem;">${category.title}</h3>`;
+                            category.entries.forEach(entry => {
+                                codexReviewHTML += `
+                                    <div class="journal-entry">
+                                        <div class="quest-title">ðŸ“š ${entry.title}</div>
+                                        <div class="quest-desc">${entry.description}</div>
+                                    </div>
+                                `;
+                            });
+                        });
+                    }
+
+                    body.innerHTML = codexReviewHTML;
+                    break;
+                }
                 let codexHTML = '<h3 style="color: var(--text-gold); font-family: var(--font-heading); margin-bottom: 0.5rem;">Java Codex</h3>';
                 
                 if (GameState.journal.codex.length === 0) {
@@ -409,20 +633,78 @@ const Game = {
             Utils.notify('You cannot open the world map during combat.', 'default');
             return;
         }
+        if (GameState.dialogue && GameState.dialogue.active) {
+            Utils.notify('Finish the current dialogue before opening the world map.', 'default');
+            return;
+        }
+
+        this.refreshWorldMapHotspots();
+
+        if (typeof window.WorldMapOverlay !== 'undefined' && typeof window.WorldMapOverlay.open === 'function') {
+            window.WorldMapOverlay.open();
+            return;
+        }
 
         const modal = Utils.$('world-map-modal');
-        if (modal) {
-            modal.style.display = 'flex';
+        if (modal) modal.style.display = 'flex';
+    },
+
+    async handleWorldMapTravel(destinationId) {
+        if (!GameState.hasFlag('ch1_world_map_unlocked')) {
+            Utils.notify('You do not have the world map yet.', 'default');
+            return;
         }
+
+        const destination = this.WORLD_MAP_DESTINATIONS[destinationId];
+        if (!destination) {
+            Utils.notify('That destination is still locked for now.', 'default');
+            return;
+        }
+        if (destination.unlockFlag && !GameState.hasFlag(destination.unlockFlag)) {
+            Utils.notify(`${destination.label} is still locked for now.`, 'default');
+            return;
+        }
+
+        if (World && World.currentScene === destination.sceneId) {
+            Utils.notify(`You are already at the ${destination.label}.`, 'default');
+            return;
+        }
+
+        if (typeof window.WorldMapOverlay !== 'undefined' && typeof window.WorldMapOverlay.close === 'function') {
+            window.WorldMapOverlay.close();
+        }
+        const modal = Utils.$('world-map-modal');
+        if (modal) modal.style.display = 'none';
+
+        await World.goTo(destination.sceneId, destination.transitionText);
+        GameState.save();
+    },
+
+    refreshWorldMapHotspots() {
+        const caveHotspot = document.querySelector('.world-map-hotspot[data-destination="cave"]');
+        if (!caveHotspot) return;
+
+        const unlocked = GameState.hasFlag('ch1_cave_unlocked');
+        caveHotspot.classList.toggle('is-unlocked', unlocked);
+        caveHotspot.classList.toggle('is-locked', !unlocked);
+        caveHotspot.setAttribute('data-state', unlocked ? 'Available' : 'Locked');
+        caveHotspot.setAttribute('aria-label', unlocked ? 'Travel to Cave Entrance' : 'Cave locked');
+        caveHotspot.title = unlocked ? 'Travel to the cave entrance' : 'Locked for now';
     },
 
     updateWorldMapUi(sceneId) {
         const button = Utils.$('world-map-ui-button');
         if (!button) return;
+        this.refreshWorldMapHotspots();
 
         const unlocked = GameState.hasFlag('ch1_world_map_unlocked');
         const isChapter1Scene = typeof sceneId === 'string' && sceneId.startsWith('ch1_');
-        button.style.display = unlocked && isChapter1Scene ? 'flex' : 'none';
+        const caveSequenceLocked = (
+            sceneId === 'ch1_cave_entrance' ||
+            sceneId === 'ch1_cave_rush' ||
+            sceneId === 'ch1_cave_inner'
+        ) && !GameState.hasFlag('ch1_cave_return_ready');
+        button.style.display = unlocked && isChapter1Scene && !caveSequenceLocked ? 'flex' : 'none';
     },
 
     showBlacksmithShop() {
@@ -531,6 +813,22 @@ const Game = {
         if (GameState.combat.active) {
             Utils.$('combat-interface').style.display = 'none';
             GameState.combat.active = false;
+        }
+
+        ['shop-modal', 'world-map-modal', 'inventory-modal', 'journal-modal', 'settings-modal'].forEach((modalId) => {
+            const modal = Utils.$(modalId);
+            if (modal) modal.style.display = 'none';
+        });
+        if (typeof window.WorldMapOverlay !== 'undefined' && typeof window.WorldMapOverlay.close === 'function') {
+            window.WorldMapOverlay.close();
+        }
+        this.activeShopId = null;
+
+        if (typeof Platformer !== 'undefined' && typeof Platformer.stop === 'function' && Platformer.running) {
+            Platformer.stop();
+        }
+        if (typeof World !== 'undefined') {
+            World.currentScene = null;
         }
         
         // Show continue button

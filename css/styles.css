@@ -386,6 +386,35 @@ html, body {
     text-decoration: line-through;
 }
 
+.codex-category-card {
+    appearance: none;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 4px;
+    color: inherit;
+    font-family: var(--font-body);
+    transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.codex-category-card:not(:disabled):hover,
+.codex-category-card:not(:disabled):focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+    outline: none;
+}
+
+.codex-category-card:disabled {
+    opacity: 1;
+}
+
+.codex-category-card .quest-title {
+    font-family: var(--font-heading);
+}
+
+.codex-category-card .quest-desc {
+    font-family: var(--font-body);
+}
+
 /* Inventory */
 .inventory-grid {
     display: grid;
@@ -832,6 +861,132 @@ html, body {
 .world-map-location-ruins {
   right: 22%;
   bottom: 16%;
+}
+
+.world-map-hotspot {
+  position: absolute;
+  z-index: 3;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.world-map-hotspot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 2px solid rgba(117, 64, 18, 0.72);
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 244, 201, 0.98) 0%, rgba(241, 191, 82, 0.98) 34%, rgba(180, 113, 26, 0.95) 62%, rgba(101, 55, 14, 0.95) 100%);
+  box-shadow: 0 3px 8px rgba(39, 19, 4, 0.26);
+  pointer-events: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease, opacity 0.2s ease;
+}
+
+.world-map-hotspot::after {
+  content: attr(data-label) " • " attr(data-state);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  padding: 0.28rem 0.58rem;
+  border-radius: 999px;
+  background: rgba(26, 17, 9, 0.86);
+  border: 1px solid rgba(236, 196, 101, 0.48);
+  color: #f2d18e;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-50%) translateY(4px);
+  pointer-events: none;
+  box-shadow: 0 8px 16px rgba(18, 10, 5, 0.26);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.world-map-hotspot:hover,
+.world-map-hotspot:focus-visible {
+  transform: translate(-50%, -50%) scale(1.18);
+  outline: none;
+  filter: saturate(1.08);
+}
+
+.world-map-hotspot:hover::before,
+.world-map-hotspot:focus-visible::before {
+  transform: scale(1.08);
+  box-shadow: 0 0 0 8px rgba(251, 221, 138, 0.16), 0 0 22px rgba(246, 206, 97, 0.52);
+}
+
+.world-map-hotspot:hover::after,
+.world-map-hotspot:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.world-map-hotspot.is-unlocked {
+  filter: drop-shadow(0 3px 6px rgba(48, 24, 6, 0.18));
+}
+
+.world-map-hotspot.is-locked {
+  cursor: not-allowed;
+}
+
+.world-map-hotspot.is-locked::before {
+  border-color: rgba(98, 83, 66, 0.72);
+  background:
+    radial-gradient(circle at 30% 30%, rgba(212, 199, 176, 0.96) 0%, rgba(139, 120, 94, 0.95) 44%, rgba(83, 68, 52, 0.95) 100%);
+  box-shadow: 0 2px 6px rgba(31, 21, 11, 0.22);
+}
+
+.world-map-hotspot.is-locked:hover,
+.world-map-hotspot.is-locked:focus-visible {
+  filter: brightness(1.02);
+}
+
+.world-map-hotspot-village {
+  left: 74.8%;
+  top: 31.6%;
+}
+
+.world-map-hotspot-forest {
+  left: 80.6%;
+  top: 64.1%;
+}
+
+.world-map-hotspot-syntax {
+  left: 58.2%;
+  top: 62.2%;
+}
+
+.world-map-hotspot-arena {
+  left: 62.6%;
+  top: 79.4%;
+}
+
+.world-map-hotspot-cave {
+  left: 73.6%;
+  top: 75.5%;
+}
+
+.world-map-hotspot-ice {
+  left: 36.9%;
+  top: 58.6%;
+}
+
+.world-map-hotspot-boolean {
+  left: 25.8%;
+  top: 41.2%;
+}
+
+.world-map-hotspot-tower {
+  left: 14.6%;
+  top: 18.9%;
 }
 
 .world-map-compass {
