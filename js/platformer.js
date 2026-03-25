@@ -669,9 +669,7 @@ const Platformer = {
       this.ctx.fillRect(0, 0, this.width, this.height);
     }
 
-    // Ground (for debugging / visibility)
-    this.ctx.fillStyle = 'rgba(0,0,0,0.4)';
-    this.ctx.fillRect(0, this.groundY, this.width, this.height - this.groundY);
+    // Keep ground collision active without drawing the old dark overlay.
 
     // Draw NPCs
     this.ctx.imageSmoothingEnabled = false;

@@ -11,7 +11,70 @@ const Dialogue = {
     callback: null,
     choiceCallback: null,
     keyboardBound: false,
+
+    getSafePortrait(entry) {
+        const fallbackPortraits = {
+            narrator: '📜',
+            player: '🧑‍💻',
+            elder: '👴',
+            trainer: '🥋',
+            blacksmith: '🛠️',
+            villager: '👨‍🌾',
+            hera: '🧝',
+            goblin: '👹',
+            mysterious: '🕵️',
+            npc: '💬'
+        };
+
+        const rawPortrait = typeof entry?.portrait === 'string'
+            ? entry.portrait.trim()
+            : '';
+        const assetPortrait = (typeof Assets !== 'undefined' && typeof Assets.getPortrait === 'function')
+            ? Assets.getPortrait(entry?.speaker)
+            : '';
+        const fallbackPortrait = assetPortrait || fallbackPortraits[entry?.speaker] || '?';
+
+        if (!rawPortrait) {
+            return fallbackPortrait;
+        }
+
+        return /[ÃðâÂ]/.test(rawPortrait) ? fallbackPortrait : rawPortrait;
+    },
     
+    isCorruptedText(value) {
+        return typeof value === 'string' && /(?:\u00C3|\u00F0|\u00E2|\u00C2)/.test(value);
+    },
+
+    resolvePortrait(entry) {
+        const fallbackPortraits = {
+            narrator: '\u{1F4DC}',
+            player: '\u{1F9D1}\u200D\u{1F4BB}',
+            elder: '\u{1F474}',
+            trainer: '\u{1F94B}',
+            blacksmith: '\u{1F6E0}\uFE0F',
+            villager: '\u{1F468}\u200D\u{1F33E}',
+            hera: '\u{1F9DD}',
+            goblin: '\u{1F479}',
+            mysterious: '\u{1F575}\uFE0F',
+            npc: '\u{1F4AC}'
+        };
+
+        const rawPortrait = typeof entry?.portrait === 'string'
+            ? entry.portrait.trim()
+            : '';
+        const assetPortrait = (typeof Assets !== 'undefined' && typeof Assets.getPortrait === 'function')
+            ? Assets.getPortrait(entry?.speaker)
+            : '';
+        const safeAssetPortrait = this.isCorruptedText(assetPortrait) ? '' : assetPortrait;
+        const fallbackPortrait = safeAssetPortrait || fallbackPortraits[entry?.speaker] || '?';
+
+        if (!rawPortrait) {
+            return fallbackPortrait;
+        }
+
+        return this.isCorruptedText(rawPortrait) ? fallbackPortrait : rawPortrait;
+    },
+
     /**
      * Start a dialogue sequence
      * @param {Array} dialogues - Array of dialogue objects
@@ -107,7 +170,7 @@ const Dialogue = {
         
         // Set portrait
         if (entry.portrait) {
-            portraitEl.textContent = entry.portrait;
+            portraitEl.textContent = this.resolvePortrait(entry);
         } else {
             portraitEl.textContent = Assets.getPortrait(entry.speaker) || '❓';
         }
