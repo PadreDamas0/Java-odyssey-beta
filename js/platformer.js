@@ -224,14 +224,14 @@ const Platformer = {
       sprite: {
         assetKey: 'npc_city_stranger',
         frameCount: 4,
-        frameWidth: 48,
+        frameWidth: 44,
         frameHeight: 48,
-        cropX: 12,
-        cropY: 4,
-        cropWidth: 24,
-        cropHeight: 42,
-        drawWidth: 50,
-        drawHeight: 86
+        cropX: 0,
+        cropY: 0,
+        cropWidth: 44,
+        cropHeight: 48,
+        drawWidth: 44,
+        drawHeight: 78
       }
     };
 
@@ -245,15 +245,15 @@ const Platformer = {
       portrait: 'ðŸ›’',
       sprite: {
         assetKey: 'npc_market_merchant',
-        frameCount: 8,
-        frameWidth: 100,
+        frameCount: 10,
+        frameWidth: 80,
         frameHeight: 71,
-        cropX: 8,
-        cropY: 6,
-        cropWidth: 82,
-        cropHeight: 62,
-        drawWidth: 92,
-        drawHeight: 82
+        cropX: 0,
+        cropY: 0,
+        cropWidth: 80,
+        cropHeight: 71,
+        drawWidth: 90,
+        drawHeight: 80
       }
     };
 
@@ -268,14 +268,14 @@ const Platformer = {
       sprite: {
         assetKey: 'npc_square_beggar',
         frameCount: 4,
-        frameWidth: 48,
+        frameWidth: 44,
         frameHeight: 48,
-        cropX: 12,
-        cropY: 8,
-        cropWidth: 22,
-        cropHeight: 36,
-        drawWidth: 46,
-        drawHeight: 74
+        cropX: 0,
+        cropY: 0,
+        cropWidth: 44,
+        cropHeight: 48,
+        drawWidth: 40,
+        drawHeight: 60
       }
     };
 
@@ -626,6 +626,7 @@ const Platformer = {
       bg_city_market: 'assets/background/citymarket.png',
       bg_city_square: 'assets/background/citySquare.jpg',
       bg_tavern: 'assets/background/tavern.png',
+      ui_exclamation: 'assets/UI/Exclamation-Mark.png',
       ui_right_arrow: 'assets/UI/Right-Arrow.png',
       idle_0: 'assets/sprites/mc/adventurer-idle-00.png',
       idle_1: 'assets/sprites/mc/adventurer-idle-01.png',
@@ -1029,6 +1030,10 @@ const Platformer = {
         this.ctx.textAlign = 'center';
         this.ctx.fillText(npc.name, npc.x, y - 8);
       }
+
+      if (this.shouldDrawNpcAttention(npc)) {
+        this.drawNpcAttention(npc);
+      }
     });
 
     if (this.shouldDrawVillageExitArrow()) {
@@ -1080,6 +1085,26 @@ const Platformer = {
     this.ctx.restore();
   },
 
+  drawNpcAttention(npc) {
+    const icon = this.assets.ui_exclamation;
+    const bobOffset = Math.sin(this.lastTimestamp * 0.008) * 4;
+    const drawWidth = 18;
+    const drawHeight = 24;
+    const x = npc.x - (drawWidth / 2);
+    const y = npc.y - 34 + bobOffset;
+
+    this.ctx.save();
+    if (icon) {
+      this.ctx.drawImage(icon, x, y, drawWidth, drawHeight);
+    } else {
+      this.ctx.fillStyle = '#ffd86b';
+      this.ctx.font = 'bold 20px sans-serif';
+      this.ctx.textAlign = 'center';
+      this.ctx.fillText('!', npc.x, y + 12);
+    }
+    this.ctx.restore();
+  },
+
   drawVillageExitArrow() {
     const arrow = this.assets.ui_right_arrow;
     if (!arrow) return;
@@ -1094,6 +1119,50 @@ const Platformer = {
     this.ctx.globalAlpha = 0.95;
     this.ctx.drawImage(arrow, x, y, drawWidth, drawHeight);
     this.ctx.restore();
+  },
+
+  shouldDrawNpcAttention(npc) {
+    if (!npc || npc.hidden || !window.GameState) return false;
+    if (GameState.dialogue && GameState.dialogue.active) return false;
+
+    switch (npc.role) {
+      case 'elder':
+        return (
+          !GameState.hasFlag('ch1_elder_intro_complete') ||
+          (GameState.hasFlag('ch1_training_complete') && !GameState.hasFlag('ch1_forest_path_unlocked')) ||
+          (GameState.hasFlag('ch1_report_to_elder_after_abandoned')) ||
+          (GameState.hasFlag('ch1_fragment_recovered') && !GameState.hasFlag('ch1_syntax_city_unlocked'))
+        );
+      case 'trainer':
+      case 'rowan':
+        return GameState.hasFlag('ch1_elder_intro_complete') && !GameState.hasFlag('ch1_training_complete');
+      case 'hera':
+        return !GameState.hasFlag('ch1_hera_help_started');
+      case 'cave_hera':
+        return GameState.hasFlag('ch1_cave_unlocked') && !GameState.hasFlag('ch1_fragment_recovered');
+      case 'syntax_stranger':
+        return GameState.hasFlag('ch1_syntax_city_unlocked') && !GameState.hasFlag('ch1_city_map_unlocked');
+      case 'market_merchant':
+        return GameState.hasFlag('ch1_city_map_unlocked') && !GameState.hasFlag('ch1_city_square_unlocked');
+      case 'square_beggar':
+        return GameState.hasFlag('ch1_city_square_unlocked') && !GameState.hasFlag('ch1_city_tavern_unlocked');
+      case 'tavern_barkeep':
+        return GameState.hasFlag('ch1_city_tavern_unlocked')
+          && !GameState.hasFlag('ch1_tavern_host_visible')
+          && !GameState.hasFlag('ch1_tavern_barkeep_talked');
+      case 'tavern_barmaid':
+        return GameState.hasFlag('ch1_city_tavern_unlocked')
+          && !GameState.hasFlag('ch1_tavern_host_visible')
+          && !GameState.hasFlag('ch1_tavern_barmaid_talked');
+      case 'tavern_drunk':
+        return GameState.hasFlag('ch1_city_tavern_unlocked')
+          && !GameState.hasFlag('ch1_tavern_host_visible')
+          && !GameState.hasFlag('ch1_tavern_drunk_talked');
+      case 'arena_host':
+        return GameState.hasFlag('ch1_tavern_host_visible') && !GameState.hasFlag('ch1_tavern_host_defeated');
+      default:
+        return false;
+    }
   },
 
   getCurrentFrame() {

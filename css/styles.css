@@ -742,7 +742,23 @@ html, body {
 }
 
 .city-map-hotspot::after {
-  display: none;
+  content: attr(data-label);
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  padding: 0.18rem 0.48rem;
+  border-radius: 999px;
+  background: rgba(18, 12, 7, 0.82);
+  border: 1px solid rgba(236, 196, 101, 0.36);
+  color: #f2d18e;
+  font-family: var(--font-heading);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  opacity: 1;
+  transform: translateX(-50%);
+  pointer-events: none;
+  box-shadow: 0 6px 14px rgba(18, 10, 5, 0.2);
 }
 
 .city-map-hotspot::before {

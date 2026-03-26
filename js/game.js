@@ -753,12 +753,13 @@ const Game = {
 
         const unlocked = GameState.hasFlag('ch1_world_map_unlocked');
         const isChapter1Scene = typeof sceneId === 'string' && sceneId.startsWith('ch1_');
+        const dialogueOpen = !!(GameState.dialogue && GameState.dialogue.active);
         const caveSequenceLocked = (
             sceneId === 'ch1_cave_entrance' ||
             sceneId === 'ch1_cave_rush' ||
             sceneId === 'ch1_cave_inner'
         ) && !GameState.hasFlag('ch1_cave_return_ready');
-        button.style.display = unlocked && isChapter1Scene && !caveSequenceLocked ? 'flex' : 'none';
+        button.style.display = unlocked && isChapter1Scene && !caveSequenceLocked && !dialogueOpen ? 'flex' : 'none';
         this.updateCityMapUi(sceneId);
     },
 
@@ -832,7 +833,8 @@ const Game = {
 
         this.refreshCityMapHotspots();
         const unlocked = GameState.hasFlag('ch1_city_map_unlocked');
-        button.style.display = unlocked && this.isCityScene(sceneId) ? 'flex' : 'none';
+        const dialogueOpen = !!(GameState.dialogue && GameState.dialogue.active);
+        button.style.display = unlocked && this.isCityScene(sceneId) && !dialogueOpen ? 'flex' : 'none';
     },
 
     showBlacksmithShop() {

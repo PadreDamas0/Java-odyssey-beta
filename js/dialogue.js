@@ -102,6 +102,9 @@ const Dialogue = {
             this.choiceCallback = null;
             
             GameState.dialogue.active = true;
+            if (typeof Game !== 'undefined' && typeof Game.updateWorldMapUi === 'function') {
+                Game.updateWorldMapUi((typeof World !== 'undefined' && World.currentScene) || GameState.progress.currentScene);
+            }
             
             const box = Utils.$('dialogue-box');
             if (box) {
@@ -332,6 +335,10 @@ const Dialogue = {
             const cb = this.callback;
             this.callback = null;
             cb();
+        }
+
+        if (typeof Game !== 'undefined' && typeof Game.updateWorldMapUi === 'function') {
+            Game.updateWorldMapUi((typeof World !== 'undefined' && World.currentScene) || GameState.progress.currentScene);
         }
     },
     

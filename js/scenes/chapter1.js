@@ -1012,6 +1012,8 @@ const Chapter1Scene = {
         GameState.setFlag('ch1_city_map_unlocked');
         GameState.setFlag('ch1_city_market_unlocked');
         GameState.setFlag('ch1_syntax_stranger_met');
+        GameState.completeQuest('ch1_main');
+        GameState.completeQuest('ch1_forest_quest');
         this.syncQuest({
             id: 'ch1_syntax_city',
             title: 'Find the Arena Host',
@@ -2673,6 +2675,8 @@ ______________________</pre>
             ]);
 
             GameState.setFlag('ch1_syntax_city_unlocked');
+            GameState.completeQuest('ch1_main');
+            GameState.completeQuest('ch1_forest_quest');
             this.syncQuest({
                 id: 'ch1_syntax_city',
                 title: 'Travel to Syntax City',
