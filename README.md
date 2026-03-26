@@ -4,7 +4,7 @@
 
 Made by Emilio Aguinaldo College - Cavite Computer Science Students.
 
-This game aims to teach introductory Java language lessons to beginners (also aimed to teach 1st Year Computer Science students in EAC-C)
+This game aims to teach introductory **Java** language lessons to beginners (also aimed to teach 1st Year Computer Science students in EAC-C)
 
      ⚠️ BETA PHASE: This project is currently in active development. Features and lessons are subject to change.
 
@@ -12,14 +12,14 @@ This game aims to teach introductory Java language lessons to beginners (also ai
      **Project Overview**
 The game is specifically tailored for 1st Year Computer Science students at EAC-C, providing a hands-on way to master Java syntax, logic, and Object-Oriented Programming (OOP) through a narrative-driven RPG experience.
 
-Key Learning Objectives:
+**Key Learning Objectives:**
 Basic Syntax: Variables, data types, and operators.
 
-Control Structures: If-else statements and loops.
+**Control Structures:** If-else statements and loops.
 
-Object-Oriented Logic: Understanding classes, objects, and methods.
+**Object-Oriented Logic:** Understanding classes, objects, and methods.
 
-Problem Solving: Interactive coding challenges within the game world.
+**Problem Solving:** Interactive coding challenges within the game world.
 
 
      **Acknowledgments**
