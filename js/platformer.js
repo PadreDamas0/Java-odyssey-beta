@@ -213,6 +213,182 @@ const Platformer = {
       }
     };
 
+    const syntaxStrangerDefinition = {
+      id: 'syntax-stranger',
+      role: 'syntax_stranger',
+      name: 'Stranger',
+      relX: 0.6,
+      interactionRange: 104,
+      dialogue: 'Looking for the king? You will need to be noticed first.',
+      portrait: 'ðŸ•µï¸',
+      sprite: {
+        assetKey: 'npc_city_stranger',
+        frameCount: 4,
+        frameWidth: 48,
+        frameHeight: 48,
+        cropX: 12,
+        cropY: 4,
+        cropWidth: 24,
+        cropHeight: 42,
+        drawWidth: 50,
+        drawHeight: 86
+      }
+    };
+
+    const marketMerchantDefinition = {
+      id: 'market-merchant',
+      role: 'market_merchant',
+      name: 'Market Merchant',
+      relX: 0.56,
+      interactionRange: 114,
+      dialogue: 'Goods are scarce, but rumors are plentiful.',
+      portrait: 'ðŸ›’',
+      sprite: {
+        assetKey: 'npc_market_merchant',
+        frameCount: 8,
+        frameWidth: 100,
+        frameHeight: 71,
+        cropX: 8,
+        cropY: 6,
+        cropWidth: 82,
+        cropHeight: 62,
+        drawWidth: 92,
+        drawHeight: 82
+      }
+    };
+
+    const squareBeggarDefinition = {
+      id: 'square-beggar',
+      role: 'square_beggar',
+      name: 'Square Beggar',
+      relX: 0.48,
+      interactionRange: 104,
+      dialogue: 'You want the host? Hah... then find the tavern.',
+      portrait: 'ðŸ§Ž',
+      sprite: {
+        assetKey: 'npc_square_beggar',
+        frameCount: 4,
+        frameWidth: 48,
+        frameHeight: 48,
+        cropX: 12,
+        cropY: 8,
+        cropWidth: 22,
+        cropHeight: 36,
+        drawWidth: 46,
+        drawHeight: 74
+      }
+    };
+
+    const barkeepDefinition = {
+      id: 'tavern-barkeep',
+      role: 'tavern_barkeep',
+      name: 'Barkeep',
+      relX: 0.36,
+      interactionRange: 104,
+      dialogue: 'Keep it civil in my tavern.',
+      portrait: 'ðŸº',
+      sprite: {
+        assetKey: 'npc_barkeep',
+        frameCount: 5,
+        frameWidth: 34,
+        frameHeight: 34,
+        cropX: 6,
+        cropY: 2,
+        cropWidth: 22,
+        cropHeight: 31,
+        drawWidth: 52,
+        drawHeight: 78
+      }
+    };
+
+    const barmaidDefinition = {
+      id: 'tavern-barmaid',
+      role: 'tavern_barmaid',
+      name: 'Barmaid',
+      relX: 0.58,
+      interactionRange: 104,
+      dialogue: 'If you want gossip, order a drink first.',
+      portrait: 'ðŸ·',
+      sprite: {
+        assetKey: 'npc_barmaid',
+        frameCount: 5,
+        frameWidth: 34,
+        frameHeight: 34,
+        cropX: 6,
+        cropY: 2,
+        cropWidth: 22,
+        cropHeight: 31,
+        drawWidth: 52,
+        drawHeight: 78
+      }
+    };
+
+    const tavernDrunkDefinition = {
+      id: 'tavern-drunk',
+      role: 'tavern_drunk',
+      name: 'Drunk Patron',
+      relX: 0.18,
+      interactionRange: 104,
+      dialogue: "Zzzz... *hik* what d'you want...?",
+      portrait: 'ðŸ»',
+      sprite: {
+        assetKey: 'npc_drunk',
+        frameCount: 8,
+        frameWidth: 96,
+        frameHeight: 96,
+        cropX: 30,
+        cropY: 18,
+        cropWidth: 34,
+        cropHeight: 72,
+        drawWidth: 50,
+        drawHeight: 92
+      }
+    };
+
+    const arenaHostDefinition = {
+      id: 'arena-host',
+      role: 'arena_host',
+      name: 'Arena Host',
+      relX: 0.82,
+      interactionRange: 104,
+      dialogue: 'Tournament? Hah. Prove you can handle yourself first.',
+      portrait: 'âš”ï¸',
+      sprite: {
+        assetKey: 'npc_arena_host',
+        frameCount: 8,
+        frameWidth: 150,
+        frameHeight: 150,
+        cropX: 52,
+        cropY: 24,
+        cropWidth: 44,
+        cropHeight: 92,
+        drawWidth: 64,
+        drawHeight: 110
+      }
+    };
+
+    const kingDefinition = {
+      id: 'king-aureon',
+      role: 'king_aureon',
+      name: 'King Aureon',
+      relX: 0.55,
+      interactionRange: 104,
+      dialogue: 'Syntax City stands only while its laws remain clear.',
+      portrait: 'ðŸ‘‘',
+      sprite: {
+        assetKey: 'npc_king',
+        frameCount: 8,
+        frameWidth: 160,
+        frameHeight: 111,
+        cropX: 46,
+        cropY: 10,
+        cropWidth: 64,
+        cropHeight: 100,
+        drawWidth: 74,
+        drawHeight: 116
+      }
+    };
+
     const neutralScene = {
       id: sceneId || 'ch1_generic',
       backgroundKey: 'bg_village',
@@ -373,6 +549,56 @@ const Platformer = {
           if (GameState.hasFlag('ch1_fire_worm_revealed')) return [caveHeraDefinition, fireWormDefinition];
           return [caveHeraDefinition];
         }
+      },
+      ch1_syntax_city_entry: {
+        id: 'ch1_syntax_city_entry',
+        backgroundKey: 'bg_syntax_city',
+        groundOffset: 210,
+        spawnX: 128,
+        npcScene: true,
+        npcDefinitions: () => [syntaxStrangerDefinition]
+      },
+      ch1_syntax_city_market: {
+        id: 'ch1_syntax_city_market',
+        backgroundKey: 'bg_city_market',
+        groundOffset: 202,
+        spawnX: 128,
+        npcScene: true,
+        npcDefinitions: () => [marketMerchantDefinition]
+      },
+      ch1_syntax_city_square: {
+        id: 'ch1_syntax_city_square',
+        backgroundKey: 'bg_city_square',
+        groundOffset: 208,
+        spawnX: 128,
+        npcScene: true,
+        npcDefinitions: () => [squareBeggarDefinition]
+      },
+      ch1_syntax_city_tavern: {
+        id: 'ch1_syntax_city_tavern',
+        backgroundKey: 'bg_tavern',
+        groundOffset: 202,
+        spawnX: 128,
+        npcScene: true,
+        npcDefinitions: () => {
+          const definitions = [barkeepDefinition, barmaidDefinition, tavernDrunkDefinition];
+          if (
+            typeof GameState !== 'undefined' &&
+            typeof GameState.hasFlag === 'function' &&
+            (GameState.hasFlag('ch1_tavern_host_visible') || GameState.hasFlag('ch1_tavern_host_defeated'))
+          ) {
+            definitions.push(arenaHostDefinition);
+          }
+          return definitions;
+        }
+      },
+      ch1_syntax_city_castle: {
+        id: 'ch1_syntax_city_castle',
+        backgroundKey: 'bg_syntax_city',
+        groundOffset: 210,
+        spawnX: 140,
+        npcScene: true,
+        npcDefinitions: () => [kingDefinition]
       }
     };
 
@@ -396,6 +622,10 @@ const Platformer = {
       bg_cave_entrance: 'assets/background/caveEntrance.png',
       bg_cave_1: 'assets/background/cave1.png',
       bg_cave_rush: 'assets/background/cave2.png',
+      bg_syntax_city: 'assets/background/syntaxcity.png',
+      bg_city_market: 'assets/background/citymarket.png',
+      bg_city_square: 'assets/background/citySquare.jpg',
+      bg_tavern: 'assets/background/tavern.png',
       ui_right_arrow: 'assets/UI/Right-Arrow.png',
       idle_0: 'assets/sprites/mc/adventurer-idle-00.png',
       idle_1: 'assets/sprites/mc/adventurer-idle-01.png',
@@ -414,6 +644,14 @@ const Platformer = {
       npc_trainer: 'assets/sprites/npc/VillageTrainer.png',
       npc_blacksmith: 'assets/sprites/npc/Blacksmith.png',
       npc_hera: 'assets/sprites/npc/Hera.png',
+      npc_city_stranger: 'assets/sprites/npc/CityStanger.png',
+      npc_market_merchant: 'assets/sprites/npc/MarketMerchant.png',
+      npc_square_beggar: 'assets/sprites/npc/SquareBeggar.png',
+      npc_barkeep: 'assets/sprites/npc/barkeep.png',
+      npc_barmaid: 'assets/sprites/npc/barmaid.png',
+      npc_drunk: 'assets/sprites/npc/drunkNPC.png',
+      npc_arena_host: 'assets/sprites/npc/ArenaHost.png',
+      npc_king: 'assets/sprites/npc/King.png',
       enemy_goblin_idle: 'assets/sprites/worldEnemies/goblinIdle.png',
       enemy_fire_worm_world: 'assets/sprites/worldEnemies/SmallFireWorm.png'
     };

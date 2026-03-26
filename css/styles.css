@@ -694,6 +694,11 @@ html, body {
   outline-offset: 2px;
 }
 
+.city-map-ui-button {
+  left: 18px;
+  right: auto;
+}
+
 .world-map-content {
   width: min(92vw, 960px);
   max-width: 960px;
@@ -715,6 +720,64 @@ html, body {
   border-radius: 10px;
   border: 1px solid rgba(201, 168, 76, 0.45);
   box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
+}
+
+.city-map-content {
+  width: min(92vw, 1120px);
+  max-width: 1120px;
+}
+
+.city-map-stage {
+  position: relative;
+}
+
+.city-map-full-image {
+  margin: 0 auto;
+}
+
+.city-map-hotspot {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+}
+
+.city-map-hotspot::after {
+  display: none;
+}
+
+.city-map-hotspot::before {
+  border-color: rgba(147, 88, 16, 0.84);
+  box-shadow: 0 4px 12px rgba(52, 24, 3, 0.34);
+}
+
+.city-map-hotspot:hover::before,
+.city-map-hotspot:focus-visible::before {
+  box-shadow: 0 0 0 10px rgba(251, 221, 138, 0.18), 0 0 28px rgba(246, 206, 97, 0.58);
+}
+
+.city-map-hotspot.is-unlocked::before {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 247, 214, 1) 0%, rgba(247, 205, 86, 0.98) 36%, rgba(196, 126, 29, 0.96) 66%, rgba(111, 63, 14, 0.96) 100%);
+}
+
+.city-map-hotspot-castle {
+  left: 52.5%;
+  top: 30.5%;
+}
+
+.city-map-hotspot-market {
+  left: 33%;
+  top: 61%;
+}
+
+.city-map-hotspot-square {
+  left: 50%;
+  top: 61%;
+}
+
+.city-map-hotspot-tavern {
+  left: 76.2%;
+  top: 61.5%;
 }
 
 .world-map-overlay {

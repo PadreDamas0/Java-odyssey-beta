@@ -165,6 +165,34 @@ const NPCSystem = {
                 Chapter1Scene.startAbandonedVillageGoblinEncounter();
                 return true;
             }
+            if (npc.role === 'syntax_stranger' && typeof Chapter1Scene.talkToSyntaxStranger === 'function') {
+                Chapter1Scene.talkToSyntaxStranger();
+                return true;
+            }
+            if (npc.role === 'market_merchant' && typeof Chapter1Scene.talkToMarketMerchant === 'function') {
+                Chapter1Scene.talkToMarketMerchant();
+                return true;
+            }
+            if (npc.role === 'square_beggar' && typeof Chapter1Scene.talkToSquareBeggar === 'function') {
+                Chapter1Scene.talkToSquareBeggar();
+                return true;
+            }
+            if (npc.role === 'tavern_barkeep' && typeof Chapter1Scene.talkToTavernBarkeep === 'function') {
+                Chapter1Scene.talkToTavernBarkeep();
+                return true;
+            }
+            if (npc.role === 'tavern_barmaid' && typeof Chapter1Scene.talkToTavernBarmaid === 'function') {
+                Chapter1Scene.talkToTavernBarmaid();
+                return true;
+            }
+            if (npc.role === 'tavern_drunk' && typeof Chapter1Scene.talkToTavernDrunk === 'function') {
+                Chapter1Scene.talkToTavernDrunk();
+                return true;
+            }
+            if (npc.role === 'arena_host' && typeof Chapter1Scene.talkToArenaHost === 'function') {
+                Chapter1Scene.talkToArenaHost();
+                return true;
+            }
         }
 
         Dialogue.openNpcDialogue(npc);

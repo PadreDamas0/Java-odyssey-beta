@@ -213,6 +213,56 @@ const Chapter1Scene = {
             onEnter: async () => this.enterCaveInner()
         });
 
+        World.registerScene('ch1_syntax_city_entry', {
+            locationName: 'Syntax City - Entrance',
+            art: 'forestPath',
+            artClass: 'dark-forest',
+            description: '',
+            actions: [],
+            fullScreenMap: false,
+            hidePhaser: false
+        });
+
+        World.registerScene('ch1_syntax_city_market', {
+            locationName: 'Syntax City - Market',
+            art: 'forestPath',
+            artClass: 'dark-forest',
+            description: '',
+            actions: [],
+            fullScreenMap: false,
+            hidePhaser: false
+        });
+
+        World.registerScene('ch1_syntax_city_square', {
+            locationName: 'Syntax City - City Square',
+            art: 'forestPath',
+            artClass: 'dark-forest',
+            description: '',
+            actions: [],
+            fullScreenMap: false,
+            hidePhaser: false
+        });
+
+        World.registerScene('ch1_syntax_city_tavern', {
+            locationName: 'Syntax City - Tavern',
+            art: 'forestPath',
+            artClass: 'dark-forest',
+            description: '',
+            actions: [],
+            fullScreenMap: false,
+            hidePhaser: false
+        });
+
+        World.registerScene('ch1_syntax_city_castle', {
+            locationName: 'Syntax City - Castle',
+            art: 'forestPath',
+            artClass: 'dark-forest',
+            description: '',
+            actions: [],
+            fullScreenMap: false,
+            hidePhaser: false
+        });
+
         // Training Grounds
         World.registerScene('ch1_training', {
             locationName: 'Village of Variables — Training Grounds',
@@ -839,6 +889,74 @@ const Chapter1Scene = {
             await Dialogue.quick(
                 'hera',
                 'Hera',
+                `The fragment is finally safe. Open the map and let's get back to the village so Elder Varion can see it.`,
+                'ðŸ§'
+            );
+            return;
+        }
+
+        await Dialogue.quick(
+            'hera',
+            'Hera',
+            `Good, you're here. I'm sensing the fragment is in that cave.`,
+            'ðŸ§'
+        );
+        return;
+
+        if (GameState.hasFlag('ch1_fragment_recovered') && !GameState.hasFlag('ch1_syntax_city_unlocked')) {
+            await Dialogue.start([
+                {
+                    speaker: 'elder',
+                    name: 'Elder Varion',
+                    text: `You've got the fragment. This part of the realm will be safe... for now.`,
+                    portrait: 'ðŸ‘´'
+                },
+                {
+                    speaker: 'elder',
+                    name: 'Elder Varion',
+                    text: `But the same disruption is appearing in <span class="highlight">Syntax City</span>. Orders are breaking apart, notices are rewriting themselves, and the city's structure is slipping out of balance.`,
+                    portrait: 'ðŸ‘´'
+                },
+                {
+                    speaker: 'elder',
+                    name: 'Elder Varion',
+                    text: `You must go there next. If Syntax City falls deeper into corruption, the rest of the realm may lose the ability to speak, record, and command clearly.`,
+                    portrait: 'ðŸ‘´'
+                },
+                {
+                    speaker: 'hera',
+                    name: 'Hera',
+                    text: `Take care on your journey, ${GameState.player.name}. If the city's syntax is breaking, even simple statements may turn dangerous.`,
+                    portrait: 'ðŸ§'
+                }
+            ]);
+
+            GameState.setFlag('ch1_syntax_city_unlocked');
+            this.syncQuest({
+                id: 'ch1_syntax_city',
+                title: 'Travel to Syntax City',
+                description: 'Open the world map and travel to Syntax City to investigate the spreading corruption.'
+            });
+            if (typeof Game !== 'undefined' && typeof Game.updateWorldMapUi === 'function') {
+                Game.updateWorldMapUi(World.currentScene || GameState.progress.currentScene);
+            }
+            return;
+        }
+
+        if (GameState.hasFlag('ch1_syntax_city_unlocked') && !GameState.hasFlag('ch1_city_map_unlocked')) {
+            await Dialogue.quick(
+                'elder',
+                'Elder Varion',
+                `Syntax City is marked on your map now. Travel there, find the source of the disruption, and learn what the city needs from you.`,
+                'ðŸ‘´'
+            );
+            return;
+        }
+
+        if (GameState.hasFlag('ch1_fragment_recovered')) {
+            await Dialogue.quick(
+                'hera',
+                'Hera',
                 `The fragment is finally safe. Open the map and let's get back to the village.`,
                 '🧝'
             );
@@ -851,6 +969,366 @@ const Chapter1Scene = {
             `Good, you're here. I'm sensing the fragment is in that cave.`,
             '🧝'
         );
+    },
+
+    async talkToSyntaxStranger() {
+        if (GameState.hasFlag('ch1_city_map_unlocked')) {
+            await Dialogue.quick(
+                'stranger',
+                'Stranger',
+                `The king will only notice people who prove themselves useful. Start in the market, then follow the trail toward the arena host.`,
+                'ðŸ•µï¸'
+            );
+            return;
+        }
+
+        await Dialogue.start([
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `I'm looking for King Aureon. Elder Varion said Syntax City is in trouble.`,
+                portrait: 'ðŸ§‘â€ðŸ’»'
+            },
+            {
+                speaker: 'stranger',
+                name: 'Stranger',
+                text: `Then you came at the right time, but not the right rank. The king will not grant an audience to a nameless traveler.`,
+                portrait: 'ðŸ•µï¸'
+            },
+            {
+                speaker: 'stranger',
+                name: 'Stranger',
+                text: `If you want the court to notice you, join the tournament. To do that, you need the <span class="highlight">Arena Host</span>.`,
+                portrait: 'ðŸ•µï¸'
+            },
+            {
+                speaker: 'stranger',
+                name: 'Stranger',
+                text: `Take this city map. Start with the <span class="highlight">market</span>. People talk more freely there than they do in front of palace guards.`,
+                portrait: 'ðŸ•µï¸'
+            }
+        ]);
+
+        GameState.setFlag('ch1_city_map_unlocked');
+        GameState.setFlag('ch1_city_market_unlocked');
+        GameState.setFlag('ch1_syntax_stranger_met');
+        this.syncQuest({
+            id: 'ch1_syntax_city',
+            title: 'Find the Arena Host',
+            description: 'Use the city map, visit the market first, and learn how to reach the tournament host.'
+        });
+
+        if (typeof Game !== 'undefined' && typeof Game.updateWorldMapUi === 'function') {
+            Game.updateWorldMapUi(World.currentScene || GameState.progress.currentScene);
+        }
+    },
+
+    async talkToMarketMerchant() {
+        if (GameState.hasFlag('ch1_city_square_unlocked')) {
+            await Dialogue.quick(
+                'merchant',
+                'Market Merchant',
+                `If you're still chasing the tournament, ask around the <span class="highlight">city square</span>. That's where desperate people notice everything.`,
+                'ðŸ›’'
+            );
+            if (typeof Game !== 'undefined' && typeof Game.showMerchantShop === 'function') {
+                Game.showMerchantShop();
+            }
+            return;
+        }
+
+        await Dialogue.start([
+            {
+                speaker: 'merchant',
+                name: 'Market Merchant',
+                text: `The city is jittery these days. Signs are changing, orders are malformed, and half my ledgers refuse to print correctly.`,
+                portrait: 'ðŸ›’'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `I'm trying to find the Arena Host. Someone said the tournament is the only way to reach the king.`,
+                portrait: 'ðŸ§‘â€ðŸ’»'
+            },
+            {
+                speaker: 'merchant',
+                name: 'Market Merchant',
+                text: `Then head to the <span class="highlight">city square</span>. The people there know who drifts in and out of the tavern, and that's where the arena crowd usually passes through.`,
+                portrait: 'ðŸ›’'
+            }
+        ]);
+
+        GameState.setFlag('ch1_city_square_unlocked');
+        this.syncQuest({
+            id: 'ch1_syntax_city',
+            title: 'Ask Around the City Square',
+            description: 'Travel to the city square and ask who can lead you to the Arena Host.'
+        });
+
+        if (typeof Game !== 'undefined') {
+            if (typeof Game.showMerchantShop === 'function') {
+                Game.showMerchantShop();
+            }
+            if (typeof Game.updateWorldMapUi === 'function') {
+                Game.updateWorldMapUi(World.currentScene || GameState.progress.currentScene);
+            }
+        }
+    },
+
+    async talkToSquareBeggar() {
+        if (GameState.hasFlag('ch1_city_tavern_unlocked')) {
+            await Dialogue.quick(
+                'beggar',
+                'Square Beggar',
+                `Told you already - if you want the host, find the tavern and follow the loudest voices.`,
+                'ðŸ§Ž'
+            );
+            return;
+        }
+
+        await Dialogue.start([
+            {
+                speaker: 'beggar',
+                name: 'Square Beggar',
+                text: `You look lost, traveler. Looking for someone important?`,
+                portrait: 'ðŸ§Ž'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `The Arena Host. I need to enter the tournament if I want to meet the king.`,
+                portrait: 'ðŸ§‘â€ðŸ’»'
+            },
+            {
+                speaker: 'beggar',
+                name: 'Square Beggar',
+                text: `Then stop searching the square and head to the <span class="highlight">tavern</span>. That fool drinks there when he's not shouting at fighters.`,
+                portrait: 'ðŸ§Ž'
+            }
+        ]);
+
+        GameState.setFlag('ch1_city_tavern_unlocked');
+        this.syncQuest({
+            id: 'ch1_syntax_city',
+            title: 'Find the Tavern',
+            description: 'Travel to the tavern and ask around for the Arena Host.'
+        });
+
+        if (typeof Game !== 'undefined' && typeof Game.updateWorldMapUi === 'function') {
+            Game.updateWorldMapUi(World.currentScene || GameState.progress.currentScene);
+        }
+    },
+
+    async talkToTavernBarkeep() {
+        await Dialogue.quick(
+            'barkeep',
+            'Barkeep',
+            `Tournament crowd? They come and go, but the loudest drunk in the room usually knows where the host wandered off to.`,
+            'ðŸº'
+        );
+
+        GameState.setFlag('ch1_tavern_barkeep_talked');
+        await this.checkTavernHostTrigger();
+    },
+
+    async talkToTavernBarmaid() {
+        await Dialogue.quick(
+            'barmaid',
+            'Barmaid',
+            `If you're after the Arena Host, ask the drunk at the side table... or wait for him to stumble in himself.`,
+            'ðŸ·'
+        );
+
+        GameState.setFlag('ch1_tavern_barmaid_talked');
+        await this.checkTavernHostTrigger();
+    },
+
+    async talkToTavernDrunk() {
+        await Dialogue.quick(
+            'drunk',
+            'Drunk Patron',
+            `Zzzz... *hik hik* whaaat zu yu wann... the host? Hah... tavern always finds him first...`,
+            'ðŸ»'
+        );
+
+        GameState.setFlag('ch1_tavern_drunk_talked');
+        await this.checkTavernHostTrigger();
+    },
+
+    async talkToArenaHost() {
+        if (GameState.hasFlag('ch1_tavern_host_defeated')) {
+            await Dialogue.quick(
+                'host',
+                'Arena Host',
+                `You handled yourself well. Come find me again when you're ready to enter the tournament properly.`,
+                'âš”ï¸'
+            );
+            return;
+        }
+
+        await Dialogue.quick(
+            'host',
+            'Arena Host',
+            `Hah! Not yet. First let's see if you can handle a few sloppy swings.`,
+            'âš”ï¸'
+        );
+    },
+
+    async checkTavernHostTrigger() {
+        const allTalked = GameState.hasFlag('ch1_tavern_barkeep_talked')
+            && GameState.hasFlag('ch1_tavern_barmaid_talked')
+            && GameState.hasFlag('ch1_tavern_drunk_talked');
+
+        if (!allTalked || GameState.hasFlag('ch1_tavern_host_visible') || GameState.hasFlag('ch1_tavern_host_defeated')) {
+            return;
+        }
+
+        GameState.setFlag('ch1_tavern_host_visible');
+        if (typeof Platformer !== 'undefined' && typeof Platformer.resetNpcs === 'function') {
+            Platformer.resetNpcs();
+        }
+
+        await Dialogue.start([
+            {
+                speaker: 'narrator',
+                name: 'Narrator',
+                text: `<em>A chair scrapes across the tavern floor. A red-cloaked fighter lurches out from the shadows, swaying with drink and grinning like trouble.</em>`,
+                portrait: 'ðŸ“œ'
+            },
+            {
+                speaker: 'host',
+                name: 'Arena Host',
+                text: `Who keeps asking for me? If you want my attention, you can earn it the hard way!`,
+                portrait: 'âš”ï¸'
+            }
+        ]);
+
+        await this.startArenaHostEncounter();
+    },
+
+    async startArenaHostEncounter() {
+        const host = {
+            name: 'Drunken Arena Host',
+            hp: 96,
+            maxHp: 96,
+            coinReward: 35,
+            art: 'assets/sprites/npc/ArenaHost.png',
+            description: 'A half-drunk tournament master who still knows how to swing hard.',
+            maxHints: 2,
+            correctXpReward: 16,
+            firstTryXpReward: 28,
+            victoryXpReward: 50
+        };
+
+        Combat.start(host, this.getArenaHostChallenges(), () => this.onArenaHostVictory());
+    },
+
+    getArenaHostChallenges() {
+        return [
+            {
+                id: 'ch1_host_1',
+                prompt: `
+                    <span class="challenge-title">ðŸ›ï¸ Host Clash: Open With A Print</span>
+                    <p>Write one line to print <strong>"Syntax City"</strong>.</p>
+                    <pre>______________________</pre>
+                `,
+                narrative: 'The host staggers in swinging. Open with a clean print statement before he barrels into you!',
+                hints: [
+                    'Use System.out.println().',
+                    'Put the text in double quotes.',
+                    'Answer: System.out.println("Syntax City");'
+                ],
+                answers: [
+                    'System.out.println("Syntax City");',
+                    'System.out.println("Syntax City")'
+                ],
+                damage: 32,
+                explanation: 'System.out.println() prints a line of text to the console.',
+                concept: 'syntax_print_basics',
+                conceptTitle: 'Print Statements',
+                codexTitle: 'Arena Host - Print Statements'
+            },
+            {
+                id: 'ch1_host_2',
+                type: 'multiple_choice',
+                prompt: `
+                    <span class="challenge-title">ðŸ›ï¸ Host Clash: Spot The Valid Line</span>
+                    <p>Which line correctly prints <strong>"Ready!"</strong> in Java?</p>
+                `,
+                narrative: 'He feints left. Pick the valid syntax before the opening disappears.',
+                hints: [
+                    'Java uses System.out.println().',
+                    'Text needs double quotes.',
+                    'Answer: System.out.println("Ready!");'
+                ],
+                choices: [
+                    'print("Ready!");',
+                    'System.out.println("Ready!");',
+                    'System.out.println(Ready!);',
+                    'System.out.printline("Ready!");'
+                ],
+                correctOption: 1,
+                answers: ['System.out.println("Ready!");'],
+                damage: 34,
+                explanation: 'Correct syntax matters as much as the words you want to print.',
+                concept: 'syntax_valid_output',
+                conceptTitle: 'Valid Output Syntax',
+                codexTitle: 'Arena Host - Valid Print Syntax'
+            },
+            {
+                id: 'ch1_host_3',
+                prompt: `
+                    <span class="challenge-title">ðŸ›ï¸ Host Clash: Finish The Challenge</span>
+                    <p>Declare a <strong>String</strong> named <code>title</code> with the value <strong>"Champion"</strong>.</p>
+                    <pre>______________________</pre>
+                `,
+                narrative: 'The final exchange comes fast. Lock the title in place and end the scuffle cleanly.',
+                hints: [
+                    'Use the String keyword.',
+                    'Champion must be in double quotes.',
+                    'Answer: String title = "Champion";'
+                ],
+                answers: [
+                    'String title = "Champion";',
+                    'String title="Champion";',
+                    'String title = "Champion"'
+                ],
+                damage: 40,
+                explanation: 'Strings store text values wrapped in double quotes.',
+                concept: 'syntax_string_title',
+                conceptTitle: 'String Declarations',
+                codexTitle: 'Arena Host - String Declaration'
+            }
+        ];
+    },
+
+    async onArenaHostVictory() {
+        GameState.setFlag('ch1_tavern_host_defeated');
+
+        if (typeof Platformer !== 'undefined' && typeof Platformer.resetNpcs === 'function') {
+            Platformer.resetNpcs();
+        }
+
+        await Dialogue.start([
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `I'm not here to brawl for fun. I'm just looking for the tournament host.`,
+                portrait: 'ðŸ§‘â€ðŸ’»'
+            },
+            {
+                speaker: 'host',
+                name: 'Arena Host',
+                text: `Then you found him. I <span class="highlight">am</span> the host... and you're stronger than you look. Want to join the tourney?`,
+                portrait: 'âš”ï¸'
+            }
+        ]);
+
+        this.syncQuest({
+            id: 'ch1_syntax_city',
+            title: 'Speak With the Arena Host',
+            description: 'The host finally noticed you. The next step is deciding whether to enter the tournament.'
+        });
     },
 
     async enterCaveEntrance() {
@@ -2166,11 +2644,61 @@ ______________________</pre>
             return;
         }
 
+        if (GameState.hasFlag('ch1_fragment_recovered') && !GameState.hasFlag('ch1_syntax_city_unlocked')) {
+            await Dialogue.start([
+                {
+                    speaker: 'elder',
+                    name: 'Elder Varion',
+                    text: `You've got the fragment. This part of the realm will be safe... for now.`,
+                    portrait: 'ðŸ‘´'
+                },
+                {
+                    speaker: 'elder',
+                    name: 'Elder Varion',
+                    text: `But the same disruption is appearing in <span class="highlight">Syntax City</span>. Orders are breaking apart, notices are rewriting themselves, and the city's structure is slipping out of balance.`,
+                    portrait: 'ðŸ‘´'
+                },
+                {
+                    speaker: 'elder',
+                    name: 'Elder Varion',
+                    text: `You must go there next. If Syntax City falls deeper into corruption, the rest of the realm may lose the ability to speak, record, and command clearly.`,
+                    portrait: 'ðŸ‘´'
+                },
+                {
+                    speaker: 'hera',
+                    name: 'Hera',
+                    text: `Take care on your journey, ${GameState.player.name}. If the city's syntax is breaking, even simple statements may turn dangerous.`,
+                    portrait: 'ðŸ§'
+                }
+            ]);
+
+            GameState.setFlag('ch1_syntax_city_unlocked');
+            this.syncQuest({
+                id: 'ch1_syntax_city',
+                title: 'Travel to Syntax City',
+                description: 'Open the world map and travel to Syntax City to investigate the spreading corruption.'
+            });
+            if (typeof Game !== 'undefined' && typeof Game.updateWorldMapUi === 'function') {
+                Game.updateWorldMapUi(World.currentScene || GameState.progress.currentScene);
+            }
+            return;
+        }
+
+        if (GameState.hasFlag('ch1_syntax_city_unlocked') && !GameState.hasFlag('ch1_city_map_unlocked')) {
+            await Dialogue.quick(
+                'elder',
+                'Elder Varion',
+                `Syntax City is marked on your map now. Travel there, find the source of the disruption, and learn what the city needs from you.`,
+                'ðŸ‘´'
+            );
+            return;
+        }
+
         if (GameState.hasFlag('ch1_fragment_recovered')) {
             await Dialogue.quick(
                 'elder',
                 'Elder Varion',
-                `You have the fragment. Use the map and return to the village, ${GameState.player.name}.`,
+                `The path to Syntax City is open now, ${GameState.player.name}. Follow the map, earn the city's trust, and find the source of the disruption.`,
                 '👴'
             );
             return;

@@ -22,6 +22,38 @@ const Game = {
             label: 'Cave Entrance',
             transitionText: 'Travelling to the Cave Entrance...',
             unlockFlag: 'ch1_cave_unlocked'
+        },
+        syntax_city: {
+            sceneId: 'ch1_syntax_city_entry',
+            label: 'Syntax City',
+            transitionText: 'Travelling to Syntax City...',
+            unlockFlag: 'ch1_syntax_city_unlocked'
+        }
+    },
+    CITY_MAP_DESTINATIONS: {
+        city_market: {
+            sceneId: 'ch1_syntax_city_market',
+            label: 'City Market',
+            transitionText: 'Travelling to the City Market...',
+            unlockFlag: 'ch1_city_market_unlocked'
+        },
+        city_square: {
+            sceneId: 'ch1_syntax_city_square',
+            label: 'City Square',
+            transitionText: 'Travelling to the City Square...',
+            unlockFlag: 'ch1_city_square_unlocked'
+        },
+        tavern: {
+            sceneId: 'ch1_syntax_city_tavern',
+            label: 'Tavern',
+            transitionText: 'Travelling to the Tavern...',
+            unlockFlag: 'ch1_city_tavern_unlocked'
+        },
+        castle: {
+            sceneId: 'ch1_syntax_city_castle',
+            label: 'Castle',
+            transitionText: 'Travelling to the Castle...',
+            unlockFlag: 'ch1_syntax_castle_unlocked'
         }
     },
     SHOP_ITEMS: {
@@ -66,7 +98,8 @@ const Game = {
                 description: 'A polished coin said to draw extra treasure.',
                 effectText: '+10 gold after every future victory.'
             }
-        ]
+        ],
+        merchant: []
     },
     
     /**
@@ -632,6 +665,16 @@ const Game = {
         }
     },
 
+    isCityScene(sceneId) {
+        return typeof sceneId === 'string' && (
+            sceneId === 'ch1_syntax_city_entry' ||
+            sceneId === 'ch1_syntax_city_market' ||
+            sceneId === 'ch1_syntax_city_square' ||
+            sceneId === 'ch1_syntax_city_tavern' ||
+            sceneId === 'ch1_syntax_city_castle'
+        );
+    },
+
     handleWorldMapClick() {
         if (!GameState.hasFlag('ch1_world_map_unlocked')) {
             Utils.notify('You do not have the world map yet.', 'default');
@@ -689,15 +732,18 @@ const Game = {
     },
 
     refreshWorldMapHotspots() {
-        const caveHotspot = document.querySelector('.world-map-hotspot[data-destination="cave"]');
-        if (!caveHotspot) return;
+        Object.entries(this.WORLD_MAP_DESTINATIONS).forEach(([destinationId, destination]) => {
+            if (!destination.unlockFlag) return;
+            const hotspot = document.querySelector(`.world-map-hotspot[data-destination="${destinationId}"]`);
+            if (!hotspot) return;
 
-        const unlocked = GameState.hasFlag('ch1_cave_unlocked');
-        caveHotspot.classList.toggle('is-unlocked', unlocked);
-        caveHotspot.classList.toggle('is-locked', !unlocked);
-        caveHotspot.setAttribute('data-state', unlocked ? 'Available' : 'Locked');
-        caveHotspot.setAttribute('aria-label', unlocked ? 'Travel to Cave Entrance' : 'Cave locked');
-        caveHotspot.title = unlocked ? 'Travel to the cave entrance' : 'Locked for now';
+            const unlocked = GameState.hasFlag(destination.unlockFlag);
+            hotspot.classList.toggle('is-unlocked', unlocked);
+            hotspot.classList.toggle('is-locked', !unlocked);
+            hotspot.setAttribute('data-state', unlocked ? 'Available' : 'Locked');
+            hotspot.setAttribute('aria-label', unlocked ? `Travel to ${destination.label}` : `${destination.label} locked`);
+            hotspot.title = unlocked ? `Travel to ${destination.label}` : 'Locked for now';
+        });
     },
 
     updateWorldMapUi(sceneId) {
@@ -713,10 +759,88 @@ const Game = {
             sceneId === 'ch1_cave_inner'
         ) && !GameState.hasFlag('ch1_cave_return_ready');
         button.style.display = unlocked && isChapter1Scene && !caveSequenceLocked ? 'flex' : 'none';
+        this.updateCityMapUi(sceneId);
+    },
+
+    handleCityMapClick() {
+        if (!GameState.hasFlag('ch1_city_map_unlocked')) {
+            Utils.notify('You do not have the city map yet.', 'default');
+            return;
+        }
+        if (GameState.combat && GameState.combat.active) {
+            Utils.notify('You cannot open the city map during combat.', 'default');
+            return;
+        }
+        if (GameState.dialogue && GameState.dialogue.active) {
+            Utils.notify('Finish the current dialogue before opening the city map.', 'default');
+            return;
+        }
+        if (!this.isCityScene(World.currentScene || GameState.progress.currentScene)) {
+            Utils.notify('The city map only works inside Syntax City.', 'default');
+            return;
+        }
+
+        this.refreshCityMapHotspots();
+        const modal = Utils.$('city-map-modal');
+        if (modal) modal.style.display = 'flex';
+    },
+
+    async handleCityMapTravel(destinationId) {
+        if (!GameState.hasFlag('ch1_city_map_unlocked')) {
+            Utils.notify('You do not have the city map yet.', 'default');
+            return;
+        }
+
+        const destination = this.CITY_MAP_DESTINATIONS[destinationId];
+        if (!destination) {
+            Utils.notify('That district is still locked for now.', 'default');
+            return;
+        }
+        if (destination.unlockFlag && !GameState.hasFlag(destination.unlockFlag)) {
+            Utils.notify(`${destination.label} is still locked for now.`, 'default');
+            return;
+        }
+        if (World && World.currentScene === destination.sceneId) {
+            Utils.notify(`You are already at the ${destination.label}.`, 'default');
+            return;
+        }
+
+        const modal = Utils.$('city-map-modal');
+        if (modal) modal.style.display = 'none';
+
+        await World.goTo(destination.sceneId, destination.transitionText);
+        GameState.save();
+    },
+
+    refreshCityMapHotspots() {
+        Object.entries(this.CITY_MAP_DESTINATIONS).forEach(([destinationId, destination]) => {
+            const hotspot = document.querySelector(`.city-map-hotspot[data-destination="${destinationId}"]`);
+            if (!hotspot) return;
+
+            const unlocked = GameState.hasFlag(destination.unlockFlag);
+            hotspot.classList.toggle('is-unlocked', unlocked);
+            hotspot.classList.toggle('is-locked', !unlocked);
+            hotspot.setAttribute('data-state', unlocked ? 'Available' : 'Locked');
+            hotspot.setAttribute('aria-label', unlocked ? `Travel to ${destination.label}` : `${destination.label} locked`);
+            hotspot.title = unlocked ? `Travel to ${destination.label}` : 'Locked for now';
+        });
+    },
+
+    updateCityMapUi(sceneId) {
+        const button = Utils.$('city-map-ui-button');
+        if (!button) return;
+
+        this.refreshCityMapHotspots();
+        const unlocked = GameState.hasFlag('ch1_city_map_unlocked');
+        button.style.display = unlocked && this.isCityScene(sceneId) ? 'flex' : 'none';
     },
 
     showBlacksmithShop() {
         this.showShop('blacksmith');
+    },
+
+    showMerchantShop() {
+        this.showShop('merchant');
     },
 
     showShop(shopId) {
@@ -738,6 +862,22 @@ const Game = {
         title.textContent = shopId === 'blacksmith' ? '⚒️ Blacksmith Brawn\'s Shop' : 'Shop';
         goldEl.textContent = `${GameState.player.gold || 0} Gold`;
         list.innerHTML = '';
+
+        if (shopId === 'merchant') {
+            title.textContent = 'Syntax City Market Stall';
+        }
+
+        if (items.length === 0) {
+            list.innerHTML = `
+                <div class="shop-item">
+                    <div>
+                        <div class="shop-item-name">Stock Coming Soon</div>
+                        <div class="shop-item-desc">The merchant stall is open, but its shelves are still being prepared.</div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
 
         items.forEach((item) => {
             const owned = GameState.hasItem(item.id);
