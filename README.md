@@ -21,7 +21,7 @@ Basic Syntax: Variables, data types, and operators.
 
 **Problem Solving:** Interactive coding challenges within the game world.
 
-
+------------------------------------------------------------------------------------------------
                                                   ACKNOWLEDGEMENTS
 
 
