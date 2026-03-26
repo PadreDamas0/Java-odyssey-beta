@@ -8,7 +8,7 @@ This game aims to teach introductory Java language lessons to beginners (also ai
 
      ⚠️ BETA PHASE: This project is currently in active development. Features and lessons are subject to change.
 
-
+------------------------------------------------------------------------------------------------
      **Project Overview**
 The game is specifically tailored for 1st Year Computer Science students at EAC-C, providing a hands-on way to master Java syntax, logic, and Object-Oriented Programming (OOP) through a narrative-driven RPG experience.
 
