@@ -1426,7 +1426,7 @@ const Chapter1Scene = {
             {
                 id: 'ch1_shroom_1',
                 prompt: `
-                    <span class="challenge-title">ðŸ„ Shroom Rush: Stabilize The Spores</span>
+                    <span class="challenge-title">Shroom Rush: Stabilize The Spores</span>
                     <p>Write <strong>two lines</strong>:</p>
                     <pre>int spores = 6;
 boolean tunnelSafe = false;</pre>
@@ -1452,7 +1452,7 @@ boolean tunnelSafe = false;</pre>
                 id: 'ch1_shroom_2',
                 type: 'multiple_choice',
                 prompt: `
-                    <span class="challenge-title">ðŸ„ Shroom Rush: Pick The Safe Expression</span>
+                    <span class="challenge-title">Shroom Rush: Pick The Safe Expression</span>
                     <p>Given:</p>
                     <pre>int wand = 7;
 int slash = 5;</pre>
@@ -1482,7 +1482,7 @@ int slash = 5;</pre>
             {
                 id: 'ch1_shroom_3',
                 prompt: `
-                    <span class="challenge-title">ðŸ„ Shroom Rush: Report The Breach</span>
+                    <span class="challenge-title">Shroom Rush: Report The Breach</span>
                     <p>Write <strong>two lines</strong>:</p>
                     <pre>String threat = "Java Shroom";
 System.out.println(threat + " blocked the tunnel");</pre>
@@ -1664,7 +1664,7 @@ System.out.println(threat + " blocked the tunnel");</pre>
             {
                 id: 'ch1_fire_worm_1',
                 prompt: `
-                    <span class="challenge-title">ðŸ”¥ Fire Worm: Build The Shield</span>
+                    <span class="challenge-title">Fire Worm: Build The Shield</span>
                     <p>Write <strong>two lines</strong>:</p>
                     <pre>int shield = 18;
 boolean ready = true;</pre>
@@ -1690,7 +1690,7 @@ boolean ready = true;</pre>
                 id: 'ch1_fire_worm_2',
                 type: 'multiple_choice',
                 prompt: `
-                    <span class="challenge-title">ðŸ”¥ Fire Worm: Choose The Counter</span>
+                    <span class="challenge-title">Fire Worm: Choose The Counter</span>
                     <p>Given:</p>
                     <pre>int flame = 12;
 int strike = 9;</pre>
@@ -1720,7 +1720,7 @@ int strike = 9;</pre>
             {
                 id: 'ch1_fire_worm_3',
                 prompt: `
-                    <span class="challenge-title">ðŸ”¥ Fire Worm: Seal The Fragment</span>
+                    <span class="challenge-title">Fire Worm: Seal The Fragment</span>
                     <p>Write <strong>two lines</strong>:</p>
                     <pre>String fragment = "secured";
 System.out.println("Fragment " + fragment);</pre>
@@ -2319,7 +2319,7 @@ int totalDamage = 20;</pre>
             {
                 id: 'ch1_train_1',
                 prompt: `
-                    <span class="challenge-title">ðŸ“ Training: Integer Variable</span>
+                    <span class="challenge-title">Training: Integer Variable</span>
                     <p>Declare an <strong>integer variable</strong> named <code>score</code> with a value of <strong>10</strong>.</p>
                     <pre>______________________</pre>
                 `,
@@ -2342,7 +2342,7 @@ int totalDamage = 20;</pre>
                 id: 'ch1_train_2',
                 type: 'multiple_choice',
                 prompt: `
-                    <span class="challenge-title">ðŸ“¯ Training: Boolean Check</span>
+                    <span class="challenge-title">Training: Boolean Check</span>
                     <p>Which line correctly declares a <strong>boolean variable</strong> named <code>isReady</code> and sets it to <strong>true</strong>?</p>
                 `,
                 narrative: 'Good. Now finish with a quick choice attack and spot the correct boolean declaration.',
