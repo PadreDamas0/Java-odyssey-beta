@@ -28,6 +28,12 @@ const Game = {
             label: 'Syntax City',
             transitionText: 'Travelling to Syntax City...',
             unlockFlag: 'ch1_syntax_city_unlocked'
+        },
+        arena_of_heroes: {
+            sceneId: 'ch1_arena_outskirts',
+            label: 'Arena of Heroes',
+            transitionText: 'Travelling to the Arena of Heroes...',
+            unlockFlag: 'ch1_arena_outskirts_unlocked'
         }
     },
     CITY_MAP_DESTINATIONS: {
@@ -671,7 +677,9 @@ const Game = {
             sceneId === 'ch1_syntax_city_market' ||
             sceneId === 'ch1_syntax_city_square' ||
             sceneId === 'ch1_syntax_city_tavern' ||
-            sceneId === 'ch1_syntax_city_castle'
+            sceneId === 'ch1_syntax_city_castle' ||
+            sceneId === 'ch1_arena_outskirts' ||
+            sceneId === 'ch1_arena_inside'
         );
     },
 

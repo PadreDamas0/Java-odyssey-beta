@@ -263,6 +263,27 @@ const Chapter1Scene = {
             hidePhaser: false
         });
 
+        World.registerScene('ch1_arena_outskirts', {
+            locationName: 'Arena of Heroes - Outskirts',
+            art: 'forestPath',
+            artClass: 'dark-forest',
+            description: '',
+            actions: [],
+            fullScreenMap: false,
+            hidePhaser: false,
+            onEnter: async () => this.enterArenaOutskirts()
+        });
+
+        World.registerScene('ch1_arena_inside', {
+            locationName: 'Arena of Heroes - Inside',
+            art: 'forestPath',
+            artClass: 'dark-forest',
+            description: '',
+            actions: [],
+            fullScreenMap: false,
+            hidePhaser: false
+        });
+
         // Training Grounds
         World.registerScene('ch1_training', {
             locationName: 'Village of Variables — Training Grounds',
@@ -1158,6 +1179,60 @@ const Chapter1Scene = {
     },
 
     async talkToArenaHost() {
+        const sceneId = (typeof World !== 'undefined' && World.currentScene) || GameState.progress.currentScene;
+
+        if (sceneId === 'ch1_arena_outskirts') {
+            if (!GameState.hasFlag('ch1_tournament_registered')) {
+                await this.enterArenaOutskirts(true);
+                return;
+            }
+
+            await Dialogue.quick(
+                'host',
+                'Arena Host',
+                `You're already registered for the <span class="highlight">Arena of Heroes</span>. The gate is open. Head inside and take your place.`,
+                '\u2694\uFE0F'
+            );
+            await World.goTo('ch1_arena_inside', 'Returning to the Arena of Heroes...');
+            return;
+        }
+
+        if (GameState.hasFlag('ch1_tournament_registered')) {
+            await Dialogue.quick(
+                'host',
+                'Arena Host',
+                `You're already in the bracket. Meet me at the arena outskirts whenever you're ready for the next step.`,
+                '\u2694\uFE0F'
+            );
+            return;
+        }
+
+        if (GameState.hasFlag('ch1_tavern_host_defeated') && !GameState.hasFlag('ch1_tournament_registered')) {
+            await Dialogue.start([
+                {
+                    speaker: 'host',
+                    name: 'Arena Host',
+                    text: `You handled yourself well. Come with me to the arena. I'll register you for the tournament.`,
+                    portrait: '\u2694\uFE0F'
+                },
+                {
+                    speaker: 'player',
+                    name: GameState.player.name,
+                    text: `Good. That's exactly what I came for.`,
+                    portrait: '\u{1F9D1}\u200D\u{1F4BB}'
+                }
+            ]);
+
+            GameState.setFlag('ch1_arena_outskirts_unlocked');
+            this.syncQuest({
+                id: 'ch1_syntax_city',
+                title: 'Head To The Arena Of Heroes',
+                description: 'Follow the Arena Host to the arena outskirts and complete your tournament registration.'
+            });
+            await World.goTo('ch1_arena_outskirts', 'Following the Arena Host to the Arena of Heroes...');
+            return;
+        }
+
         if (GameState.hasFlag('ch1_tavern_host_defeated')) {
             await Dialogue.quick(
                 'host',
@@ -1328,8 +1403,109 @@ const Chapter1Scene = {
 
         this.syncQuest({
             id: 'ch1_syntax_city',
-            title: 'Speak With the Arena Host',
-            description: 'The host finally noticed you. The next step is deciding whether to enter the tournament.'
+            title: 'Register For The Arena Of Heroes',
+            description: 'Talk to the Arena Host again in the tavern so he can bring you to the arena and register you for the tournament.'
+        });
+    },
+
+    async enterArenaOutskirts(forceDialogue = false) {
+        if (!forceDialogue && !GameState.hasFlag('ch1_arena_outskirts_intro_done')) {
+            GameState.setFlag('ch1_arena_outskirts_unlocked');
+            if (!GameState.hasFlag('ch1_arena_outskirts_arrived')) {
+                GameState.setFlag('ch1_arena_outskirts_arrived');
+                this.syncQuest({
+                    id: 'ch1_syntax_city',
+                    title: 'Speak With The Arena Host',
+                    description: 'Approach the Arena Host at the outskirts and press E to begin your tournament registration.'
+                });
+                Utils.notify('Approach the Arena Host and press E.', 'quest-update', 3200);
+            }
+            return;
+        }
+
+        const shouldRunIntro = forceDialogue || !GameState.hasFlag('ch1_arena_outskirts_intro_done');
+        if (!shouldRunIntro) {
+            return;
+        }
+
+        GameState.setFlag('ch1_arena_outskirts_intro_done');
+        GameState.setFlag('ch1_arena_outskirts_unlocked');
+
+        await Dialogue.start([
+            {
+                speaker: 'host',
+                name: 'Arena Host',
+                text: `Here we are. Welcome to the <span class="highlight">Arena of Heroes</span>.`,
+                portrait: '\u2694\uFE0F'
+            },
+            {
+                speaker: 'host',
+                name: 'Arena Host',
+                text: `I'll register you for the tournament myself. Once your name is on the board, there's no turning back.`,
+                portrait: '\u2694\uFE0F'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `That's fine. Put my name down. I'm ready to fight my way in.`,
+                portrait: '\u{1F9D1}\u200D\u{1F4BB}'
+            },
+            {
+                speaker: 'host',
+                name: 'Arena Host',
+                text: `Done. You're in. Stay sharp and keep close. The Arena of Heroes doesn't forgive hesitation.`,
+                portrait: '\u2694\uFE0F'
+            }
+        ]);
+
+        GameState.setFlag('ch1_tournament_registered');
+        this.syncQuest({
+            id: 'ch1_syntax_city',
+            title: 'Enter The Arena Of Heroes',
+            description: 'The Arena Host registered you. Follow him through the opened gate and step into the arena proper.'
+        });
+
+        await new Promise((resolve) => {
+            Cutscene.play([
+                {
+                    art: 'assets/background/arenaOutskirtsopendoor',
+                    text: `<em>The Arena Host signals the guards. The heavy doors groan open, revealing the tournament path beyond.</em>`,
+                    duration: 2200
+                }
+            ], resolve);
+        });
+
+        if (typeof Platformer !== 'undefined' && Platformer.currentMap && Platformer.currentSceneId === 'ch1_arena_outskirts') {
+            Platformer.currentMap.backgroundKey = 'bg_arena_outskirts_open_door';
+            await this.walkPlayerIntoArenaGate();
+        }
+
+        await new Promise((resolve) => {
+            Cutscene.play([
+                {
+                    art: 'assets/background/arenaBeforeEnter',
+                    text: `<em>The Arena Host lowers his voice. "This is the arena. Are you ready for the opponents waiting inside?"</em>`,
+                    duration: 2400
+                },
+                {
+                    art: 'assets/background/arenaBeforeEnter',
+                    text: `<em>You steady your breath, tighten your grip, and step toward the roar of the crowd.</em>`,
+                    duration: 2200
+                }
+            ], resolve);
+        });
+
+        await World.goTo('ch1_arena_inside', 'Stepping into the Arena of Heroes...');
+    },
+
+    async walkPlayerIntoArenaGate() {
+        if (typeof Platformer === 'undefined' || typeof Platformer.startAutoWalk !== 'function') {
+            return;
+        }
+
+        const targetX = Math.floor((Platformer.width || 960) * 0.49);
+        await new Promise((resolve) => {
+            Platformer.startAutoWalk(targetX, resolve);
         });
     },
 

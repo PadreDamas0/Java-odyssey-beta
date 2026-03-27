@@ -599,6 +599,25 @@ const Platformer = {
         spawnX: 140,
         npcScene: true,
         npcDefinitions: () => [kingDefinition]
+      },
+      ch1_arena_outskirts: {
+        id: 'ch1_arena_outskirts',
+        backgroundKey: (
+          typeof GameState !== 'undefined' &&
+          typeof GameState.hasFlag === 'function' &&
+          GameState.hasFlag('ch1_tournament_registered')
+        ) ? 'bg_arena_outskirts_open_door' : 'bg_arena_outskirts',
+        groundOffset: 212,
+        spawnX: 132,
+        npcScene: true,
+        npcDefinitions: () => [{ ...arenaHostDefinition, relX: 0.62, interactionRange: 120 }]
+      },
+      ch1_arena_inside: {
+        id: 'ch1_arena_inside',
+        backgroundKey: 'bg_arena_inside',
+        groundOffset: 212,
+        spawnX: 132,
+        npcScene: false
       }
     };
 
@@ -626,6 +645,10 @@ const Platformer = {
       bg_city_market: 'assets/background/citymarket.png',
       bg_city_square: 'assets/background/citySquare.jpg',
       bg_tavern: 'assets/background/tavern.png',
+      bg_arena_outskirts: 'assets/background/arenaOutskirts.png',
+      bg_arena_outskirts_open_door: 'assets/background/arenaOutskirtsopendoor',
+      bg_arena_before_enter: 'assets/background/arenaBeforeEnter',
+      bg_arena_inside: 'assets/background/ArenaInside.png',
       ui_exclamation: 'assets/UI/Exclamation-Mark.png',
       ui_right_arrow: 'assets/UI/Right-Arrow.png',
       idle_0: 'assets/sprites/mc/adventurer-idle-00.png',
@@ -1159,6 +1182,9 @@ const Platformer = {
           && !GameState.hasFlag('ch1_tavern_host_visible')
           && !GameState.hasFlag('ch1_tavern_drunk_talked');
       case 'arena_host':
+        if (this.currentSceneId === 'ch1_arena_outskirts') {
+          return !GameState.hasFlag('ch1_tournament_registered');
+        }
         return GameState.hasFlag('ch1_tavern_host_visible') && !GameState.hasFlag('ch1_tavern_host_defeated');
       default:
         return false;

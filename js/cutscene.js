@@ -73,7 +73,10 @@ const Cutscene = {
                  // Show ASCII art if using placeholders
                  artEl.textContent = ASCII_ART[frame.art];
                  artEl.style.backgroundImage = 'none';
-             } else if (typeof resolvedArt === 'string' && /\.(png|jpg|jpeg)$/i.test(resolvedArt)) {
+             } else if (
+                 typeof resolvedArt === 'string' &&
+                 (/\.(png|jpg|jpeg)$/i.test(resolvedArt) || resolvedArt.startsWith('assets/'))
+             ) {
                  // Show image if it's a file path
                  artEl.textContent = '';
                  artEl.style.backgroundImage = `url('${resolvedArt}')`;
