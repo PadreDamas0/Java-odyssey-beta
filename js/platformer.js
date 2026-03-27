@@ -401,7 +401,7 @@ const Platformer = {
       ch1_village_square: {
         id: 'ch1_village_square',
         backgroundKey: 'bg_village',
-        groundOffset: this.constants.groundOffset,
+        groundOffset: 200,
         spawnX: 140,
         npcScene: true,
         exitRight: {
@@ -436,7 +436,7 @@ const Platformer = {
       ch1_corrupted_forest_1: {
         id: 'ch1_corrupted_forest_1',
         backgroundKey: 'bg_corrupted_forest_1',
-        groundOffset: 176,
+        groundOffset: 185,
         spawnX: 120,
         npcScene: true,
         npcDefinitions: () => (
@@ -468,7 +468,7 @@ const Platformer = {
       ch1_corrupted_forest_2: {
         id: 'ch1_corrupted_forest_2',
         backgroundKey: 'bg_corrupted_forest_2',
-        groundOffset: 170,
+        groundOffset: 185,
         spawnX: (width) => Math.max(96, width - 180),
         npcScene: true,
         npcDefinitions: () => {
@@ -561,7 +561,7 @@ const Platformer = {
       ch1_syntax_city_market: {
         id: 'ch1_syntax_city_market',
         backgroundKey: 'bg_city_market',
-        groundOffset: 202,
+        groundOffset: 192,
         spawnX: 128,
         npcScene: true,
         npcDefinitions: () => [marketMerchantDefinition]
@@ -1036,8 +1036,8 @@ const Platformer = {
       }
     });
 
-    if (this.shouldDrawVillageExitArrow()) {
-      this.drawVillageExitArrow();
+    if (this.shouldDrawRightExitArrow()) {
+      this.drawRightExitArrow();
     }
 
     // Draw player (fallback to colored rectangle if sprite missing)
@@ -1105,7 +1105,7 @@ const Platformer = {
     this.ctx.restore();
   },
 
-  drawVillageExitArrow() {
+  drawRightExitArrow() {
     const arrow = this.assets.ui_right_arrow;
     if (!arrow) return;
 
@@ -1333,13 +1333,14 @@ const Platformer = {
     );
   },
 
-  shouldDrawVillageExitArrow() {
-    return !!(
-      this.currentMap &&
-      this.currentMap.exitRight &&
-      this.currentSceneId === 'ch1_village_square' &&
-      this.canUseSceneExit(this.currentMap.exitRight)
-    );
+  shouldDrawRightExitArrow() {
+    if (!this.currentMap || !this.currentMap.exitRight) return false;
+    if (typeof GameState !== 'undefined') {
+      if (GameState.dialogue && GameState.dialogue.active) return false;
+      if (GameState.combat && GameState.combat.active) return false;
+    }
+
+    return this.canUseSceneExit(this.currentMap.exitRight);
   },
 
   canUseSceneExit(exit) {

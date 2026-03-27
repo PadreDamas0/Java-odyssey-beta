@@ -1016,6 +1016,35 @@ const Game = {
     }
 };
 
+// Backward-compatible global used by older inline handlers or cached pages.
+window.solveSimpleChallenge = async function solveSimpleChallenge(legacyAnswer = '') {
+    if (typeof Combat === 'undefined' || !Combat || !GameState?.combat?.active) {
+        return false;
+    }
+
+    const challenge = Combat.currentChallenge;
+    if (!challenge) {
+        return false;
+    }
+
+    if (Combat.isMultipleChoiceChallenge && Combat.isMultipleChoiceChallenge(challenge)) {
+        if (typeof legacyAnswer === 'number') {
+            await Combat.selectMultipleChoiceAnswer(legacyAnswer);
+            return true;
+        }
+        return false;
+    }
+
+    const codeInput = Utils.$('code-input');
+    if (codeInput && typeof legacyAnswer === 'string' && legacyAnswer.trim()) {
+        codeInput.value = legacyAnswer;
+        Utils.updateLineNumbers(codeInput);
+    }
+
+    await Combat.submitAnswer();
+    return true;
+};
+
 // ============================================
 // Initialize game when page loads
 // ============================================

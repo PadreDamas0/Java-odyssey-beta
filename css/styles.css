@@ -669,12 +669,13 @@ html, body {
   justify-content: center;
   width: clamp(60px, 8vw, 90px);
   padding: 0;
-  border: 1px solid rgba(201, 168, 76, 0.45);
-  border-radius: 12px;
-  background: rgba(10, 10, 18, 0.18);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   cursor: pointer;
   overflow: visible;
+  transition: transform 0.18s ease;
 }
 
 .world-map-ui-image {
@@ -708,8 +709,7 @@ html, body {
 }
 
 .world-map-ui-button:hover {
-  border-color: rgba(240, 208, 96, 0.75);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+  transform: translateY(-2px);
 }
 
 .world-map-ui-button:hover::after {
@@ -717,9 +717,10 @@ html, body {
   transform: translateX(-50%) translateY(0);
 }
 
+.world-map-ui-button:focus,
 .world-map-ui-button:focus-visible {
-  outline: 2px solid var(--text-gold);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: none;
 }
 
 .city-map-ui-button {

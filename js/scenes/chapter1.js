@@ -1333,6 +1333,72 @@ const Chapter1Scene = {
         });
     },
 
+    async handleCaveGuideInteraction() {
+        if (GameState.hasFlag('ch1_fragment_recovered')) {
+            await Dialogue.quick(
+                'hera',
+                'Hera',
+                GameState.hasFlag('ch1_syntax_city_unlocked')
+                    ? `The cave challenge is complete. Your next destination is <span class="highlight">Syntax City</span>.`
+                    : `The cave challenge is complete. Open the map and return to the <span class="highlight">Village of Variables</span> so Elder Varion can see the fragment.`,
+                'ðŸ§'
+            );
+            return;
+        }
+
+        if (GameState.hasFlag('ch1_fire_worm_revealed')) {
+            await Dialogue.quick(
+                'hera',
+                'Hera',
+                `The final guardian is awake. Push deeper and finish the cave challenge to secure the fragment.`,
+                'ðŸ§'
+            );
+            return;
+        }
+
+        if (GameState.hasFlag('ch1_shroom_defeated')) {
+            await Dialogue.quick(
+                'hera',
+                'Hera',
+                `The outer tunnel is clear, but the real fragment guardian is still deeper inside the cave.`,
+                'ðŸ§'
+            );
+            return;
+        }
+
+        await this.talkToCaveHera();
+    },
+
+    async handleCaveEntryInteraction() {
+        if (GameState.hasFlag('ch1_fragment_recovered')) {
+            const nextStep = GameState.hasFlag('ch1_syntax_city_unlocked')
+                ? `This cave challenge is already complete. Your next objective is to travel to <span class="highlight">Syntax City</span>.`
+                : `This cave challenge is already complete. Open the map and return to the <span class="highlight">Village of Variables</span> with the recovered fragment.`;
+            await Dialogue.quick(
+                'narrator',
+                'Narrator',
+                `<em>${nextStep}</em>`,
+                'ðŸ“œ'
+            );
+            return;
+        }
+
+        if (GameState.hasFlag('ch1_cave_entered')) {
+            const progressText = GameState.hasFlag('ch1_shroom_defeated')
+                ? `The outer tunnel is clear. The next step is deeper inside the cave, where the real fragment guardian is waiting.`
+                : `You've already started this cave challenge. Keep going forward and clear the tunnel to reach the fragment guardian.`;
+            await Dialogue.quick(
+                'narrator',
+                'Narrator',
+                `<em>${progressText}</em>`,
+                'ðŸ“œ'
+            );
+            return;
+        }
+
+        await this.enterCaveDepths();
+    },
+
     async enterCaveEntrance() {
         if (!GameState.hasFlag('ch1_cave_intro_done')) {
             GameState.setFlag('ch1_cave_intro_done');
