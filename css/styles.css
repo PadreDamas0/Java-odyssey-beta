@@ -674,7 +674,7 @@ html, body {
   background: rgba(10, 10, 18, 0.18);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
   cursor: pointer;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .world-map-ui-image {
@@ -682,11 +682,39 @@ html, body {
   width: 100%;
   height: auto;
   object-fit: contain;
+  border-radius: inherit;
+}
+
+.world-map-ui-button::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%) translateY(4px);
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(14, 10, 8, 0.94);
+  border: 1px solid rgba(236, 196, 101, 0.55);
+  color: #ffd98d;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 10px 20px rgba(18, 10, 5, 0.32);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+  transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
 .world-map-ui-button:hover {
   border-color: rgba(240, 208, 96, 0.75);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+.world-map-ui-button:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 .world-map-ui-button:focus-visible {
@@ -697,6 +725,13 @@ html, body {
 .city-map-ui-button {
   left: 18px;
   right: auto;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.city-map-ui-button .world-map-ui-image {
+  border-radius: 12px;
 }
 
 .world-map-content {
@@ -723,42 +758,72 @@ html, body {
 }
 
 .city-map-content {
-  width: min(92vw, 1120px);
-  max-width: 1120px;
+  display: flex;
+  flex-direction: column;
+  width: min(94vw, 1380px);
+  max-width: 1380px;
+  max-height: min(92vh, 920px);
+  padding: 1rem 1rem 1.15rem;
+  overflow: hidden;
+  --city-map-stage-max-height: calc(92vh - 120px);
 }
 
 .city-map-stage {
   position: relative;
+  align-self: center;
+  flex: 0 1 auto;
+  width: min(100%, calc(var(--city-map-stage-max-height) * 1.5));
+  max-width: 100%;
+  min-height: 0;
+  aspect-ratio: 3 / 2;
+  max-height: var(--city-map-stage-max-height);
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(201, 168, 76, 0.58);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
 }
 
 .city-map-full-image {
-  margin: 0 auto;
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border: none;
+  border-radius: inherit;
+  box-shadow: none;
 }
 
 .city-map-hotspot {
   position: absolute;
-  width: 24px;
-  height: 24px;
+  z-index: 6;
+  width: 28px;
+  height: 28px;
 }
 
 .city-map-hotspot::after {
-  content: attr(data-label);
+  content: attr(data-label) " - " attr(data-state);
   position: absolute;
   left: 50%;
-  top: calc(100% + 8px);
-  padding: 0.18rem 0.48rem;
+  top: auto;
+  bottom: calc(100% + 10px);
+  padding: 0.32rem 0.62rem;
   border-radius: 999px;
-  background: rgba(18, 12, 7, 0.82);
-  border: 1px solid rgba(236, 196, 101, 0.36);
-  color: #f2d18e;
+  background: rgba(14, 10, 8, 0.94);
+  border: 1px solid rgba(236, 196, 101, 0.55);
+  color: #ffd98d;
   font-family: var(--font-heading);
-  font-size: 0.62rem;
-  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
   white-space: nowrap;
   opacity: 1;
   transform: translateX(-50%);
   pointer-events: none;
-  box-shadow: 0 6px 14px rgba(18, 10, 5, 0.2);
+  box-shadow: 0 10px 20px rgba(18, 10, 5, 0.32);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
 }
 
 .city-map-hotspot::before {
@@ -794,6 +859,30 @@ html, body {
 .city-map-hotspot-tavern {
   left: 76.2%;
   top: 61.5%;
+}
+
+@media (max-width: 900px) {
+  .city-map-content {
+    width: min(96vw, 1180px);
+    max-height: min(94vh, 760px);
+    padding: 0.8rem;
+    --city-map-stage-max-height: calc(94vh - 110px);
+  }
+
+  .city-map-stage {
+    width: min(100%, calc(var(--city-map-stage-max-height) * 1.5));
+    max-height: var(--city-map-stage-max-height);
+  }
+
+  .city-map-hotspot {
+    width: 24px;
+    height: 24px;
+  }
+
+  .city-map-hotspot::after {
+    font-size: 0.62rem;
+    padding: 0.26rem 0.5rem;
+  }
 }
 
 .world-map-overlay {

@@ -68,6 +68,19 @@ const Combat = {
         
         GameState.combat.active = true;
         GameState.combat.enemy = this.enemy;
+
+        const worldMapModal = Utils.$('world-map-modal');
+        if (worldMapModal) worldMapModal.style.display = 'none';
+
+        const cityMapModal = Utils.$('city-map-modal');
+        if (cityMapModal) cityMapModal.style.display = 'none';
+
+        if (typeof window.WorldMapOverlay !== 'undefined' && typeof window.WorldMapOverlay.close === 'function') {
+            window.WorldMapOverlay.close();
+        }
+
+        Utils.hide('world-map-ui-button');
+        Utils.hide('city-map-ui-button');
         
         // Show combat interface
         const combatUI = Utils.$('combat-interface');
@@ -92,21 +105,10 @@ const Combat = {
      * Update enemy display (art, HP bar, name)
      */
     updateEnemyDisplay() {
-        const artEl = Utils.$('enemy-art');
         const nameEl = Utils.$('enemy-name');
         const hpBar = Utils.$('enemy-hp-bar');
         const hpText = Utils.$('enemy-hp-text');
-        
-        // Set enemy art - map art key to Assets enemy id
-        // art 'enemyBug' -> id 'syntaxBug', etc.
-        const artKey = this.enemy.art || this.enemy.id || 'enemyBug';
-        const enemyArt = Assets.getEnemyArt(artKey);
-        // Check if it's an image path or ASCII art
-        if (enemyArt.match(/\.(png|jpg|jpeg|gif|svg)$/i)) {
-            artEl.innerHTML = `<img src="${enemyArt}" alt="${this.enemy.name}" style="max-width: 100%; height: auto; max-height: 200px;">`;
-        } else {
-            artEl.textContent = enemyArt;
-        }
+        this.renderEnemyArt(this.enemy.hp <= 0 ? 'defeated' : 'idle');
         
         nameEl.textContent = this.enemy.name;
         
@@ -188,6 +190,34 @@ const Combat = {
         if (challenge.autoShowHint || this.enemy.autoShowHint) {
             setTimeout(() => this.showHint(), 350);
         }
+    },
+
+    getEnemyArtForState(state = 'idle') {
+        if (!this.enemy) return '';
+
+        const artForState = {
+            idle: this.enemy.art,
+            hurt: this.enemy.hurtArt,
+            defeated: this.enemy.defeatedArt
+        };
+        const selectedArt = artForState[state] || artForState.idle || this.enemy.id || 'enemyBug';
+
+        return Assets.getEnemyArt(selectedArt, state);
+    },
+
+    renderEnemyArt(state = 'idle') {
+        const artEl = Utils.$('enemy-art');
+        if (!artEl) return;
+
+        artEl.classList.remove('damaged', 'defeated');
+
+        const enemyArt = this.getEnemyArtForState(state);
+        if (typeof enemyArt === 'string' && enemyArt.match(/\.(png|jpg|jpeg|gif|svg)$/i)) {
+            artEl.innerHTML = `<img src="${enemyArt}" alt="${this.enemy?.name || 'Enemy'}">`;
+            return;
+        }
+
+        artEl.textContent = enemyArt || '';
     },
     
     /**
@@ -544,6 +574,7 @@ const Combat = {
      */
     async dealDamage(amount) {
         const artEl = Utils.$('enemy-art');
+        this.renderEnemyArt('hurt');
         
         // Shake animation
         artEl.classList.add('damaged');
@@ -594,6 +625,7 @@ const Combat = {
      */
     async victory() {
         const artEl = Utils.$('enemy-art');
+        this.renderEnemyArt('defeated');
         artEl.classList.add('defeated');
         
         await Utils.wait(1000);

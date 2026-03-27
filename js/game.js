@@ -675,6 +675,32 @@ const Game = {
         );
     },
 
+    openCityMap() {
+        if (!GameState.hasFlag('ch1_city_map_unlocked')) {
+            return false;
+        }
+        if (GameState.combat && GameState.combat.active) {
+            return false;
+        }
+        if (GameState.dialogue && GameState.dialogue.active) {
+            return false;
+        }
+
+        const sceneId = (World && World.currentScene) || GameState.progress.currentScene;
+        if (!this.isCityScene(sceneId)) {
+            return false;
+        }
+
+        this.refreshCityMapHotspots();
+        const modal = Utils.$('city-map-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+            return true;
+        }
+
+        return false;
+    },
+
     handleWorldMapClick() {
         if (!GameState.hasFlag('ch1_world_map_unlocked')) {
             Utils.notify('You do not have the world map yet.', 'default');
@@ -754,12 +780,13 @@ const Game = {
         const unlocked = GameState.hasFlag('ch1_world_map_unlocked');
         const isChapter1Scene = typeof sceneId === 'string' && sceneId.startsWith('ch1_');
         const dialogueOpen = !!(GameState.dialogue && GameState.dialogue.active);
+        const combatOpen = !!(GameState.combat && GameState.combat.active);
         const caveSequenceLocked = (
             sceneId === 'ch1_cave_entrance' ||
             sceneId === 'ch1_cave_rush' ||
             sceneId === 'ch1_cave_inner'
         ) && !GameState.hasFlag('ch1_cave_return_ready');
-        button.style.display = unlocked && isChapter1Scene && !caveSequenceLocked && !dialogueOpen ? 'flex' : 'none';
+        button.style.display = unlocked && isChapter1Scene && !caveSequenceLocked && !dialogueOpen && !combatOpen ? 'flex' : 'none';
         this.updateCityMapUi(sceneId);
     },
 
@@ -781,9 +808,7 @@ const Game = {
             return;
         }
 
-        this.refreshCityMapHotspots();
-        const modal = Utils.$('city-map-modal');
-        if (modal) modal.style.display = 'flex';
+        this.openCityMap();
     },
 
     async handleCityMapTravel(destinationId) {
@@ -834,7 +859,8 @@ const Game = {
         this.refreshCityMapHotspots();
         const unlocked = GameState.hasFlag('ch1_city_map_unlocked');
         const dialogueOpen = !!(GameState.dialogue && GameState.dialogue.active);
-        button.style.display = unlocked && this.isCityScene(sceneId) && !dialogueOpen ? 'flex' : 'none';
+        const combatOpen = !!(GameState.combat && GameState.combat.active);
+        button.style.display = unlocked && this.isCityScene(sceneId) && !dialogueOpen && !combatOpen ? 'flex' : 'none';
     },
 
     showBlacksmithShop() {

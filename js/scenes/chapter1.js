@@ -1214,7 +1214,7 @@ const Chapter1Scene = {
             hp: 96,
             maxHp: 96,
             coinReward: 35,
-            art: 'assets/sprites/npc/ArenaHost.png',
+            art: 'assets/sprites/npc/ArenaHost_combat.png',
             description: 'A half-drunk tournament master who still knows how to swing hard.',
             maxHints: 2,
             correctXpReward: 16,
@@ -1230,7 +1230,7 @@ const Chapter1Scene = {
             {
                 id: 'ch1_host_1',
                 prompt: `
-                    <span class="challenge-title">ðŸ›ï¸ Host Clash: Open With A Print</span>
+                    <span class="challenge-title"> Host Clash: Open With A Print</span>
                     <p>Write one line to print <strong>"Syntax City"</strong>.</p>
                     <pre>______________________</pre>
                 `,
@@ -1254,7 +1254,7 @@ const Chapter1Scene = {
                 id: 'ch1_host_2',
                 type: 'multiple_choice',
                 prompt: `
-                    <span class="challenge-title">ðŸ›ï¸ Host Clash: Spot The Valid Line</span>
+                    <span class="challenge-title"> Host Clash: Spot The Valid Line</span>
                     <p>Which line correctly prints <strong>"Ready!"</strong> in Java?</p>
                 `,
                 narrative: 'He feints left. Pick the valid syntax before the opening disappears.',
@@ -1280,7 +1280,7 @@ const Chapter1Scene = {
             {
                 id: 'ch1_host_3',
                 prompt: `
-                    <span class="challenge-title">ðŸ›ï¸ Host Clash: Finish The Challenge</span>
+                    <span class="challenge-title">Host Clash: Finish The Challenge</span>
                     <p>Declare a <strong>String</strong> named <code>title</code> with the value <strong>"Champion"</strong>.</p>
                     <pre>______________________</pre>
                 `,
@@ -1411,6 +1411,8 @@ const Chapter1Scene = {
             maxHp: 135,
             coinReward: 45,
             art: 'assets/sprites/enemies/evilshroom.png',
+            hurtArt: 'assets/sprites/enemies/evilshroom_hurt.png',
+            defeatedArt: 'assets/sprites/enemies/evilshroom_defeated.png',
             description: 'A corrupted cave predator that thrives on bad logic and unstable variables.',
             maxHints: 2,
             correctXpReward: 22,
@@ -1886,6 +1888,8 @@ System.out.println("Fragment " + fragment);</pre>
             maxHp: 120,
             coinReward: 30,
             art: 'assets/sprites/enemies/code_goblin.png',
+            hurtArt: 'assets/sprites/enemies/code_goblin_hurt.png',
+            defeatedArt: 'assets/sprites/enemies/code_goblin_defeated.png',
             description: 'A vicious goblin warped by corrupted code and brute force.',
             maxHints: 2,
             correctXpReward: 20,
@@ -1928,6 +1932,8 @@ System.out.println("Fragment " + fragment);</pre>
             maxHp: 82,
             coinReward: 30,
             art: 'assets/sprites/enemies/code_goblin.png',
+            hurtArt: 'assets/sprites/enemies/code_goblin_hurt.png',
+            defeatedArt: 'assets/sprites/enemies/code_goblin_defeated.png',
             description: 'A corrupted goblin left behind to guard the abandoned village approach.',
             maxHints: 1,
             correctXpReward: 14,
@@ -3093,7 +3099,3 @@ ______________________</pre>
         ]);
     }
 };
-
-
-
-

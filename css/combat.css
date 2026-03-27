@@ -18,11 +18,15 @@
 
 /* Combat Scene (top half) */
 .combat-scene {
-    flex: 0 0 35%;
+    flex: 0 0 40%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
     padding: 1rem;
+    min-height: 220px;
+    overflow: hidden;
     background: 
         radial-gradient(ellipse at 50% 80%, rgba(255, 50, 50, 0.05) 0%, transparent 60%),
         var(--bg-dark);
@@ -33,7 +37,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
+    flex: 1;
+    width: 100%;
+    min-height: 0;
 }
 
 .enemy-art {
@@ -43,7 +51,9 @@
     color: var(--accent-red);
     white-space: pre;
     text-align: center;
-    min-height: 80px;
+    width: min(100%, 320px);
+    min-height: 0;
+    max-height: clamp(110px, 22vh, 190px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -51,6 +61,16 @@
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
+}
+
+.enemy-art img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 22px rgba(0, 0, 0, 0.42));
 }
 
 .enemy-art.damaged {
@@ -483,11 +503,15 @@
     }
     
     .combat-scene {
-        flex: 0 0 30%;
+        flex: 0 0 38%;
+        min-height: 180px;
+        padding: 0.75rem;
     }
     
     .enemy-art {
         font-size: 0.45rem;
+        width: min(100%, 240px);
+        max-height: clamp(90px, 18vh, 140px);
     }
     
     .challenge-prompt {

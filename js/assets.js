@@ -173,7 +173,7 @@ const Assets = {
     /**
      * Get enemy art
      */
-    getEnemyArt(enemyId) {
+    getEnemyArt(enemyId, state = 'idle') {
         if (typeof enemyId === 'string' && /\.(png|jpg|jpeg|gif|svg)$/i.test(enemyId)) {
             return enemyId;
         }
@@ -192,6 +192,11 @@ const Assets = {
         if (CONFIG.PLACEHOLDER_SPRITES) {
             return ASCII_ART[mappedId] || ASCII_ART.enemyBug;
         }
-        return this.images.enemies[mappedId] ? this.images.enemies[mappedId].idle : '';
+        const enemyImages = this.images.enemies[mappedId];
+        if (!enemyImages) {
+            return '';
+        }
+
+        return enemyImages[state] || enemyImages.idle || '';
     }
 };
