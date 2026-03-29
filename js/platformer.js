@@ -124,16 +124,16 @@ const Platformer = {
       dialogue: 'Arrrrggh... me kill everyone!',
       portrait: '👹',
       sprite: {
-        assetKey: 'enemy_goblin_idle',
-        frameCount: 4,
-        frameWidth: 150,
-        frameHeight: 150,
-        cropX: 0,
-        cropY: 0,
-        cropWidth: 150,
-        cropHeight: 150,
-        drawWidth: 86,
-        drawHeight: 86
+        assetKey: 'enemy_goblin_world',
+        frameCount: 1,
+        frameWidth: 1024,
+        frameHeight: 1024,
+        cropX: 223,
+        cropY: 228,
+        cropWidth: 610,
+        cropHeight: 596,
+        drawWidth: 96,
+        drawHeight: 94
       }
     };
 
@@ -146,16 +146,16 @@ const Platformer = {
       dialogue: 'Raaagh! No heroes past this place!',
       portrait: '👹',
       sprite: {
-        assetKey: 'enemy_goblin_idle',
-        frameCount: 4,
-        frameWidth: 150,
-        frameHeight: 150,
-        cropX: 0,
-        cropY: 0,
-        cropWidth: 150,
-        cropHeight: 150,
-        drawWidth: 104,
-        drawHeight: 104
+        assetKey: 'enemy_goblin_world',
+        frameCount: 1,
+        frameWidth: 1024,
+        frameHeight: 1024,
+        cropX: 223,
+        cropY: 228,
+        cropWidth: 610,
+        cropHeight: 596,
+        drawWidth: 112,
+        drawHeight: 110
       }
     };
 
@@ -676,7 +676,7 @@ const Platformer = {
       npc_drunk: 'assets/sprites/npc/drunkNPC.png',
       npc_arena_host: 'assets/sprites/npc/ArenaHost.png',
       npc_king: 'assets/sprites/npc/King.png',
-      enemy_goblin_idle: 'assets/sprites/worldEnemies/goblinIdle.png',
+      enemy_goblin_world: 'assets/sprites/enemies/code_goblin.png',
       enemy_fire_worm_world: 'assets/sprites/worldEnemies/SmallFireWorm.png'
     };
 

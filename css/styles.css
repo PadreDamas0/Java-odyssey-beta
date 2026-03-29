@@ -759,29 +759,125 @@ html, body {
 }
 
 .city-map-content {
+  position: relative;
   display: flex;
   flex-direction: column;
-  width: min(94vw, 1380px);
-  max-width: 1380px;
-  max-height: min(92vh, 920px);
-  padding: 1rem 1rem 1.15rem;
-  overflow: hidden;
-  --city-map-stage-max-height: calc(92vh - 120px);
+  justify-content: flex-start;
+  align-items: center;
+  width: min(78vw, 1120px);
+  max-width: none;
+  height: min(78vh, 720px);
+  max-height: none;
+  padding: 0.85rem 0.35rem 0.65rem;
+  overflow: visible;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  --city-map-stage-width: min(70vw, 980px);
+  --city-map-stage-max-height: min(72vh, 640px);
+}
+
+#city-map-modal.modal {
+  z-index: 850;
+  padding: 2vh 2vw;
+  background: rgba(5, 5, 8, 0.26);
+  backdrop-filter: blur(9px) brightness(0.52) saturate(0.8);
+}
+
+.city-map-content .world-map-header {
+  position: relative;
+  align-self: center;
+  width: min(var(--city-map-stage-width), 100%);
+  z-index: 4;
+  min-height: 0;
+  margin: 0 0 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.city-map-content .modal-title {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: #f2d9ab;
+  font-family: var(--font-title);
+  font-size: clamp(1.05rem, 1.8vw, 1.55rem);
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-shadow: 0 3px 18px rgba(0, 0, 0, 0.45);
+}
+
+.city-map-content .menu-btn {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  z-index: 5;
+  min-width: 92px;
+  padding: 0.45rem 1rem;
+  border: 1px solid rgba(236, 196, 101, 0.42);
+  border-radius: 999px;
+  background: rgba(18, 12, 8, 0.68);
+  color: rgba(252, 234, 195, 0.96);
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  line-height: 1.1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 20px rgba(8, 6, 4, 0.22);
+  transform: translateY(-50%);
+  pointer-events: auto;
+}
+
+.city-map-content .menu-btn:hover {
+  color: #ffffff;
+  transform: translateY(-50%) scale(1.04);
+  background: rgba(32, 20, 12, 0.78);
+}
+
+.city-map-content .menu-btn:focus,
+.city-map-content .menu-btn:focus-visible {
+  outline: 2px solid var(--text-gold);
+  outline-offset: 2px;
 }
 
 .city-map-stage {
   position: relative;
   align-self: center;
   flex: 0 1 auto;
-  width: min(100%, calc(var(--city-map-stage-max-height) * 1.5));
+  width: var(--city-map-stage-width);
   max-width: 100%;
   min-height: 0;
   aspect-ratio: 3 / 2;
   max-height: var(--city-map-stage-max-height);
   overflow: hidden;
   border-radius: 18px;
-  border: 1px solid rgba(201, 168, 76, 0.58);
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(81, 49, 23, 0.12);
+  background: transparent;
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.38);
+}
+
+.city-map-stage::before,
+.city-map-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.city-map-stage::before {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 237, 205, 0) 48%, rgba(34, 20, 10, 0.12) 100%);
+  z-index: 1;
+}
+
+.city-map-stage::after {
+  border-radius: 18px;
+  box-shadow: inset 0 0 0 1px rgba(81, 49, 23, 0.12);
+  z-index: 2;
 }
 
 .city-map-full-image {
@@ -796,45 +892,52 @@ html, body {
   border: none;
   border-radius: inherit;
   box-shadow: none;
+  filter: sepia(0.12) saturate(0.92) contrast(0.98) brightness(0.98);
 }
 
 .city-map-hotspot {
   position: absolute;
   z-index: 6;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
 }
 
 .city-map-hotspot::after {
-  content: attr(data-label) " - " attr(data-state);
+  content: attr(data-label) " • " attr(data-state);
   position: absolute;
   left: 50%;
   top: auto;
   bottom: calc(100% + 10px);
-  padding: 0.32rem 0.62rem;
+  padding: 0.28rem 0.58rem;
   border-radius: 999px;
-  background: rgba(14, 10, 8, 0.94);
-  border: 1px solid rgba(236, 196, 101, 0.55);
-  color: #ffd98d;
+  background: rgba(26, 17, 9, 0.86);
+  border: 1px solid rgba(236, 196, 101, 0.48);
+  color: #f2d18e;
   font-family: var(--font-heading);
   font-size: 0.72rem;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
-  opacity: 1;
-  transform: translateX(-50%);
+  opacity: 0;
+  transform: translateX(-50%) translateY(4px);
   pointer-events: none;
-  box-shadow: 0 10px 20px rgba(18, 10, 5, 0.32);
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 8px 16px rgba(18, 10, 5, 0.26);
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .city-map-hotspot::before {
-  border-color: rgba(147, 88, 16, 0.84);
-  box-shadow: 0 4px 12px rgba(52, 24, 3, 0.34);
+  border-color: rgba(117, 64, 18, 0.72);
+  box-shadow: 0 3px 8px rgba(39, 19, 4, 0.26);
 }
 
 .city-map-hotspot:hover::before,
 .city-map-hotspot:focus-visible::before {
-  box-shadow: 0 0 0 10px rgba(251, 221, 138, 0.18), 0 0 28px rgba(246, 206, 97, 0.58);
+  box-shadow: 0 0 0 8px rgba(251, 221, 138, 0.16), 0 0 22px rgba(246, 206, 97, 0.52);
+}
+
+.city-map-hotspot:hover::after,
+.city-map-hotspot:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 .city-map-hotspot.is-unlocked::before {
@@ -864,14 +967,29 @@ html, body {
 
 @media (max-width: 900px) {
   .city-map-content {
-    width: min(96vw, 1180px);
-    max-height: min(94vh, 760px);
-    padding: 0.8rem;
-    --city-map-stage-max-height: calc(94vh - 110px);
+    width: min(84vw, 980px);
+    height: min(68vh, 640px);
+    padding: 0.55rem 0.3rem 0.5rem;
+    --city-map-stage-width: min(100%, calc(var(--city-map-stage-max-height) * 1.5));
+    --city-map-stage-max-height: min(60vh, 540px);
+  }
+
+  .city-map-content .world-map-header {
+    margin-bottom: 0.6rem;
+  }
+
+  .city-map-content .modal-title {
+    font-size: clamp(0.95rem, 2.6vw, 1.2rem);
+  }
+
+  .city-map-content .menu-btn {
+    min-width: 78px;
+    padding: 0.38rem 0.8rem;
+    font-size: 0.72rem;
   }
 
   .city-map-stage {
-    width: min(100%, calc(var(--city-map-stage-max-height) * 1.5));
+    width: var(--city-map-stage-width);
     max-height: var(--city-map-stage-max-height);
   }
 
@@ -1034,11 +1152,14 @@ html, body {
 
 .world-map-roads path {
   fill: none;
-  stroke: rgba(109, 62, 30, 0.72);
-  stroke-width: 0.5;
+  stroke: rgba(150, 79, 30, 0.96);
+  stroke-width: 1.15;
   stroke-linecap: round;
-  stroke-dasharray: 1.4 1.3;
-  filter: drop-shadow(0 1px 0 rgba(255, 235, 197, 0.22));
+  stroke-linejoin: round;
+  stroke-dasharray: 2.1 1.2;
+  filter:
+    drop-shadow(0 0 1px rgba(255, 239, 201, 0.9))
+    drop-shadow(0 0 6px rgba(86, 43, 13, 0.4));
 }
 
 .world-map-location {
