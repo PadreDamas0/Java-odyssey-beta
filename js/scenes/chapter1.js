@@ -281,7 +281,8 @@ const Chapter1Scene = {
             description: '',
             actions: [],
             fullScreenMap: false,
-            hidePhaser: false
+            hidePhaser: false,
+            onEnter: async () => this.enterArenaInside()
         });
 
         // Training Grounds
@@ -1507,6 +1508,505 @@ const Chapter1Scene = {
         await new Promise((resolve) => {
             Platformer.startAutoWalk(targetX, resolve);
         });
+    },
+
+    getArenaCurrentEnemyId() {
+        if (!GameState.hasFlag('ch1_arena_slimebug_defeated')) return 'slimebug';
+        if (!GameState.hasFlag('ch1_arena_bird_defeated')) return 'bird';
+        if (!GameState.hasFlag('ch1_arena_bigboss_defeated')) return 'bigboss';
+        return null;
+    },
+
+    getArenaQuestState() {
+        const enemyId = this.getArenaCurrentEnemyId();
+        if (enemyId === 'slimebug') {
+            return {
+                id: 'ch1_arena_trials',
+                title: 'Arena Of Heroes Trial',
+                description: 'Approach the Slimebug in the arena and press E to start the first fight.'
+            };
+        }
+
+        if (enemyId === 'bird') {
+            return {
+                id: 'ch1_arena_trials',
+                title: 'Arena Of Heroes Trial',
+                description: 'The Slimebug is down. Approach the Bird and press E to start the second fight.'
+            };
+        }
+
+        if (enemyId === 'bigboss') {
+            return {
+                id: 'ch1_arena_trials',
+                title: 'Arena Of Heroes Trial',
+                description: 'Only the Big Boss remains. Move close and press E to begin the final arena battle.'
+            };
+        }
+
+        return {
+            id: 'ch1_arena_trials',
+            title: 'Arena Of Heroes Cleared',
+            description: 'All three arena opponents have been defeated.'
+        };
+    },
+
+    getArenaPromptForCurrentEnemy() {
+        const enemyId = this.getArenaCurrentEnemyId();
+        if (enemyId === 'slimebug') return 'Approach the Slimebug and press E to start the fight.';
+        if (enemyId === 'bird') return 'Approach the Bird and press E to start the fight.';
+        if (enemyId === 'bigboss') return 'Approach the Big Boss and press E to start the final fight.';
+        return 'The Arena of Heroes is clear.';
+    },
+
+    refreshArenaInsideNpcs() {
+        if (
+            typeof Platformer !== 'undefined' &&
+            typeof Platformer.resetNpcs === 'function' &&
+            Platformer.currentSceneId === 'ch1_arena_inside'
+        ) {
+            Platformer.resetNpcs();
+        }
+    },
+
+    async enterArenaInside() {
+        if (!GameState.hasFlag('ch1_arena_inside_intro_done')) {
+            GameState.setFlag('ch1_arena_inside_intro_done');
+            this.syncQuest(this.getArenaQuestState());
+
+            await Dialogue.start([
+                {
+                    speaker: 'narrator',
+                    name: 'Narrator',
+                    text: `<em>The Arena of Heroes falls quiet for a moment. Three opponents will challenge you here: the Slimebug, the Bird, and the Big Boss.</em>`,
+                    portrait: '📜'
+                },
+                {
+                    speaker: 'player',
+                    name: GameState.player.name,
+                    text: `Then I'll take them one by one. I'll move in when I'm ready and start each fight myself.`,
+                    portrait: '\u{1F9D1}\u200D\u{1F4BB}'
+                }
+            ]);
+        } else {
+            this.syncQuest(this.getArenaQuestState());
+        }
+
+        this.refreshArenaInsideNpcs();
+        Utils.notify(this.getArenaPromptForCurrentEnemy(), 'quest-update', 3200);
+    },
+
+    handleArenaEnemyInteraction(npc) {
+        if (!npc || World.currentScene !== 'ch1_arena_inside') {
+            return;
+        }
+
+        if (npc.enemyId === 'slimebug') {
+            if (!GameState.hasFlag('ch1_arena_slimebug_defeated')) {
+                this.startArenaSlimebugEncounter();
+            }
+            return;
+        }
+
+        if (npc.enemyId === 'bird') {
+            if (!GameState.hasFlag('ch1_arena_bird_defeated')) {
+                this.startArenaBirdEncounter();
+            }
+            return;
+        }
+
+        if (npc.enemyId === 'bigboss') {
+            if (!GameState.hasFlag('ch1_arena_bigboss_defeated')) {
+                this.startArenaBigBossEncounter();
+            }
+        }
+    },
+
+    async startArenaSlimebugEncounter() {
+        await Dialogue.start([
+            {
+                speaker: 'narrator',
+                name: 'Narrator',
+                text: `<em>The Slimebug splashes forward across the arena floor, ready to smother your footing.</em>`,
+                portrait: '📜'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `You're first. Let's clean this up fast.`,
+                portrait: '\u{1F9D1}\u200D\u{1F4BB}'
+            }
+        ]);
+
+        const slimebug = {
+            name: 'Slimebug',
+            hp: 114,
+            maxHp: 114,
+            coinReward: 42,
+            art: 'assets/sprites/worldEnemies/arena_slimebug.png',
+            description: 'A sticky arena pest that attacks with slippery, corrupted syntax.',
+            maxHints: 2,
+            correctXpReward: 20,
+            firstTryXpReward: 34,
+            victoryXpReward: 72
+        };
+
+        Combat.start(slimebug, this.getArenaSlimebugChallenges(), () => this.onArenaSlimebugVictory());
+    },
+
+    getArenaSlimebugChallenges() {
+        return [
+            {
+                id: 'ch1_arena_slimebug_1',
+                prompt: `
+                    <span class="challenge-title">Slimebug: Count The Bounce</span>
+                    <p>Declare an <strong>int</strong> named <code>slimeCount</code> with the value <strong>3</strong>.</p>
+                `,
+                narrative: 'The Slimebug multiplies across the sand. Lock the count in before it spreads.',
+                hints: [
+                    'Use the int keyword.',
+                    'The variable name is slimeCount.',
+                    'Answer: int slimeCount = 3;'
+                ],
+                answers: ['int slimeCount = 3;', 'int slimeCount=3;', 'int slimeCount = 3'],
+                damage: 34,
+                explanation: 'An int variable stores whole numbers.',
+                concept: 'arena_slimebug_int',
+                conceptTitle: 'Integer Declarations',
+                codexTitle: 'Slimebug - Count The Bounce'
+            },
+            {
+                id: 'ch1_arena_slimebug_2',
+                type: 'multiple_choice',
+                prompt: `
+                    <span class="challenge-title">Slimebug: Pick The Correct Print Line</span>
+                    <p>Which line correctly prints <strong>"Slimebug!"</strong> in Java?</p>
+                `,
+                narrative: 'The Slimebug recoils. One clean print statement will keep the pressure on.',
+                hints: [
+                    'Use System.out.println.',
+                    'The text needs double quotes.',
+                    'Answer: System.out.println("Slimebug!");'
+                ],
+                choices: [
+                    'print("Slimebug!");',
+                    'System.out.println("Slimebug!");',
+                    'System.out.println(Slimebug!);',
+                    'System.out.printline("Slimebug!");'
+                ],
+                correctOption: 1,
+                answers: ['System.out.println("Slimebug!");'],
+                damage: 38,
+                explanation: 'Java prints text with System.out.println and double quotes around the String literal.',
+                concept: 'arena_slimebug_print',
+                conceptTitle: 'Print Statements',
+                codexTitle: 'Slimebug - Print The Strike'
+            },
+            {
+                id: 'ch1_arena_slimebug_3',
+                prompt: `
+                    <span class="challenge-title">Slimebug: Ready The Arena</span>
+                    <p>Declare a <strong>boolean</strong> named <code>arenaReady</code> and set it to <strong>true</strong>.</p>
+                `,
+                narrative: 'Finish the Slimebug by locking the arena state into a clean true/false value.',
+                hints: [
+                    'Use the boolean keyword.',
+                    'The value should be true without quotes.',
+                    'Answer: boolean arenaReady = true;'
+                ],
+                answers: ['boolean arenaReady = true;', 'boolean arenaReady=true;', 'boolean arenaReady = true'],
+                damage: 42,
+                explanation: 'boolean variables can store only true or false.',
+                concept: 'arena_slimebug_boolean',
+                conceptTitle: 'Boolean Variables',
+                codexTitle: 'Slimebug - Ready The Arena'
+            }
+        ];
+    },
+
+    async onArenaSlimebugVictory() {
+        GameState.setFlag('ch1_arena_slimebug_defeated');
+        this.refreshArenaInsideNpcs();
+        this.syncQuest(this.getArenaQuestState());
+
+        await Dialogue.start([
+            {
+                speaker: 'narrator',
+                name: 'Narrator',
+                text: `<em>The Slimebug collapses into harmless goo. A harsh cry echoes above as the Bird drops into the arena for the next round.</em>`,
+                portrait: '📜'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `One down. The next one can come closer.`,
+                portrait: '\u{1F9D1}\u200D\u{1F4BB}'
+            }
+        ]);
+
+        Utils.notify('Approach the Bird and press E to start the next fight.', 'quest-update', 3400);
+    },
+
+    async startArenaBirdEncounter() {
+        await Dialogue.start([
+            {
+                speaker: 'narrator',
+                name: 'Narrator',
+                text: `<em>The Bird scrapes its claws against the stone and darts sideways, waiting to dive.</em>`,
+                portrait: '📜'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `Fast or not, you're still my second match.`,
+                portrait: '\u{1F9D1}\u200D\u{1F4BB}'
+            }
+        ]);
+
+        const bird = {
+            name: 'Bird',
+            hp: 126,
+            maxHp: 126,
+            coinReward: 48,
+            art: 'assets/sprites/worldEnemies/arena_bird.png',
+            description: 'A sharp-eyed arena predator that strikes with quick, precise attacks.',
+            maxHints: 2,
+            correctXpReward: 22,
+            firstTryXpReward: 36,
+            victoryXpReward: 80
+        };
+
+        Combat.start(bird, this.getArenaBirdChallenges(), () => this.onArenaBirdVictory());
+    },
+
+    getArenaBirdChallenges() {
+        return [
+            {
+                id: 'ch1_arena_bird_1',
+                prompt: `
+                    <span class="challenge-title">Bird: Name The Target</span>
+                    <p>Declare a <strong>String</strong> named <code>enemyName</code> with the value <strong>"Bird"</strong>.</p>
+                `,
+                narrative: 'The Bird circles for an opening. Name the target before it dives.',
+                hints: [
+                    'Use the String keyword.',
+                    'Bird must be inside double quotes.',
+                    'Answer: String enemyName = "Bird";'
+                ],
+                answers: ['String enemyName = "Bird";', 'String enemyName="Bird";', 'String enemyName = "Bird"'],
+                damage: 38,
+                explanation: 'Strings store text values wrapped in double quotes.',
+                concept: 'arena_bird_string',
+                conceptTitle: 'String Variables',
+                codexTitle: 'Bird - Name The Target'
+            },
+            {
+                id: 'ch1_arena_bird_2',
+                type: 'multiple_choice',
+                prompt: `
+                    <span class="challenge-title">Bird: Choose The Wing Count</span>
+                    <p>Which line correctly declares <code>wings</code> as the integer value <strong>2</strong>?</p>
+                `,
+                narrative: 'The Bird feints left. Pin down the right number before it changes rhythm.',
+                hints: [
+                    'Use int because 2 is a whole number.',
+                    'The variable name is wings.',
+                    'Answer: int wings = 2;'
+                ],
+                choices: [
+                    'int wings = "2";',
+                    'wings = 2;',
+                    'int wings = 2;',
+                    'double wings = 2;'
+                ],
+                correctOption: 2,
+                answers: ['int wings = 2;'],
+                damage: 40,
+                explanation: 'Whole numbers should use int, and declarations need the variable type.',
+                concept: 'arena_bird_wings',
+                conceptTitle: 'Integer Setup',
+                codexTitle: 'Bird - Choose The Wing Count'
+            },
+            {
+                id: 'ch1_arena_bird_3',
+                prompt: `
+                    <span class="challenge-title">Bird: Call The Dive</span>
+                    <p>Using <code>enemyName</code>, print <strong>Bird dives!</strong> exactly like this:</p>
+                    <pre>System.out.println(enemyName + " dives!");</pre>
+                `,
+                narrative: 'The Bird commits to the dive. Call it out correctly and break its attack line.',
+                hints: [
+                    'Use System.out.println.',
+                    'Concatenate enemyName with the String " dives!".',
+                    'Answer: System.out.println(enemyName + " dives!");'
+                ],
+                answers: [
+                    'System.out.println(enemyName + " dives!");',
+                    'System.out.println(enemyName+" dives!");'
+                ],
+                damage: 48,
+                explanation: 'You can combine a variable and a String using + inside System.out.println.',
+                concept: 'arena_bird_concat',
+                conceptTitle: 'String Concatenation',
+                codexTitle: 'Bird - Call The Dive'
+            }
+        ];
+    },
+
+    async onArenaBirdVictory() {
+        GameState.setFlag('ch1_arena_bird_defeated');
+        this.refreshArenaInsideNpcs();
+        this.syncQuest(this.getArenaQuestState());
+
+        await Dialogue.start([
+            {
+                speaker: 'narrator',
+                name: 'Narrator',
+                text: `<em>The Bird crashes into the arena sand and fades into static. Heat rolls through the coliseum as the Big Boss steps forward for the final battle.</em>`,
+                portrait: '📜'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `So the last one finally decided to show up.`,
+                portrait: '\u{1F9D1}\u200D\u{1F4BB}'
+            }
+        ]);
+
+        Utils.notify('Approach the Big Boss and press E to start the final fight.', 'quest-update', 3600);
+    },
+
+    async startArenaBigBossEncounter() {
+        await Dialogue.start([
+            {
+                speaker: 'narrator',
+                name: 'Narrator',
+                text: `<em>The Big Boss plants its burning weapon against the arena floor. The final match begins under the roar of the crowd.</em>`,
+                portrait: '📜'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `You're the last wall between me and this arena. I'm ending it here.`,
+                portrait: '\u{1F9D1}\u200D\u{1F4BB}'
+            }
+        ]);
+
+        const bigBoss = {
+            name: 'Big Boss',
+            hp: 162,
+            maxHp: 162,
+            coinReward: 70,
+            art: 'assets/sprites/worldEnemies/arena_bigboss.png',
+            description: 'The final arena tyrant, armored in corrupted fire and heavy code.',
+            maxHints: 3,
+            correctXpReward: 26,
+            firstTryXpReward: 40,
+            victoryXpReward: 110
+        };
+
+        Combat.start(bigBoss, this.getArenaBigBossChallenges(), () => this.onArenaBigBossVictory());
+    },
+
+    getArenaBigBossChallenges() {
+        return [
+            {
+                id: 'ch1_arena_bigboss_1',
+                prompt: `
+                    <span class="challenge-title">Big Boss: Arm The Counter</span>
+                    <p>Write <strong>two lines</strong>:</p>
+                    <pre>int fire = 8;
+int guard = 3;</pre>
+                `,
+                narrative: 'The Big Boss raises its weapon. Build your counter with two clean integer declarations.',
+                hints: [
+                    'Both lines use int.',
+                    'The variable names are fire and guard.',
+                    'Answer:\nint fire = 8;\nint guard = 3;'
+                ],
+                answers: [
+                    'int fire = 8;\nint guard = 3;',
+                    'int guard = 3;\nint fire = 8;'
+                ],
+                damage: 50,
+                explanation: 'Multiple int variables can be declared on separate lines in one response.',
+                concept: 'arena_bigboss_two_line_setup',
+                conceptTitle: 'Multiple Integer Declarations',
+                codexTitle: 'Big Boss - Arm The Counter'
+            },
+            {
+                id: 'ch1_arena_bigboss_2',
+                type: 'multiple_choice',
+                prompt: `
+                    <span class="challenge-title">Big Boss: Choose The Damage Formula</span>
+                    <p>Given:</p>
+                    <pre>int fire = 8;
+int guard = 3;</pre>
+                    <p>Which line correctly declares <code>totalDamage</code> as <code>(fire * 2) - guard</code>?</p>
+                `,
+                narrative: 'The Big Boss lunges. Only the right expression will cut through its armor.',
+                hints: [
+                    'Create a new int named totalDamage.',
+                    'Use parentheses around fire * 2.',
+                    'Answer: int totalDamage = (fire * 2) - guard;'
+                ],
+                choices: [
+                    'int totalDamage = fire * (2 - guard);',
+                    'totalDamage = (fire * 2) - guard;',
+                    'int totalDamage = (fire * 2) - guard;',
+                    'int totalDamage = (fire * 2) - "guard";'
+                ],
+                correctOption: 2,
+                answers: ['int totalDamage = (fire * 2) - guard;'],
+                damage: 52,
+                explanation: 'The correct expression keeps the multiplication grouped before subtracting guard.',
+                concept: 'arena_bigboss_expression',
+                conceptTitle: 'Arithmetic Expressions',
+                codexTitle: 'Big Boss - Choose The Damage Formula'
+            },
+            {
+                id: 'ch1_arena_bigboss_3',
+                prompt: `
+                    <span class="challenge-title">Big Boss: Claim The Finish</span>
+                    <p>Declare a <strong>String</strong> named <code>title</code> with the value <strong>"Champion"</strong>.</p>
+                `,
+                narrative: 'The final blow is within reach. Lock in the winning title and finish the arena cleanly.',
+                hints: [
+                    'Use the String keyword.',
+                    'Champion needs double quotes.',
+                    'Answer: String title = "Champion";'
+                ],
+                answers: ['String title = "Champion";', 'String title="Champion";', 'String title = "Champion"'],
+                damage: 60,
+                explanation: 'Strings store text values, and Java wraps text literals in double quotes.',
+                concept: 'arena_bigboss_title',
+                conceptTitle: 'String Declarations',
+                codexTitle: 'Big Boss - Claim The Finish'
+            }
+        ];
+    },
+
+    async onArenaBigBossVictory() {
+        GameState.setFlag('ch1_arena_bigboss_defeated');
+        GameState.setFlag('ch1_arena_trials_complete');
+        this.refreshArenaInsideNpcs();
+        GameState.completeQuest('ch1_arena_trials');
+
+        await Dialogue.start([
+            {
+                speaker: 'narrator',
+                name: 'Narrator',
+                text: `<em>The Big Boss drops to one knee, then shatters into drifting embers. The crowd erupts as the Arena of Heroes falls silent around you.</em>`,
+                portrait: '📜'
+            },
+            {
+                speaker: 'player',
+                name: GameState.player.name,
+                text: `All three are down. The arena is mine now.`,
+                portrait: '\u{1F9D1}\u200D\u{1F4BB}'
+            }
+        ]);
+
+        Utils.notify('Arena cleared! Slimebug, Bird, and Big Boss defeated.', 'level-up', 4200);
     },
 
     async handleCaveGuideInteraction() {

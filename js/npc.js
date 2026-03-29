@@ -85,7 +85,7 @@ const NPCSystem = {
             ...definition,
             ...definition.sprite,
             x: Math.floor(width * definition.relX),
-            y: groundY - definition.sprite.drawHeight,
+            y: groundY - definition.sprite.drawHeight + (definition.groundOffsetY ?? definition.sprite.groundOffsetY ?? 0),
             frame: index % definition.sprite.frameCount
         }));
     },
@@ -199,6 +199,10 @@ const NPCSystem = {
             }
             if (npc.role === 'arena_host' && typeof Chapter1Scene.talkToArenaHost === 'function') {
                 Chapter1Scene.talkToArenaHost();
+                return true;
+            }
+            if (npc.role === 'arena_enemy' && typeof Chapter1Scene.handleArenaEnemyInteraction === 'function') {
+                Chapter1Scene.handleArenaEnemyInteraction(npc);
                 return true;
             }
         }

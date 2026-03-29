@@ -362,8 +362,78 @@ const Platformer = {
         cropY: 24,
         cropWidth: 44,
         cropHeight: 92,
+        groundOffsetY: 20,
         drawWidth: 64,
         drawHeight: 110
+      }
+    };
+
+    const arenaSlimebugDefinition = {
+      id: 'arena-slimebug',
+      role: 'arena_enemy',
+      enemyId: 'slimebug',
+      name: 'Slimebug',
+      relX: 0.68,
+      interactionRange: 112,
+      dialogue: 'The Slimebug jiggles and waits for your move.',
+      portrait: '🟢',
+      sprite: {
+        assetKey: 'enemy_arena_slimebug_world',
+        frameCount: 1,
+        frameWidth: 253,
+        frameHeight: 192,
+        cropX: 0,
+        cropY: 0,
+        cropWidth: 253,
+        cropHeight: 192,
+        drawWidth: 90,
+        drawHeight: 66
+      }
+    };
+
+    const arenaBirdDefinition = {
+      id: 'arena-bird',
+      role: 'arena_enemy',
+      enemyId: 'bird',
+      name: 'Bird',
+      relX: 0.73,
+      interactionRange: 116,
+      dialogue: 'The Bird watches you closely from the arena floor.',
+      portrait: '🐦',
+      sprite: {
+        assetKey: 'enemy_arena_bird_world',
+        frameCount: 1,
+        frameWidth: 166,
+        frameHeight: 169,
+        cropX: 0,
+        cropY: 0,
+        cropWidth: 166,
+        cropHeight: 169,
+        drawWidth: 86,
+        drawHeight: 86
+      }
+    };
+
+    const arenaBigBossDefinition = {
+      id: 'arena-bigboss',
+      role: 'arena_enemy',
+      enemyId: 'bigboss',
+      name: 'Big Boss',
+      relX: 0.76,
+      interactionRange: 132,
+      dialogue: 'The Big Boss towers over the arena, burning with corrupted power.',
+      portrait: '🔥',
+      sprite: {
+        assetKey: 'enemy_arena_bigboss_world',
+        frameCount: 1,
+        frameWidth: 212,
+        frameHeight: 292,
+        cropX: 0,
+        cropY: 0,
+        cropWidth: 212,
+        cropHeight: 292,
+        drawWidth: 126,
+        drawHeight: 170
       }
     };
 
@@ -607,7 +677,7 @@ const Platformer = {
           typeof GameState.hasFlag === 'function' &&
           GameState.hasFlag('ch1_tournament_registered')
         ) ? 'bg_arena_outskirts_open_door' : 'bg_arena_outskirts',
-        groundOffset: 212,
+        groundOffset: 224,
         spawnX: 132,
         npcScene: true,
         npcDefinitions: () => [{ ...arenaHostDefinition, relX: 0.62, interactionRange: 120 }]
@@ -615,9 +685,16 @@ const Platformer = {
       ch1_arena_inside: {
         id: 'ch1_arena_inside',
         backgroundKey: 'bg_arena_inside',
-        groundOffset: 212,
+        groundOffset: 224,
         spawnX: 132,
-        npcScene: false
+        npcScene: true,
+        npcDefinitions: () => {
+          const hasState = typeof GameState !== 'undefined' && typeof GameState.hasFlag === 'function';
+          if (!hasState || !GameState.hasFlag('ch1_arena_slimebug_defeated')) return [arenaSlimebugDefinition];
+          if (!GameState.hasFlag('ch1_arena_bird_defeated')) return [arenaBirdDefinition];
+          if (!GameState.hasFlag('ch1_arena_bigboss_defeated')) return [arenaBigBossDefinition];
+          return [];
+        }
       }
     };
 
@@ -677,7 +754,10 @@ const Platformer = {
       npc_arena_host: 'assets/sprites/npc/ArenaHost.png',
       npc_king: 'assets/sprites/npc/King.png',
       enemy_goblin_world: 'assets/sprites/enemies/code_goblin.png',
-      enemy_fire_worm_world: 'assets/sprites/worldEnemies/SmallFireWorm.png'
+      enemy_fire_worm_world: 'assets/sprites/worldEnemies/SmallFireWorm.png',
+      enemy_arena_slimebug_world: 'assets/sprites/worldEnemies/arena_slimebug.png',
+      enemy_arena_bird_world: 'assets/sprites/worldEnemies/arena_bird.png',
+      enemy_arena_bigboss_world: 'assets/sprites/worldEnemies/arena_bigboss.png'
     };
 
     const keys = Object.keys(images);
@@ -867,7 +947,7 @@ const Platformer = {
           ...definition,
           ...definition.sprite,
           x: Math.floor(width * definition.relX),
-          y: groundY - definition.sprite.drawHeight,
+          y: groundY - definition.sprite.drawHeight + (definition.groundOffsetY ?? definition.sprite.groundOffsetY ?? 0),
           frame: index % definition.sprite.frameCount
         }))
       : window.NPCSystem && typeof NPCSystem.createPlatformerNpcs === 'function'
