@@ -6,6 +6,7 @@
 const Game = {
     activeShopId: null,
     activeCodexCategory: null,
+    respawnInProgress: false,
     WORLD_MAP_DESTINATIONS: {
         village: {
             sceneId: 'ch1_village_square',
@@ -105,7 +106,28 @@ const Game = {
                 effectText: '+10 gold after every future victory.'
             }
         ],
-        merchant: []
+        merchant: [
+            {
+                id: 'healing_herbs',
+                name: 'Healing Herbs',
+                icon: '🌿',
+                price: 20,
+                description: 'A quick herbal remedy sold by the market stall.',
+                effectText: 'Restore 25 HP instantly.',
+                healAmount: 25,
+                repeatable: true
+            },
+            {
+                id: 'guardian_tonic',
+                name: 'Guardian Tonic',
+                icon: '🧪',
+                price: 45,
+                description: 'A stronger tonic brewed for battered Code Guardians.',
+                effectText: 'Fully restore your HP.',
+                fullRestore: true,
+                repeatable: true
+            }
+        ]
     },
     
     /**
@@ -150,7 +172,8 @@ const Game = {
     async startNewGame() {
         // Initialize fresh state
         GameState.init();
-        
+        GameState.updateHUD();
+
         // Hide menu, show game
         Utils.showScreen('game-container');
         
@@ -226,6 +249,185 @@ const Game = {
             }
         } else {
             Utils.notify('No save data found!', 'default');
+        }
+    },
+
+    /**
+     * Convert detailed scene IDs into a simple player position label
+     */
+    getPositionForScene(sceneId) {
+        if (!sceneId) {
+            return CONFIG.PLAYER_HEALTH.startingPosition;
+        }
+
+        if (sceneId.startsWith('ch1_village')) return 'village';
+        if (sceneId.startsWith('ch1_cave')) return 'cave';
+        if (sceneId.startsWith('ch1_syntax_city')) return 'syntax_city';
+        if (sceneId.startsWith('ch1_arena')) return 'arena_of_heroes';
+        if (
+            sceneId.startsWith('ch1_corrupted_forest') ||
+            sceneId.includes('forest') ||
+            sceneId.includes('abandoned_village')
+        ) {
+            return 'corrupted_forest';
+        }
+
+        return GameState.player.position || CONFIG.PLAYER_HEALTH.startingPosition;
+    },
+
+    /**
+     * Resolve the world scene used for respawn
+     */
+    getRespawnSceneId() {
+        const startingPosition = CONFIG.PLAYER_HEALTH.startingPosition;
+        return this.WORLD_MAP_DESTINATIONS[startingPosition]?.sceneId || CONFIG.PLAYER_HEALTH.startingScene;
+    },
+
+    /**
+     * Pick how much damage the player should take for a wrong answer
+     */
+    getWrongAnswerDamage(challenge = null) {
+        if (typeof challenge?.wrongAnswerDamage === 'number') {
+            return challenge.wrongAnswerDamage;
+        }
+
+        const difficulty = String(challenge?.difficulty || '').toLowerCase();
+        if (difficulty === 'easy') return CONFIG.PLAYER_HEALTH.easyWrongAnswerDamage;
+        if (difficulty === 'boss') return CONFIG.PLAYER_HEALTH.bossWrongAnswerDamage;
+        if (difficulty === 'medium') return CONFIG.PLAYER_HEALTH.mediumWrongAnswerDamage;
+
+        const enemyName = typeof Combat !== 'undefined' && Combat?.enemy?.name
+            ? Combat.enemy.name.toLowerCase()
+            : '';
+        const enemyMaxHp = typeof Combat !== 'undefined' && Combat?.enemy
+            ? (Combat.enemy.maxHp || Combat.enemy.hp || 0)
+            : 0;
+
+        if (challenge?.questionType === 'Boss Challenge' || enemyMaxHp >= 150 || enemyName.includes('boss')) {
+            return CONFIG.PLAYER_HEALTH.bossWrongAnswerDamage;
+        }
+
+        if (enemyMaxHp >= 100) {
+            return CONFIG.PLAYER_HEALTH.mediumWrongAnswerDamage;
+        }
+
+        return CONFIG.PLAYER_HEALTH.easyWrongAnswerDamage;
+    },
+
+    /**
+     * Apply damage after a wrong answer
+     */
+    async handleWrongAnswer(challenge = null) {
+        if (this.respawnInProgress) {
+            return { damage: 0, defeated: true };
+        }
+
+        const damage = this.getWrongAnswerDamage(challenge);
+        GameState.player.hp = Math.max(0, GameState.player.hp - damage);
+        GameState.updateHUD();
+        Utils.notify(`You took damage! -${damage} HP`, 'incorrect', 2200);
+
+        if (GameState.player.hp <= 0) {
+            await this.handleDeath();
+            return { damage, defeated: true };
+        }
+
+        return { damage, defeated: false };
+    },
+
+    /**
+     * Heal the player after a correct answer or a shop purchase
+     */
+    handleCorrectAnswer(healAmount = CONFIG.PLAYER_HEALTH.correctAnswerHeal) {
+        if (this.respawnInProgress || GameState.player.hp <= 0) {
+            return 0;
+        }
+
+        const beforeHp = GameState.player.hp;
+        GameState.player.hp = Math.min(GameState.player.maxHp, GameState.player.hp + healAmount);
+        GameState.updateHUD();
+        return GameState.player.hp - beforeHp;
+    },
+
+    /**
+     * Restore HP directly from healing items or scripted events
+     */
+    restorePlayerHp(amount, restoreToFull = false) {
+        if (this.respawnInProgress) {
+            return 0;
+        }
+
+        const beforeHp = GameState.player.hp;
+        GameState.player.hp = restoreToFull
+            ? GameState.player.maxHp
+            : Math.min(GameState.player.maxHp, GameState.player.hp + amount);
+        GameState.updateHUD();
+        return GameState.player.hp - beforeHp;
+    },
+
+    /**
+     * Reset Chapter 1 story progress so a defeat feels like a true restart
+     */
+    resetChapterOneProgress() {
+        const isChapterOneId = (value) => typeof value === 'string' && value.startsWith('ch1_');
+
+        GameState.progress.storyFlags = Object.fromEntries(
+            Object.entries(GameState.progress.storyFlags).filter(([flag]) => !isChapterOneId(flag))
+        );
+        GameState.progress.completedQuests = GameState.progress.completedQuests.filter((questId) => !isChapterOneId(questId));
+        GameState.progress.completedChallenges = GameState.progress.completedChallenges.filter((challengeId) => !isChapterOneId(challengeId));
+        GameState.progress.currentScene = '';
+
+        GameState.journal.activeQuests = GameState.journal.activeQuests.filter((quest) => !isChapterOneId(quest?.id));
+        GameState.journal.completedQuests = GameState.journal.completedQuests.filter((quest) => !isChapterOneId(quest?.id));
+
+        GameState.performance.currentStreak = 0;
+        GameState.performance.averageAttempts = 0;
+        GameState.performance.difficultyLevel = 'beginner';
+        GameState.performance.challengeHistory = GameState.performance.challengeHistory.filter((entry) => !isChapterOneId(entry?.id));
+    },
+
+    /**
+     * Handle defeat, then respawn the player in the village
+     */
+    async handleDeath() {
+        if (this.respawnInProgress) return;
+
+        this.respawnInProgress = true;
+        try {
+            if (typeof Combat !== 'undefined' && GameState.combat.active && typeof Combat.handlePlayerDefeat === 'function') {
+                await Combat.handlePlayerDefeat();
+            }
+
+            Utils.notify('You have been defeated. Returning to village...', 'incorrect', CONFIG.PLAYER_HEALTH.respawnDelayMs);
+            await Utils.wait(CONFIG.PLAYER_HEALTH.respawnDelayMs);
+
+            this.resetChapterOneProgress();
+            GameState.player.hp = GameState.player.maxHp;
+            GameState.setPlayerPosition(CONFIG.PLAYER_HEALTH.startingPosition);
+            GameState.updateHUD();
+
+            if (typeof Chapter1Scene !== 'undefined' && typeof Chapter1Scene.start === 'function') {
+                await Chapter1Scene.start();
+            } else {
+                const respawnSceneId = this.getRespawnSceneId();
+                if (
+                    typeof World !== 'undefined' &&
+                    (!World.scenes || !World.scenes[respawnSceneId]) &&
+                    typeof Chapter1Scene !== 'undefined' &&
+                    typeof Chapter1Scene.registerScenes === 'function'
+                ) {
+                    Chapter1Scene.registerScenes();
+                }
+                if (typeof World !== 'undefined' && World.scenes && World.scenes[respawnSceneId]) {
+                    GameState.phase = 'chapter1';
+                    await World.goTo(respawnSceneId, 'Returning to the village...');
+                }
+            }
+
+            GameState.save();
+        } finally {
+            this.respawnInProgress = false;
         }
     },
     
@@ -624,6 +826,7 @@ const Game = {
                             <p>Gold Bonus Per Victory: +${GameState.player.coinBonus || 0}</p>
                             <p>Attack: ${GameState.player.attack}</p>
                             <p>Defense: ${GameState.player.defense}</p>
+                            <p>Current HP: ${GameState.player.hp} / ${GameState.player.maxHp}</p>
                             <p>Max HP: ${GameState.player.maxHp}</p>
                             <p>Challenges Completed: ${perf.correctAnswers}</p>
                             <p>Total Attempts: ${perf.totalAttempts}</p>
@@ -893,10 +1096,12 @@ const Game = {
         const list = Utils.$('shop-items');
         const title = Utils.$('shop-title');
         const goldEl = Utils.$('shop-gold');
+        const hpEl = Utils.$('shop-hp');
         if (!list || !title || !goldEl) return;
 
         title.textContent = shopId === 'blacksmith' ? '⚒️ Blacksmith Brawn\'s Shop' : 'Shop';
         goldEl.textContent = `${GameState.player.gold || 0} Gold`;
+        if (hpEl) hpEl.textContent = `HP: ${GameState.player.hp} / ${GameState.player.maxHp}`;
         list.innerHTML = '';
 
         if (shopId === 'merchant') {
@@ -916,12 +1121,15 @@ const Game = {
         }
 
         items.forEach((item) => {
-            const owned = GameState.hasItem(item.id);
+            const owned = item.repeatable ? false : GameState.hasItem(item.id);
             const affordable = (GameState.player.gold || 0) >= item.price;
+            const needsHealing = !(item.healAmount || item.fullRestore) || GameState.player.hp < GameState.player.maxHp;
             const row = document.createElement('div');
-            row.className = `shop-item ${affordable && !owned ? 'affordable' : ''}`;
+            row.className = `shop-item ${affordable && !owned && needsHealing ? 'affordable' : ''}`;
 
-            const actionLabel = owned ? 'Owned' : (affordable ? 'Buy' : 'Need Gold');
+            const actionLabel = owned
+                ? 'Owned'
+                : (!needsHealing ? 'Full HP' : (affordable ? 'Buy' : 'Need Gold'));
             row.innerHTML = `
                 <div class="shop-item-icon">${item.icon}</div>
                 <div>
@@ -930,7 +1138,7 @@ const Game = {
                     <div class="shop-item-desc">${item.effectText}</div>
                     <div class="shop-item-price">Price: ${item.price} Gold</div>
                 </div>
-                <button class="menu-btn shop-buy-btn" ${(owned || !affordable) ? 'disabled' : ''} onclick="Game.purchaseShopItem('${item.id}')">${actionLabel}</button>
+                <button class="menu-btn shop-buy-btn" ${(!item.repeatable && owned) || !affordable || !needsHealing ? 'disabled' : ''} onclick="Game.purchaseShopItem('${item.id}')">${actionLabel}</button>
             `;
             list.appendChild(row);
         });
@@ -940,8 +1148,13 @@ const Game = {
         const shopId = this.activeShopId;
         const item = (this.SHOP_ITEMS[shopId] || []).find(entry => entry.id === itemId);
         if (!item) return;
-        if (GameState.hasItem(item.id)) {
+        if (!item.repeatable && GameState.hasItem(item.id)) {
             Utils.notify(`${item.name} is already in your inventory.`, 'default');
+            this.renderShop();
+            return;
+        }
+        if ((item.healAmount || item.fullRestore) && GameState.player.hp >= GameState.player.maxHp) {
+            Utils.notify('Your HP is already full.', 'default');
             this.renderShop();
             return;
         }
@@ -950,6 +1163,8 @@ const Game = {
             this.renderShop();
             return;
         }
+
+        let effectMessage = item.effectText;
 
         switch (item.id) {
             case 'iron_dagger':
@@ -968,18 +1183,30 @@ const Game = {
             case 'lucky_coin':
                 GameState.player.coinBonus = (GameState.player.coinBonus || 0) + 10;
                 break;
+            case 'healing_herbs': {
+                const healed = this.restorePlayerHp(item.healAmount || 25);
+                effectMessage = `Restored ${healed} HP.`;
+                break;
+            }
+            case 'guardian_tonic': {
+                const healed = this.restorePlayerHp(0, true);
+                effectMessage = `Restored ${healed} HP.`;
+                break;
+            }
             default:
                 break;
         }
 
-        GameState.addItem({
-            id: item.id,
-            name: item.name,
-            icon: item.icon,
-            description: `${item.description} ${item.effectText}`
-        });
+        if (!item.repeatable) {
+            GameState.addItem({
+                id: item.id,
+                name: item.name,
+                icon: item.icon,
+                description: `${item.description} ${item.effectText}`
+            });
+        }
         GameState.updateHUD();
-        Utils.notify(`${item.name} purchased. ${item.effectText}`, 'quest-update');
+        Utils.notify(`${item.name} purchased. ${effectMessage}`, 'quest-update');
         this.renderShop();
     },
     
@@ -1022,6 +1249,18 @@ const Game = {
         // Show main menu
         Utils.showScreen('main-menu');
     }
+};
+
+window.handleWrongAnswer = async function handleWrongAnswer(challenge = null) {
+    return Game.handleWrongAnswer(challenge);
+};
+
+window.handleCorrectAnswer = function handleCorrectAnswer(healAmount = CONFIG.PLAYER_HEALTH.correctAnswerHeal) {
+    return Game.handleCorrectAnswer(healAmount);
+};
+
+window.handleDeath = async function handleDeath() {
+    return Game.handleDeath();
 };
 
 // Backward-compatible global used by older inline handlers or cached pages.

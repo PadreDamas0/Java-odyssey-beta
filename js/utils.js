@@ -3,6 +3,41 @@
    ============================================ */
 
 const Utils = {
+    escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    },
+
+    buildChallengePrompt(challenge) {
+        if (challenge?.prompt) return challenge.prompt;
+
+        const title = challenge?.title || 'Challenge';
+        const details = [
+            challenge?.questionType ? `<p><strong>Type:</strong> ${this.escapeHtml(challenge.questionType)}</p>` : '',
+            challenge?.area ? `<p><strong>Area:</strong> ${this.escapeHtml(challenge.area)}</p>` : '',
+            challenge?.npc ? `<p><strong>NPC/Boss:</strong> ${this.escapeHtml(challenge.npc)}</p>` : ''
+        ].filter(Boolean).join('');
+        const question = challenge?.question ? `<p>${challenge.question}</p>` : '';
+        const code = challenge?.code
+            ? `<p><strong>Code:</strong></p><pre>${this.escapeHtml(challenge.code)}</pre>`
+            : '';
+        const answerTip = challenge?.answerTip
+            ? `<p><em>${challenge.answerTip}</em></p>`
+            : '';
+
+        return `
+            <span class="challenge-title">${this.escapeHtml(title)}</span>
+            ${details}
+            ${question}
+            ${code}
+            ${answerTip}
+        `;
+    },
+
     /**
      * Get a DOM element by ID
      */
@@ -203,20 +238,29 @@ const Utils = {
      * Check if user code matches expected answer
      * Supports multiple valid answers
      */
-    checkCode(userCode, validAnswers) {
+    checkCode(userCode, validAnswers, options = {}) {
         const normalized = this.normalizeCode(userCode);
-        
+        const matchMode = options.matchMode || 'loose';
+
         if (Array.isArray(validAnswers)) {
             return validAnswers.some(answer => {
                 const normalizedAnswer = this.normalizeCode(answer);
-                return normalized === normalizedAnswer || 
+                if (matchMode === 'exact') {
+                    return normalized === normalizedAnswer;
+                }
+
+                return normalized === normalizedAnswer ||
                        normalized.includes(normalizedAnswer) ||
                        normalizedAnswer.includes(normalized);
             });
         }
-        
+
         const normalizedAnswer = this.normalizeCode(validAnswers);
-        return normalized === normalizedAnswer || 
+        if (matchMode === 'exact') {
+            return normalized === normalizedAnswer;
+        }
+
+        return normalized === normalizedAnswer ||
                normalized.includes(normalizedAnswer) ||
                normalizedAnswer.includes(normalized);
     },

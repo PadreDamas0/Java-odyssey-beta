@@ -112,6 +112,10 @@
             <div class="hud-left">
                 <div class="player-info">
                     <span class="player-name" id="hud-player-name">Trainee Guardian</span>
+                    <div class="player-hp-container">
+                        <div class="player-hp-bar" id="hud-hp-bar" style="width: 100%"></div>
+                        <span class="xp-text" id="hud-hp-text">HP: 100 / 100</span>
+                    </div>
                     <div class="xp-bar-container">
                         <div class="xp-bar" id="hud-xp-bar" style="width: 0%"></div>
                         <span class="xp-text" id="hud-xp-text">XP: 0 / 100</span>
@@ -235,14 +239,14 @@
                 <div class="code-input-area">
                     <div class="code-editor">
                         <div class="code-line-numbers" id="code-line-numbers">1</div>
-                        <textarea id="code-input" class="code-input" placeholder="Type your Java code here..." spellcheck="false"></textarea>
+                        <textarea id="code-input" class="code-input" placeholder="Type your answer here..." spellcheck="false"></textarea>
                     </div>
                     <div class="code-actions">
                         <button class="action-btn hint-btn" onclick="Combat.showHint()">
                             💡 Hint
                         </button>
-                        <button class="action-btn submit-btn" onclick="Combat.submitAnswer()">
-                            ⚔️ Execute Code
+                        <button class="action-btn submit-btn" id="submit-answer-btn" onclick="Combat.submitAnswer()">
+                            ⚔️ Submit Answer
                         </button>
                     </div>
                 </div>
@@ -300,6 +304,7 @@
                 <div class="shop-gold-row">
                     <span class="shop-gold-label">Available Gold</span>
                     <span class="gold-badge" id="shop-gold">0 Gold</span>
+                    <span class="gold-badge" id="shop-hp">HP: 100 / 100</span>
                 </div>
                 <div id="shop-items" class="shop-list">
                     <!-- Dynamic shop items -->

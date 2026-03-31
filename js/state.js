@@ -22,6 +22,7 @@ const GameState = {
         xpToNext: 100,
         hp: 100,
         maxHp: 100,
+        position: CONFIG.PLAYER_HEALTH.startingPosition,
         attack: 10,
         defense: 5,
         title: 'Trainee Code Guardian'
@@ -84,6 +85,7 @@ const GameState = {
      */
     init() {
         this.player = { ...CONFIG.PLAYER_DEFAULTS, title: 'Trainee Code Guardian' };
+        this.decoratePlayerState();
         this.progress = {
             currentChapter: 0,
             currentScene: '',
@@ -118,6 +120,51 @@ const GameState = {
             hintsShown: 0,
             startTime: null
         };
+        this.updateHUD();
+    },
+
+    /**
+     * Ensure the player object always has the expected HP aliases and location data
+     */
+    decoratePlayerState() {
+        if (!this.player) {
+            this.player = { ...CONFIG.PLAYER_DEFAULTS };
+        }
+
+        if (!this.player.position) {
+            this.player.position = CONFIG.PLAYER_HEALTH.startingPosition;
+        }
+
+        if (!Object.getOwnPropertyDescriptor(this.player, 'currentHP')) {
+            Object.defineProperty(this.player, 'currentHP', {
+                get() {
+                    return this.hp;
+                },
+                set(value) {
+                    this.hp = value;
+                },
+                configurable: true
+            });
+        }
+
+        if (!Object.getOwnPropertyDescriptor(this.player, 'maxHP')) {
+            Object.defineProperty(this.player, 'maxHP', {
+                get() {
+                    return this.maxHp;
+                },
+                set(value) {
+                    this.maxHp = value;
+                },
+                configurable: true
+            });
+        }
+    },
+
+    /**
+     * Track the player's current map position in a simple RPG-friendly way
+     */
+    setPlayerPosition(position) {
+        this.player.position = position || CONFIG.PLAYER_HEALTH.startingPosition;
     },
     
     /**
@@ -303,14 +350,33 @@ const GameState = {
         const nameEl = Utils.$('hud-player-name');
         const xpBar = Utils.$('hud-xp-bar');
         const xpText = Utils.$('hud-xp-text');
+        const hpBar = Utils.$('hud-hp-bar');
+        const hpText = Utils.$('hud-hp-text');
         const levelEl = Utils.$('hud-level');
         const goldEl = Utils.$('hud-gold');
+        const shopHpEl = Utils.$('shop-hp');
+        const shopGoldEl = Utils.$('shop-gold');
         
         if (nameEl) nameEl.textContent = this.player.name;
         if (xpBar) xpBar.style.width = (this.player.xp / this.player.xpToNext * 100) + '%';
         if (xpText) xpText.textContent = `XP: ${this.player.xp} / ${this.player.xpToNext}`;
+        if (hpBar) {
+            const hpPercent = this.player.maxHp > 0
+                ? Math.max(0, Math.min(100, (this.player.hp / this.player.maxHp) * 100))
+                : 0;
+            hpBar.style.width = hpPercent + '%';
+            hpBar.className = 'player-hp-bar';
+            if (hpPercent <= 25) {
+                hpBar.classList.add('low');
+            } else if (hpPercent <= 50) {
+                hpBar.classList.add('medium');
+            }
+        }
+        if (hpText) hpText.textContent = `HP: ${this.player.hp} / ${this.player.maxHp}`;
         if (levelEl) levelEl.textContent = `Lv. ${this.player.level}`;
         if (goldEl) goldEl.textContent = `${this.player.gold || 0} Gold`;
+        if (shopHpEl) shopHpEl.textContent = `HP: ${this.player.hp} / ${this.player.maxHp}`;
+        if (shopGoldEl) shopGoldEl.textContent = `${this.player.gold || 0} Gold`;
     },
     
     /**
@@ -336,11 +402,13 @@ const GameState = {
         const data = Utils.loadFromStorage(CONFIG.SAVE_KEY);
         if (data) {
             this.player = { ...CONFIG.PLAYER_DEFAULTS, ...this.player, ...(data.player || {}) };
+            this.decoratePlayerState();
             this.progress = data.progress || this.progress;
             this.performance = data.performance || this.performance;
             this.inventory = data.inventory || this.inventory;
             this.journal = data.journal || this.journal;
             this.phase = data.phase || this.phase;
+            this.updateHUD();
             return true;
         }
         return false;

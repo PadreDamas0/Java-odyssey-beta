@@ -29,6 +29,10 @@ const World = {
         
         this.currentScene = sceneId;
         GameState.progress.currentScene = sceneId;
+        if (typeof Game !== 'undefined' && typeof Game.getPositionForScene === 'function') {
+            GameState.setPlayerPosition(Game.getPositionForScene(sceneId));
+            GameState.updateHUD();
+        }
         if (typeof Game !== 'undefined' && typeof Game.updateWorldMapUi === 'function') {
             Game.updateWorldMapUi(sceneId);
         }

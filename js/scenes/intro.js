@@ -254,7 +254,7 @@ const IntroScene = {
             {
                 speaker: 'mysterious',
                 name: '???',
-                text: `They're here! Listen — the only way to fight these creatures is with <span class="highlight">code</span>. Proper, clean Java code can purify the corruption!`,
+                text: `They're here! Listen — the only way to fight these creatures is with <span class="highlight">clear Java thinking</span>. Sometimes you'll write code, sometimes you'll read it, debug it, or predict what it does.`,
                 portrait: '🕵️'
             },
             {
@@ -298,7 +298,7 @@ const IntroScene = {
             {
                 speaker: 'mysterious',
                 name: '???',
-                text: `When you see a challenge, <span class="highlight">type the correct Java code</span> in the code editor and press <span class="code-inline">Execute Code</span> to attack!`,
+                text: `When you see a challenge, <span class="highlight">type the correct answer or Java code</span> in the panel and press <span class="code-inline">Submit Answer</span> to attack!`,
                 portrait: '🕵️'
             },
             {
@@ -310,7 +310,7 @@ const IntroScene = {
             {
                 speaker: 'mysterious',
                 name: '???',
-                text: `Ready? Here they come! Remember — write clean Java code to purify the corruption!`,
+                text: `Ready? Here they come! Remember — clean Java logic is what purifies the corruption!`,
                 portrait: '🕵️'
             }
         ]);

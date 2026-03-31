@@ -17,6 +17,9 @@ const Combat = {
     multipleChoiceWrongSelections: 0,
     multipleChoiceLocked: false,
     codeInputReady: false,
+    playerDefeated: false,
+    encounterResolved: false,
+    pendingTimeouts: [],
     
     /**
      * Start a combat encounter
@@ -48,7 +51,9 @@ const Combat = {
     start(enemyData, challenges, onVictory, onDefeat = null) {
         // Play battle music
         Audio.playBgm('battle', true);
-        
+
+        this.clearPendingTimeouts();
+
         this.enemy = { ...enemyData };
         this.challenges = challenges;
         this.currentChallenge = null;
@@ -61,6 +66,8 @@ const Combat = {
         this.startTime = Date.now();
         this.onVictory = onVictory;
         this.onDefeat = onDefeat;
+        this.playerDefeated = false;
+        this.encounterResolved = false;
 
         if (typeof Platformer !== 'undefined' && typeof Platformer.clearInputState === 'function') {
             Platformer.clearInputState();
@@ -100,7 +107,25 @@ const Combat = {
         // Set up code input
         this.setupCodeInput();
     },
-    
+
+    isCombatLocked() {
+        return this.playerDefeated || this.encounterResolved || !GameState.combat.active || !this.enemy;
+    },
+
+    scheduleTimeout(callback, delay) {
+        const timeoutId = setTimeout(() => {
+            this.pendingTimeouts = this.pendingTimeouts.filter(id => id !== timeoutId);
+            callback();
+        }, delay);
+        this.pendingTimeouts.push(timeoutId);
+        return timeoutId;
+    },
+
+    clearPendingTimeouts() {
+        this.pendingTimeouts.forEach((timeoutId) => clearTimeout(timeoutId));
+        this.pendingTimeouts = [];
+    },
+
     /**
      * Update enemy display (art, HP bar, name)
      */
@@ -109,7 +134,7 @@ const Combat = {
         const hpBar = Utils.$('enemy-hp-bar');
         const hpText = Utils.$('enemy-hp-text');
         this.renderEnemyArt(this.enemy.hp <= 0 ? 'defeated' : 'idle');
-        
+
         nameEl.textContent = this.enemy.name;
         
         // Update HP
@@ -130,6 +155,10 @@ const Combat = {
      * Show current challenge
      */
     showChallenge() {
+        if (this.isCombatLocked()) {
+            return;
+        }
+
         if (this.currentChallengeIndex >= this.challenges.length) {
             // All challenges done but enemy still alive - repeat
             this.currentChallengeIndex = 0;
@@ -146,13 +175,13 @@ const Combat = {
         const multipleChoiceArea = Utils.$('multiple-choice-area');
 
         // Set challenge prompt
-        promptEl.innerHTML = challenge.prompt;
+        promptEl.innerHTML = Utils.buildChallengePrompt(challenge);
         
         // Set combat narrative
         if (challenge.narrative) {
             narrativeEl.textContent = challenge.narrative;
         } else {
-            narrativeEl.textContent = `The ${this.enemy.name} attacks! Write the correct Java code to counter it!`;
+            narrativeEl.textContent = `The ${this.enemy.name} attacks! Answer correctly to counter it.`;
         }
         
         // Reset hint and feedback
@@ -163,6 +192,8 @@ const Combat = {
 
         // Clear code input
         codeInput.value = '';
+        codeInput.placeholder = this.getInputPlaceholder(challenge);
+        this.updateSubmitButton(challenge);
 
         // Reset attempts for this challenge
         this.attempts = 0;
@@ -188,7 +219,11 @@ const Combat = {
         }
 
         if (challenge.autoShowHint || this.enemy.autoShowHint) {
-            setTimeout(() => this.showHint(), 350);
+            this.scheduleTimeout(() => {
+                if (!this.isCombatLocked()) {
+                    this.showHint();
+                }
+            }, 350);
         }
     },
 
@@ -257,6 +292,44 @@ const Combat = {
         return challenge && challenge.type === 'multiple_choice';
     },
 
+    expectsCodeAnswer(challenge) {
+        if (!challenge || this.isMultipleChoiceChallenge(challenge)) return false;
+        if (challenge.inputMode) return challenge.inputMode === 'code';
+
+        return ['Code Completion', 'Fix the Code', 'Boss Challenge'].includes(challenge.questionType);
+    },
+
+    getInputPlaceholder(challenge) {
+        if (!challenge) return 'Type your answer here...';
+        if (challenge.inputPlaceholder) return challenge.inputPlaceholder;
+        if (this.expectsCodeAnswer(challenge)) return 'Type your Java answer here...';
+
+        switch (challenge.questionType) {
+            case 'True or False':
+                return 'Type true or false';
+            case 'Predict the Output':
+                return 'Type the exact output';
+            case 'Fill in the Blank':
+                return 'Type the missing word or code';
+            case 'Short Answer':
+            case 'Scenario-based Question':
+                return 'Type a short answer';
+            case 'Identify the Error':
+                return 'Type the error or missing part';
+            default:
+                return 'Type your answer here...';
+        }
+    },
+
+    updateSubmitButton(challenge) {
+        const submitBtn = Utils.$('submit-answer-btn');
+        if (!submitBtn) return;
+
+        submitBtn.textContent = this.expectsCodeAnswer(challenge)
+            ? '⚔️ Submit Code'
+            : '⚔️ Submit Answer';
+    },
+
     renderMultipleChoiceOptions(challenge) {
         const optionsEl = Utils.$('multiple-choice-options');
         if (!optionsEl) return;
@@ -290,7 +363,7 @@ const Combat = {
 
     async selectMultipleChoiceAnswer(optionIndex, buttonEl) {
         const challenge = this.currentChallenge;
-        if (!challenge || !this.isMultipleChoiceChallenge(challenge) || this.multipleChoiceLocked) {
+        if (!challenge || !this.isMultipleChoiceChallenge(challenge) || this.multipleChoiceLocked || this.isCombatLocked()) {
             return;
         }
 
@@ -318,13 +391,25 @@ const Combat = {
             buttonEl.disabled = true;
         }
 
+        const playerResult = typeof Game !== 'undefined' && typeof Game.handleWrongAnswer === 'function'
+            ? await Game.handleWrongAnswer(challenge)
+            : { damage: 0, defeated: false };
+
+        if (playerResult.defeated) {
+            return;
+        }
+
         this.showFeedback(
-            `Not quite. That option is out, but you can still recover. Each wrong choice only lowers your damage a little.`,
+            `Not quite. That option is out, but you can still recover. You took ${playerResult.damage} damage, and each wrong choice only lowers your damage a little.`,
             'partial'
         );
 
         if (this.attempts >= 2 && this.hintsShown === 0) {
-            setTimeout(() => this.showHint(), 700);
+            this.scheduleTimeout(() => {
+                if (!this.isCombatLocked()) {
+                    this.showHint();
+                }
+            }, 700);
         }
     },
 
@@ -402,6 +487,10 @@ const Combat = {
      * Submit answer for current challenge
      */
     async submitAnswer() {
+        if (this.isCombatLocked()) {
+            return;
+        }
+
         if (this.isMultipleChoiceChallenge(this.currentChallenge)) {
             this.showFeedback('Choose one of the answers below to attack.', 'partial');
             return;
@@ -411,20 +500,32 @@ const Combat = {
         const userCode = codeInput.value.trim();
         
         if (!userCode) {
-            this.showFeedback('Please type your Java code before submitting!', 'incorrect');
+            this.showFeedback(
+                this.expectsCodeAnswer(this.currentChallenge)
+                    ? 'Please type your Java answer before submitting!'
+                    : 'Please type your answer before submitting!',
+                'incorrect'
+            );
             return;
         }
         
         this.attempts++;
         GameState.performance.totalAttempts++;
         
-        const challenge = this.challenges[this.currentChallengeIndex];
-        const isCorrect = Utils.checkCode(userCode, challenge.answers);
+        const challenge = this.currentChallenge || this.challenges[this.currentChallengeIndex];
+        if (!challenge || (!Array.isArray(challenge.answers) && typeof challenge.answers !== 'string')) {
+            this.showFeedback('This challenge is not ready yet. Please try again.', 'incorrect');
+            return;
+        }
+
+        const isCorrect = Utils.checkCode(userCode, challenge.answers, {
+            matchMode: challenge.matchMode || 'loose'
+        });
         
         if (isCorrect) {
             await this.handleCorrectAnswer(challenge);
         } else {
-            this.handleIncorrectAnswer(challenge);
+            await this.handleIncorrectAnswer(challenge);
         }
     },
     
@@ -432,12 +533,20 @@ const Combat = {
      * Handle correct answer
      */
     async handleCorrectAnswer(challenge) {
+        if (this.isCombatLocked()) {
+            return;
+        }
+
         const damage = this.calculateDamage(challenge);
+        const healed = typeof Game !== 'undefined' && typeof Game.handleCorrectAnswer === 'function'
+            ? Game.handleCorrectAnswer(challenge.correctHealAmount ?? CONFIG.PLAYER_HEALTH.correctAnswerHeal)
+            : 0;
         
         // Show success feedback
         this.showFeedback(
             `✅ Correct! ${challenge.explanation || 'Well done!'}<br>` +
-            `<strong>Damage dealt: ${damage}</strong>`,
+            `<strong>Damage dealt: ${damage}</strong>` +
+            (healed > 0 ? `<br><strong>HP restored: +${healed}</strong>` : ''),
             'correct'
         );
         
@@ -461,10 +570,14 @@ const Combat = {
             ? (this.enemy.firstTryXpReward ?? CONFIG.XP_REWARDS.correctFirstTry)
             : (this.enemy.correctXpReward ?? CONFIG.XP_REWARDS.correctAnswer);
         GameState.addXP(xpReward);
-        
+
         // Animate damage
         await this.dealDamage(damage);
-        
+
+        if (this.isCombatLocked()) {
+            return;
+        }
+
         // Check if enemy is defeated
         if (this.enemy.hp <= 0) {
             await this.victory();
@@ -472,20 +585,29 @@ const Combat = {
             // Move to next challenge
             this.currentChallengeIndex++;
             await Utils.wait(challenge.feedbackDuration || 2800);
-            this.showChallenge();
+            if (!this.isCombatLocked()) {
+                this.showChallenge();
+            }
         }
     },
     
     /**
      * Handle incorrect answer
      */
-    handleIncorrectAnswer(challenge) {
-        if (this.isMultipleChoiceChallenge(challenge)) {
+    async handleIncorrectAnswer(challenge) {
+        if (this.isMultipleChoiceChallenge(challenge) || this.isCombatLocked()) {
             return;
         }
 
         GameState.performance.incorrectAnswers++;
-        
+        const playerResult = typeof Game !== 'undefined' && typeof Game.handleWrongAnswer === 'function'
+            ? await Game.handleWrongAnswer(challenge)
+            : { damage: 0, defeated: false };
+
+        if (playerResult.defeated) {
+            return;
+        }
+
         let feedbackMsg = '';
         
         if (this.attempts >= CONFIG.COMBAT.maxAttempts) {
@@ -493,23 +615,34 @@ const Combat = {
             feedbackMsg = `❌ Too many attempts! The correct answer was:<br>` +
                 `<pre>${challenge.answers[0]}</pre>` +
                 `${challenge.explanation || ''}<br>` +
+                `<strong>You took ${playerResult.damage} damage.</strong><br>` +
                 `<em>The enemy takes reduced damage...</em>`;
             
             this.showFeedback(feedbackMsg, 'incorrect');
-            
+
             GameState.recordChallenge(challenge.id, this.attempts, this.hintsShown, false);
-            
+
             // Deal reduced damage and move on
-            setTimeout(async () => {
+            this.scheduleTimeout(async () => {
+                if (this.isCombatLocked()) {
+                    return;
+                }
+
                 const reducedDamage = Math.floor(CONFIG.COMBAT.baseDamage * 0.25);
                 await this.dealDamage(reducedDamage);
-                
+
+                if (this.isCombatLocked()) {
+                    return;
+                }
+
                 if (this.enemy.hp <= 0) {
                     await this.victory();
                 } else {
                     this.currentChallengeIndex++;
                     await Utils.wait(1000);
-                    this.showChallenge();
+                    if (!this.isCombatLocked()) {
+                        this.showChallenge();
+                    }
                 }
             }, 2000);
         } else {
@@ -520,19 +653,23 @@ const Combat = {
             );
             
             if (similarity > 0.7) {
-                feedbackMsg = `⚠️ Almost there! Your code is very close. Check for small errors like typos, missing semicolons, or incorrect syntax.`;
+                feedbackMsg = `⚠️ Almost there! Your code is very close. You took ${playerResult.damage} damage, so check for small errors like typos, missing semicolons, or incorrect syntax.`;
                 this.showFeedback(feedbackMsg, 'partial');
             } else if (similarity > 0.3) {
-                feedbackMsg = `❌ Not quite right. You have some of the right elements. Try using a hint if you're stuck!`;
+                feedbackMsg = `❌ Not quite right. You took ${playerResult.damage} damage, but you have some of the right elements. Try using a hint if you're stuck!`;
                 this.showFeedback(feedbackMsg, 'incorrect');
             } else {
-                feedbackMsg = `❌ That's not correct. Read the challenge carefully and try again. Use hints if needed!`;
+                feedbackMsg = `❌ That's not correct. You took ${playerResult.damage} damage. Read the challenge carefully and try again. Use hints if needed!`;
                 this.showFeedback(feedbackMsg, 'incorrect');
             }
-            
+
             // Auto-show hint after 2 failed attempts
             if (this.attempts >= 2 && this.hintsShown === 0) {
-                setTimeout(() => this.showHint(), 1000);
+                this.scheduleTimeout(() => {
+                    if (!this.isCombatLocked()) {
+                        this.showHint();
+                    }
+                }, 1000);
             }
         }
     },
@@ -573,6 +710,10 @@ const Combat = {
      * Animate dealing damage to enemy
      */
     async dealDamage(amount) {
+        if (this.isCombatLocked()) {
+            return;
+        }
+
         const artEl = Utils.$('enemy-art');
         this.renderEnemyArt('hurt');
         
@@ -619,11 +760,34 @@ const Combat = {
         feedbackContent.className = `feedback-content ${type}`;
         feedbackContent.innerHTML = message;
     },
+
+    /**
+     * Cleanly stop combat when the player is defeated
+     */
+    async handlePlayerDefeat() {
+        if (this.playerDefeated) {
+            return;
+        }
+
+        this.playerDefeated = true;
+        this.encounterResolved = true;
+        this.clearPendingTimeouts();
+        this.multipleChoiceLocked = true;
+        this.showFeedback('💀 You have been defeated. Returning to village...', 'incorrect');
+        this.lockMultipleChoiceOptions();
+        await Utils.wait(450);
+        this.endCombat('defeat');
+    },
     
     /**
      * Victory sequence
      */
     async victory() {
+        if (this.playerDefeated || this.encounterResolved || GameState.player.hp <= 0 || (typeof Game !== 'undefined' && Game.respawnInProgress)) {
+            return;
+        }
+
+        this.encounterResolved = true;
         const artEl = Utils.$('enemy-art');
         this.renderEnemyArt('defeated');
         artEl.classList.add('defeated');
@@ -669,9 +833,14 @@ const Combat = {
     /**
      * End combat and return to world
      */
-    endCombat() {
+    endCombat(result = 'victory') {
         const combatUI = Utils.$('combat-interface');
         combatUI.style.display = 'none';
+        this.clearPendingTimeouts();
+        this.encounterResolved = true;
+        if (result === 'defeat') {
+            this.playerDefeated = true;
+        }
         
         // Remove victory overlay
         const victoryOverlay = combatUI.querySelector('.victory-overlay');
@@ -694,19 +863,31 @@ const Combat = {
 
         // Reset combat state
         GameState.combat.active = false;
+        GameState.combat.enemy = null;
         this.enemy = null;
         this.challenges = [];
         this.currentChallenge = null;
         this.currentChallengeIndex = 0;
+        this.attempts = 0;
+        this.hintsShown = 0;
         this.multipleChoiceWrongSelections = 0;
         this.multipleChoiceLocked = false;
+        this.playerDefeated = false;
+        this.encounterResolved = false;
         GameState.combat.currentChallenge = null;
-        
-        // Call victory callback
-        if (this.onVictory) {
-            const cb = this.onVictory;
-            this.onVictory = null;
-            cb();
+        GameState.combat.challengeIndex = 0;
+
+        const victoryCallback = this.onVictory;
+        const defeatCallback = this.onDefeat;
+        this.onVictory = null;
+        this.onDefeat = null;
+
+        if (result === 'victory' && victoryCallback) {
+            victoryCallback();
+        }
+
+        if (result === 'defeat' && defeatCallback) {
+            defeatCallback();
         }
     }
 };

@@ -24,10 +24,21 @@ const CONFIG = {
         gold: 0,
         hp: 100,
         maxHp: 100,
+        position: "village",
         attack: 10,
         defense: 5,
         xpBonus: 0,
         coinBonus: 0
+    },
+
+    PLAYER_HEALTH: {
+        startingPosition: "village",
+        startingScene: "ch1_village_square",
+        correctAnswerHeal: 5,
+        easyWrongAnswerDamage: 10,
+        mediumWrongAnswerDamage: 15,
+        bossWrongAnswerDamage: 25,
+        respawnDelayMs: 2000
     },
     
     // XP Rewards
