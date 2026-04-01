@@ -1,0 +1,70 @@
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/php/auth_check.php';
+
+if (is_user_authenticated()) {
+    header('Location: game.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Java Odyssey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/auth.css?v=20260401d">
+</head>
+<body class="auth-page">
+    <main class="auth-layout">
+        <section class="auth-card auth-card-compact">
+            <div class="auth-card-frame">
+                <div class="auth-card-top">
+                    <p class="auth-kicker">Java Odyssey</p>
+                    <span class="auth-code-pill">new Guardian()</span>
+                </div>
+
+                <h1 class="auth-title">Create Your Account</h1>
+                <p class="auth-copy">Register a guardian profile to unlock the game and track player progress.</p>
+
+                <div class="auth-mini-runes" aria-hidden="true">
+                    <span>email.unique</span>
+                    <span>progress.bound</span>
+                </div>
+
+                <div id="auth-message" class="auth-message" hidden></div>
+
+                <form class="auth-form" action="php/register.php" method="POST">
+                    <label class="auth-field" for="register-username">
+                        <span>Username</span>
+                        <input id="register-username" name="username" type="text" autocomplete="username" maxlength="50" required>
+                    </label>
+
+                    <label class="auth-field" for="register-email">
+                        <span>Email</span>
+                        <input id="register-email" name="email" type="email" autocomplete="email" required>
+                    </label>
+
+                    <label class="auth-field" for="register-password">
+                        <span>Password</span>
+                        <input id="register-password" name="password" type="password" autocomplete="new-password" minlength="6" required>
+                    </label>
+
+                    <button class="auth-submit" type="submit">Register</button>
+                </form>
+
+                <p class="auth-switch">
+                    Already have an account?
+                    <a href="login.php">Log in</a>
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/auth.js"></script>
+</body>
+</html>

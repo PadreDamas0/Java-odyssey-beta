@@ -138,6 +138,8 @@ const Game = {
         
         // Load settings
         this.loadSettings();
+        GameState.syncAuthenticatedIdentity();
+        GameState.updateHUD();
         
         // Generate menu particles
         Utils.generateCodeParticles();
@@ -1295,7 +1297,14 @@ window.solveSimpleChallenge = async function solveSimpleChallenge(legacyAnswer =
 // ============================================
 // Initialize game when page loads
 // ============================================
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+    if (window.Auth && typeof window.Auth.requireGameAccess === 'function') {
+        const authenticated = await window.Auth.requireGameAccess();
+        if (!authenticated) {
+            return;
+        }
+    }
+
     Game.init();
 });
 

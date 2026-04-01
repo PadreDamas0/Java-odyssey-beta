@@ -1,3 +1,12 @@
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/php/auth_check.php';
+require_auth(false);
+
+$authUser = get_authenticated_user();
+$authProgress = $authUser ? get_player_progress((int) $authUser['user_id']) : null;
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,8 +24,17 @@
     <link rel="stylesheet" href="css/dialogue.css">
     <link rel="stylesheet" href="css/combat.css">
     <link rel="stylesheet" href="css/world.css">
+    <link rel="stylesheet" href="css/auth.css?v=20260401d">
 </head>
-<body>
+<body class="game-page">
+    <div id="auth-loading-overlay" class="auth-loading-overlay" hidden>
+        <div class="auth-loading-card">
+            <p class="auth-kicker">Session Check</p>
+            <h1 class="auth-title auth-title-small">Preparing your game</h1>
+            <p class="auth-copy">Validating your login and loading your guardian profile.</p>
+            <p id="auth-loading-error" class="auth-message is-error" hidden></p>
+        </div>
+    </div>
     <!-- Loading Screen -->
     <div id="loading-screen" class="screen active">
         <div class="loading-content">
@@ -52,6 +70,11 @@
                 <button class="menu-btn" id="btn-about" onclick="Game.showAbout()">
                     <span class="btn-icon">📖</span> About
                 </button>
+            </div>
+            <div class="account-panel">
+                <span>Logged in as <strong data-auth-username>Guardian</strong></span>
+                <span>User ID: <strong id="session-user-id">-</strong></span>
+                <a class="account-link" href="php/logout.php">Log out</a>
             </div>
             <p class="menu-footer">A Java Programming Learning Adventure</p>
         </div>
@@ -263,10 +286,12 @@
         <div id="pause-menu" class="pause-overlay" style="display:none;">
             <div class="pause-content">
                 <h2 class="pause-title">Game Paused</h2>
+                <p class="pause-account">Signed in as <strong data-auth-username>Guardian</strong></p>
                 <button class="menu-btn" onclick="Game.togglePauseMenu()">Resume</button>
                 <button class="menu-btn" onclick="Game.saveGame()">Save Game</button>
                 <button class="menu-btn" onclick="Game.showSettings()">Settings</button>
                 <button class="menu-btn" onclick="Game.returnToMenu()">Main Menu</button>
+                <a class="menu-btn account-link account-link-button" href="php/logout.php">Log Out</a>
             </div>
         </div>
 
@@ -417,6 +442,12 @@
     </div>
 
     <!-- Scripts -->
+    <script>
+        window.__AUTH_BOOTSTRAP__ = <?php echo json_encode([
+            'user' => $authUser,
+            'progress' => $authProgress,
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
+    </script>
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/state.js"></script>
@@ -432,7 +463,8 @@
     <script src="js/scenes/tutorial.js"></script>
     <script src="js/scenes/portal.js"></script>
     <script src="js/scenes/chapter1.js"></script>
-    <script src="js/game.js?v=20260324"></script>
+    <script src="js/auth.js?v=20260401"></script>
+    <script src="js/game.js?v=20260401"></script>
     <script src="js/worldMapOverlay.js?v=20260324"></script>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/easystarjs@0.4.4/bin/easystar-0.4.4.min.js"></script>

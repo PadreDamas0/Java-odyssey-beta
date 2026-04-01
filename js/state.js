@@ -85,6 +85,7 @@ const GameState = {
      */
     init() {
         this.player = { ...CONFIG.PLAYER_DEFAULTS, title: 'Trainee Code Guardian' };
+        this.applyAuthenticatedProfile();
         this.decoratePlayerState();
         this.progress = {
             currentChapter: 0,
@@ -121,6 +122,54 @@ const GameState = {
             startTime: null
         };
         this.updateHUD();
+    },
+
+    applyAuthenticatedProfile() {
+        const profile = window.Auth && typeof window.Auth.getRemotePlayerProfile === 'function'
+            ? window.Auth.getRemotePlayerProfile()
+            : null;
+
+        if (!profile) {
+            return;
+        }
+
+        this.player = { ...this.player, ...profile };
+    },
+
+    syncAuthenticatedIdentity() {
+        const user = window.Auth && window.Auth.currentUser ? window.Auth.currentUser : null;
+        if (!user) {
+            return;
+        }
+
+        this.player.name = user.username || this.player.name;
+        this.player.userId = user.userId;
+    },
+
+    getSaveKey() {
+        if (window.Auth && typeof window.Auth.getUserScopedKey === 'function') {
+            return window.Auth.getUserScopedKey(CONFIG.SAVE_KEY);
+        }
+
+        return CONFIG.SAVE_KEY;
+    },
+
+    getStoredSaveData() {
+        const scopedKey = this.getSaveKey();
+        const scopedData = Utils.loadFromStorage(scopedKey);
+        if (scopedData) {
+            return scopedData;
+        }
+
+        if (scopedKey !== CONFIG.SAVE_KEY) {
+            const legacyData = Utils.loadFromStorage(CONFIG.SAVE_KEY);
+            if (legacyData) {
+                Utils.saveToStorage(scopedKey, legacyData);
+                return legacyData;
+            }
+        }
+
+        return null;
     },
 
     /**
@@ -392,17 +441,24 @@ const GameState = {
             phase: this.phase,
             timestamp: Date.now()
         };
-        return Utils.saveToStorage(CONFIG.SAVE_KEY, saveData);
+        const saved = Utils.saveToStorage(this.getSaveKey(), saveData);
+
+        if (saved && window.Auth && typeof window.Auth.syncPlayerProgress === 'function') {
+            window.Auth.syncPlayerProgress(this.player);
+        }
+
+        return saved;
     },
     
     /**
      * Load game state
      */
     load() {
-        const data = Utils.loadFromStorage(CONFIG.SAVE_KEY);
+        const data = this.getStoredSaveData();
         if (data) {
             this.player = { ...CONFIG.PLAYER_DEFAULTS, ...this.player, ...(data.player || {}) };
             this.decoratePlayerState();
+            this.syncAuthenticatedIdentity();
             this.progress = data.progress || this.progress;
             this.performance = data.performance || this.performance;
             this.inventory = data.inventory || this.inventory;
@@ -418,7 +474,7 @@ const GameState = {
      * Check if save exists
      */
     hasSave() {
-        return !!Utils.loadFromStorage(CONFIG.SAVE_KEY);
+        return !!this.getStoredSaveData();
     }
 };
 
