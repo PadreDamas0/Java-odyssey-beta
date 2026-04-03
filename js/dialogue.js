@@ -11,6 +11,8 @@ const Dialogue = {
     callback: null,
     choiceCallback: null,
     keyboardBound: false,
+    centeredPortraitTalkSrc: 'assets/sprites/npc/cipher_talk.png',
+    centeredPortraitIdleSrc: 'assets/sprites/npc/cipher_idle.png',
 
     getSafePortrait(entry) {
         const fallbackPortraits = {
@@ -73,6 +75,69 @@ const Dialogue = {
         }
 
         return this.isCorruptedText(rawPortrait) ? fallbackPortrait : rawPortrait;
+    },
+
+    hideCenteredPortrait() {
+        const centeredPortraitDisplay = Utils.$('centered-portrait-display');
+        const centeredPortraitImg = Utils.$('centered-portrait-img');
+        const dialogueBox = Utils.$('dialogue-box');
+
+        if (centeredPortraitDisplay) {
+            centeredPortraitDisplay.style.display = 'none';
+        }
+
+        if (dialogueBox) {
+            dialogueBox.classList.remove('with-centered-portrait');
+        }
+
+        if (centeredPortraitImg) {
+            centeredPortraitImg.onload = null;
+            centeredPortraitImg.onerror = null;
+            centeredPortraitImg.alt = '';
+            centeredPortraitImg.removeAttribute('src');
+        }
+    },
+
+    showCenteredPortrait(imagePath) {
+        const centeredPortraitDisplay = Utils.$('centered-portrait-display');
+        const centeredPortraitImg = Utils.$('centered-portrait-img');
+        const dialogueBox = Utils.$('dialogue-box');
+
+        if (!centeredPortraitDisplay || !centeredPortraitImg || !imagePath || !GameState.dialogue.active) {
+            this.hideCenteredPortrait();
+            return;
+        }
+
+        centeredPortraitDisplay.style.display = 'none';
+        centeredPortraitImg.alt = '';
+
+        const revealPortrait = () => {
+            if (!GameState.dialogue.active) {
+                this.hideCenteredPortrait();
+                return;
+            }
+
+            centeredPortraitDisplay.style.display = 'block';
+            if (dialogueBox) {
+                dialogueBox.classList.add('with-centered-portrait');
+            }
+        };
+
+        centeredPortraitImg.onload = () => {
+            revealPortrait();
+        };
+
+        centeredPortraitImg.onerror = () => {
+            this.hideCenteredPortrait();
+        };
+
+        if (centeredPortraitImg.getAttribute('src') !== imagePath) {
+            centeredPortraitImg.src = imagePath;
+        }
+
+        if (centeredPortraitImg.complete && centeredPortraitImg.naturalWidth > 0) {
+            revealPortrait();
+        }
     },
 
     /**
@@ -141,34 +206,18 @@ const Dialogue = {
         const isLastEntry = this.currentIndex >= this.queue.length - 1;
         
         try {
-            // Handle Cipher centered portrait display with defensive checks
-            const centeredPortraitDisplay = Utils.$('centered-portrait-display');
-            const centeredPortraitImg = Utils.$('centered-portrait-img');
-            
-            if (centeredPortraitDisplay && centeredPortraitImg) {
-                if (entry.speaker === 'mysterious') {
-                    // Cipher is talking - show talk image
-                    centeredPortraitDisplay.style.display = 'block';
-                    centeredPortraitImg.src = 'assets/npcs/cipher_talk.png';
-                    if (dialogueBox) dialogueBox.classList.add('with-centered-portrait');
-                } else if (entry.speaker === 'player' && GameState.getFlag && GameState.getFlag('met_mysterious')) {
-                    // Player is talking after meeting Cipher - show idle image
-                    centeredPortraitDisplay.style.display = 'block';
-                    centeredPortraitImg.src = 'assets/npcs/cipher_idle.png';
-                    if (dialogueBox) dialogueBox.classList.add('with-centered-portrait');
-                } else if (entry.speaker === 'narrator' && GameState.getFlag && GameState.getFlag('met_mysterious')) {
-                    // Narrator is talking after meeting Cipher - show idle image
-                    centeredPortraitDisplay.style.display = 'block';
-                    centeredPortraitImg.src = 'assets/npcs/cipher_idle.png';
-                    if (dialogueBox) dialogueBox.classList.add('with-centered-portrait');
-                } else {
-                    // Haven't met Cipher yet or not relevant, hide centered portrait
-                    centeredPortraitDisplay.style.display = 'none';
-                    if (dialogueBox) dialogueBox.classList.remove('with-centered-portrait');
-                }
+            // Only show Cipher's large portrait when Cipher is the current speaker.
+            if (entry.speaker === 'mysterious') {
+                const portraitPath = entry.name === 'Cipher'
+                    ? this.centeredPortraitTalkSrc
+                    : this.centeredPortraitIdleSrc;
+                this.showCenteredPortrait(portraitPath);
+            } else {
+                this.hideCenteredPortrait();
             }
         } catch (e) {
             console.warn('Centered portrait error:', e);
+            this.hideCenteredPortrait();
         }
         
         // Set portrait
@@ -324,7 +373,7 @@ const Dialogue = {
         
         const centeredPortraitDisplay = Utils.$('centered-portrait-display');
         if (centeredPortraitDisplay) {
-            centeredPortraitDisplay.style.display = 'none';
+            this.hideCenteredPortrait();
         }
         
         this.queue = [];

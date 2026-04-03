@@ -133,12 +133,13 @@
 }
 
 .combat-narrative {
-    font-family: var(--font-body);
-    font-size: 0.95rem;
-    color: var(--text-light);
+    font-family: Georgia, "Palatino Linotype", "Times New Roman", serif;
+    font-size: 1rem;
+    color: rgba(240, 236, 227, 0.9);
     text-align: center;
-    padding: 0.5rem 1rem;
-    max-width: 600px;
+    padding: 0.55rem 1rem;
+    max-width: 720px;
+    line-height: 1.7;
     font-style: italic;
 }
 
@@ -170,45 +171,114 @@
 }
 
 .challenge-prompt {
-    font-family: var(--font-body);
-    font-size: 1rem;
     color: var(--text-light);
-    background: var(--bg-panel);
-    border: 1px solid var(--border-gold-dim);
-    border-radius: 6px;
-    padding: 1rem;
-    margin-bottom: 0.8rem;
-    line-height: 1.6;
+    background:
+        linear-gradient(180deg, rgba(20, 18, 31, 0.96) 0%, rgba(14, 14, 26, 0.98) 100%);
+    border: 1px solid rgba(240, 208, 96, 0.5);
+    border-radius: 12px;
+    padding: 1rem 1.1rem 1.05rem;
+    margin-bottom: 0.95rem;
+    line-height: 1.7;
+    box-shadow:
+        0 14px 28px rgba(0, 0, 0, 0.18),
+        inset 0 0 0 1px rgba(255, 233, 176, 0.04);
+}
+
+.challenge-header {
+    margin-bottom: 0.7rem;
 }
 
 .challenge-prompt .challenge-title {
-    font-family: var(--font-heading);
-    font-size: 1.1rem;
-    color: var(--text-gold);
-    margin-bottom: 0.5rem;
     display: block;
+    color: #f0cf63;
+    font-family: var(--font-heading);
+    font-size: clamp(1.35rem, 1.55vw, 1.6rem);
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+}
+
+.challenge-meta {
+    display: grid;
+    gap: 0.38rem;
+    margin-bottom: 0.9rem;
+}
+
+.challenge-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.42rem;
+}
+
+.challenge-meta-label {
+    color: rgba(255, 223, 145, 0.78);
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.challenge-meta-value {
+    color: #f3eee2;
+    font-family: Georgia, "Palatino Linotype", "Times New Roman", serif;
+    font-size: 1.04rem;
+    line-height: 1.45;
+}
+
+.challenge-question {
+    color: #f2ede3;
+    font-family: Georgia, "Palatino Linotype", "Times New Roman", serif;
+    font-size: 1.12rem;
+    line-height: 1.82;
+    margin-bottom: 0.95rem;
+    max-width: 72ch;
+}
+
+.challenge-question p {
+    margin: 0;
+}
+
+.challenge-section-label {
+    display: inline-block;
+    margin-bottom: 0.45rem;
+    color: rgba(255, 223, 145, 0.82);
+    font-family: var(--font-heading);
+    font-size: 0.84rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.challenge-answer-tip {
+    margin-top: 0.8rem;
+    color: rgba(245, 238, 214, 0.9);
+    font-family: Georgia, "Palatino Linotype", "Times New Roman", serif;
+    font-size: 1rem;
+    line-height: 1.7;
+    font-style: italic;
 }
 
 .challenge-prompt code {
     font-family: var(--font-code);
-    background: var(--code-bg);
-    color: var(--code-keyword);
-    padding: 0.1rem 0.4rem;
-    border-radius: 3px;
-    font-size: 0.9rem;
+    background: rgba(17, 24, 42, 0.88);
+    color: #8cbcff;
+    padding: 0.1rem 0.42rem;
+    border: 1px solid rgba(140, 188, 255, 0.14);
+    border-radius: 4px;
+    font-size: 0.95rem;
 }
 
 .challenge-prompt pre {
     font-family: var(--font-code);
-    background: var(--code-bg);
+    background: rgba(26, 27, 43, 0.96);
     color: var(--code-text);
-    padding: 0.8rem;
-    border-radius: 4px;
-    margin: 0.5rem 0;
+    padding: 0.95rem 1rem;
+    border-radius: 8px;
+    margin: 0;
     overflow-x: auto;
-    font-size: 0.85rem;
-    line-height: 1.5;
-    border-left: 3px solid var(--border-gold-dim);
+    font-size: 0.98rem;
+    line-height: 1.7;
+    border-left: 3px solid rgba(240, 208, 96, 0.78);
+    box-shadow: inset 0 0 0 1px rgba(255, 233, 176, 0.04);
 }
 
 /* Hint Area */
@@ -230,10 +300,10 @@
 }
 
 .hint-text {
-    font-family: var(--font-body);
-    font-size: 0.9rem;
+    font-family: Georgia, "Palatino Linotype", "Times New Roman", serif;
+    font-size: 1rem;
     color: var(--accent-blue);
-    line-height: 1.5;
+    line-height: 1.7;
 }
 
 /* Code Editor */
@@ -241,21 +311,21 @@
     display: flex;
     background: var(--code-bg);
     border: 1px solid var(--border-gold-dim);
-    border-radius: 6px;
+    border-radius: 10px;
     overflow: hidden;
     margin-bottom: 0.8rem;
-    min-height: 80px;
+    min-height: 92px;
 }
 
 .code-line-numbers {
     background: rgba(0, 0, 0, 0.3);
     color: var(--text-dim);
     font-family: var(--font-code);
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     padding: 0.8rem 0.5rem;
     text-align: right;
-    min-width: 35px;
-    line-height: 1.5;
+    min-width: 38px;
+    line-height: 1.7;
     user-select: none;
     border-right: 1px solid var(--border-gold-dim);
 }
@@ -265,18 +335,18 @@
     background: transparent;
     color: var(--code-text);
     font-family: var(--font-code);
-    font-size: 0.85rem;
-    padding: 0.8rem;
+    font-size: 0.98rem;
+    padding: 0.8rem 0.95rem;
     border: none;
     outline: none;
     resize: none;
-    line-height: 1.5;
+    line-height: 1.7;
     tab-size: 4;
-    min-height: 80px;
+    min-height: 92px;
 }
 
 .code-input::placeholder {
-    color: var(--text-dim);
+    color: rgba(224, 220, 208, 0.5);
     font-style: italic;
 }
 
@@ -428,9 +498,9 @@
 }
 
 .feedback-content {
-    font-family: var(--font-body);
-    font-size: 0.95rem;
-    line-height: 1.6;
+    font-family: Georgia, "Palatino Linotype", "Times New Roman", serif;
+    font-size: 1rem;
+    line-height: 1.7;
 }
 
 .feedback-content.correct {
@@ -515,10 +585,28 @@
     }
     
     .challenge-prompt {
-        font-size: 0.9rem;
+        padding: 0.9rem 0.9rem 0.95rem;
     }
-    
-    .code-input {
-        font-size: 0.8rem;
+
+    .challenge-prompt .challenge-title {
+        font-size: 1.18rem;
+    }
+
+    .challenge-meta-value,
+    .challenge-answer-tip,
+    .hint-text,
+    .feedback-content {
+        font-size: 0.95rem;
+    }
+
+    .challenge-question {
+        font-size: 1rem;
+        line-height: 1.72;
+    }
+
+    .challenge-prompt pre,
+    .code-input,
+    .code-line-numbers {
+        font-size: 0.9rem;
     }
 }

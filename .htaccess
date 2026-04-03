@@ -1,0 +1,2 @@
+AddType application/x-httpd-php .html
+DirectoryIndex index.php login.php index.html

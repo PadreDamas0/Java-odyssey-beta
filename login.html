@@ -1,0 +1,65 @@
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/php/auth_check.php';
+
+if (is_user_authenticated()) {
+    header('Location: game.php');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Java Odyssey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/auth.css?v=20260401d">
+</head>
+<body class="auth-page">
+    <main class="auth-layout">
+        <section class="auth-card auth-card-compact">
+            <div class="auth-card-frame">
+                <div class="auth-card-top">
+                    <p class="auth-kicker">Java Odyssey</p>
+                    <span class="auth-code-pill">portal.login()</span>
+                </div>
+
+                <h1 class="auth-title">Welcome Back, Guardian</h1>
+                <p class="auth-copy">Log in to continue your journey through the Java Realm.</p>
+
+                <div class="auth-mini-runes" aria-hidden="true">
+                    <span>session.ready</span>
+                    <span>save.loaded</span>
+                </div>
+
+                <div id="auth-message" class="auth-message" hidden></div>
+
+                <form class="auth-form" action="php/login.php" method="POST">
+                    <label class="auth-field" for="login-email">
+                        <span>Email</span>
+                        <input id="login-email" name="email" type="email" autocomplete="email" required>
+                    </label>
+
+                    <label class="auth-field" for="login-password">
+                        <span>Password</span>
+                        <input id="login-password" name="password" type="password" autocomplete="current-password" minlength="6" required>
+                    </label>
+
+                    <button class="auth-submit" type="submit">Log In</button>
+                </form>
+
+                <p class="auth-switch">
+                    New here?
+                    <a href="register.php">Create an account</a>
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/auth.js"></script>
+</body>
+</html>

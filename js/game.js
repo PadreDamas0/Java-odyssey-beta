@@ -138,6 +138,8 @@ const Game = {
         
         // Load settings
         this.loadSettings();
+        GameState.syncAuthenticatedIdentity();
+        GameState.updateHUD();
         
         // Generate menu particles
         Utils.generateCodeParticles();
@@ -155,15 +157,61 @@ const Game = {
             const continueBtn = Utils.$('btn-continue');
             if (continueBtn) continueBtn.style.display = 'block';
         }
-        
+
+        await this.waitForMenuReady();
+
+        document.body.classList.remove('app-booting');
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
         // Show main menu
-        await Utils.wait(500);
         Utils.showScreen('main-menu');
         
         // Play main menu music
         Audio.playBgm('mainMenu', true);
         
         console.log('Java Odyssey: Ready!');
+    },
+
+    async waitForMenuReady(timeoutMs = 5000) {
+        const waitForFonts = async () => {
+            if (!document.fonts || typeof document.fonts.load !== 'function') {
+                return;
+            }
+
+            await Promise.allSettled([
+                document.fonts.load('700 4rem "Cinzel Decorative"'),
+                document.fonts.load('400 4rem "Cinzel Decorative"'),
+                document.fonts.load('700 1.2rem "Cinzel"'),
+                document.fonts.load('600 1.1rem "Cinzel"'),
+                document.fonts.load('400 1rem "IM Fell English"'),
+                document.fonts.load('400 0.85rem "IM Fell English"')
+            ]);
+
+            if (document.fonts.ready) {
+                await document.fonts.ready;
+            }
+        };
+
+        let timedOut = false;
+
+        try {
+            await Promise.race([
+                (async () => {
+                    await waitForFonts();
+                })(),
+                Utils.wait(timeoutMs).then(() => {
+                    timedOut = true;
+                })
+            ]);
+
+            await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+            if (timedOut) {
+                console.warn('Menu readiness timed out. Continuing with the best available first paint.');
+            }
+        } catch (error) {
+            console.warn('Menu readiness check skipped.', error);
+        }
     },
     
     /**
@@ -325,6 +373,7 @@ const Game = {
         const damage = this.getWrongAnswerDamage(challenge);
         GameState.player.hp = Math.max(0, GameState.player.hp - damage);
         GameState.updateHUD();
+        GameState.scheduleRemoteSync();
         Utils.notify(`You took damage! -${damage} HP`, 'incorrect', 2200);
 
         if (GameState.player.hp <= 0) {
@@ -346,6 +395,7 @@ const Game = {
         const beforeHp = GameState.player.hp;
         GameState.player.hp = Math.min(GameState.player.maxHp, GameState.player.hp + healAmount);
         GameState.updateHUD();
+        GameState.scheduleRemoteSync();
         return GameState.player.hp - beforeHp;
     },
 
@@ -362,6 +412,7 @@ const Game = {
             ? GameState.player.maxHp
             : Math.min(GameState.player.maxHp, GameState.player.hp + amount);
         GameState.updateHUD();
+        GameState.scheduleRemoteSync();
         return GameState.player.hp - beforeHp;
     },
 
@@ -522,11 +573,22 @@ const Game = {
     showAbout() {
         Utils.$('about-modal').style.display = 'flex';
     },
+
+    showLeaderboard(metric = null) {
+        if (window.Leaderboard && typeof window.Leaderboard.open === 'function') {
+            window.Leaderboard.open(metric);
+        }
+    },
     
     /**
      * Close a modal
      */
     closeModal(modalId) {
+        if (modalId === 'leaderboard-modal' && window.Leaderboard && typeof window.Leaderboard.close === 'function') {
+            window.Leaderboard.close();
+            return;
+        }
+
         const modal = Utils.$(modalId);
         if (modal) modal.style.display = 'none';
         if (modalId === 'world-map-modal' && typeof window.WorldMapOverlay !== 'undefined' && typeof window.WorldMapOverlay.close === 'function') {
@@ -1226,9 +1288,8 @@ const Game = {
             GameState.combat.active = false;
         }
 
-        ['shop-modal', 'world-map-modal', 'inventory-modal', 'journal-modal', 'settings-modal'].forEach((modalId) => {
-            const modal = Utils.$(modalId);
-            if (modal) modal.style.display = 'none';
+        ['shop-modal', 'world-map-modal', 'inventory-modal', 'journal-modal', 'settings-modal', 'leaderboard-modal'].forEach((modalId) => {
+            this.closeModal(modalId);
         });
         if (typeof window.WorldMapOverlay !== 'undefined' && typeof window.WorldMapOverlay.close === 'function') {
             window.WorldMapOverlay.close();
@@ -1295,7 +1356,14 @@ window.solveSimpleChallenge = async function solveSimpleChallenge(legacyAnswer =
 // ============================================
 // Initialize game when page loads
 // ============================================
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+    if (window.Auth && typeof window.Auth.requireGameAccess === 'function') {
+        const authenticated = await window.Auth.requireGameAccess();
+        if (!authenticated) {
+            return;
+        }
+    }
+
     Game.init();
 });
 
@@ -1313,7 +1381,11 @@ window.addEventListener('keydown', (e) => {
             let closedModal = false;
             modals.forEach(m => {
                 if (m.style.display === 'flex') {
-                    m.style.display = 'none';
+                    if (typeof Game !== 'undefined' && Game && typeof Game.closeModal === 'function') {
+                        Game.closeModal(m.id);
+                    } else {
+                        m.style.display = 'none';
+                    }
                     closedModal = true;
                 }
             });

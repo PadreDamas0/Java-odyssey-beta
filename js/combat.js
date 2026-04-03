@@ -439,6 +439,47 @@ const Combat = {
         return (challenge.answers && challenge.answers[0]) || '';
     },
 
+    getAcceptedAnswers(challenge) {
+        const baseAnswers = Array.isArray(challenge?.answers)
+            ? challenge.answers.filter((answer) => typeof answer === 'string' && answer.trim())
+            : (typeof challenge?.answers === 'string' && challenge.answers.trim() ? [challenge.answers] : []);
+        const acceptedAnswers = [...baseAnswers];
+        const canonicalAnswer = baseAnswers[0];
+
+        if (!canonicalAnswer || this.isMultipleChoiceChallenge(challenge)) {
+            return acceptedAnswers;
+        }
+
+        const templateSources = [];
+        if (typeof challenge.code === 'string' && challenge.code.includes('_')) {
+            templateSources.push(challenge.code);
+        }
+
+        if (typeof challenge.question === 'string') {
+            const codeMatches = Array.from(challenge.question.matchAll(/<code>([\s\S]*?)<\/code>/gi));
+            codeMatches.forEach((match) => {
+                const template = match[1];
+                if (template && template.includes('_')) {
+                    templateSources.push(template);
+                }
+            });
+        }
+
+        const replacementCandidates = [
+            canonicalAnswer,
+            canonicalAnswer.replace(/^['"]|['"]$/g, ''),
+            canonicalAnswer.replace(/\(\)$/, '')
+        ].filter((value, index, array) => value && array.indexOf(value) === index);
+
+        templateSources.forEach((template) => {
+            replacementCandidates.forEach((replacement) => {
+                acceptedAnswers.push(template.replace(/_{1,}/, replacement));
+            });
+        });
+
+        return acceptedAnswers.filter((answer, index, array) => array.indexOf(answer) === index);
+    },
+
     resumeSceneBgm() {
         const sceneId = (typeof World !== 'undefined' && World.currentScene)
             || GameState.progress.currentScene
@@ -518,7 +559,8 @@ const Combat = {
             return;
         }
 
-        const isCorrect = Utils.checkCode(userCode, challenge.answers, {
+        const acceptedAnswers = this.getAcceptedAnswers(challenge);
+        const isCorrect = Utils.checkCode(userCode, acceptedAnswers, {
             matchMode: challenge.matchMode || 'loose'
         });
         

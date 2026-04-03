@@ -1,22 +1,75 @@
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/php/auth_check.php';
+require_auth(false);
+
+$authUser = get_authenticated_user();
+$authProgress = $authUser ? get_player_progress((int) $authUser['user_id']) : null;
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Java Odyssey: Trials of the Code Guardian</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #050508;
+        }
+
+        .screen {
+            display: none;
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        #loading-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #050508;
+            z-index: 1000;
+        }
+
+        body.app-booting #main-menu {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+    </style>
     
     <!-- Medieval Fantasy Fonts from Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" fetchpriority="high" href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700;900&family=IM+Fell+English:ital@0;1&family=Uncial+Antiqua&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700;900&family=IM+Fell+English:ital@0;1&family=Uncial+Antiqua&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/menu.css">
-    <link rel="stylesheet" href="css/dialogue.css">
-    <link rel="stylesheet" href="css/combat.css">
+    <link rel="stylesheet" href="css/styles.css?v=20260404c">
+    <link rel="stylesheet" href="css/menu.css?v=20260404b">
+    <link rel="stylesheet" href="css/dialogue.css?v=20260403c">
+    <link rel="stylesheet" href="css/combat.css?v=20260403c">
     <link rel="stylesheet" href="css/world.css">
+    <link rel="stylesheet" href="css/auth.css?v=20260401d">
 </head>
-<body>
+<body class="game-page app-booting">
+    <div id="auth-loading-overlay" class="auth-loading-overlay" hidden>
+        <div class="auth-loading-card">
+            <p class="auth-kicker">Session Check</p>
+            <h1 class="auth-title auth-title-small">Preparing your game</h1>
+            <p class="auth-copy">Validating your login and loading your guardian profile.</p>
+            <p id="auth-loading-error" class="auth-message is-error" hidden></p>
+        </div>
+    </div>
     <!-- Loading Screen -->
     <div id="loading-screen" class="screen active">
         <div class="loading-content">
@@ -46,12 +99,20 @@
                 <button class="menu-btn" id="btn-continue" onclick="Game.continueGame()" style="display:none;">
                     <span class="btn-icon">📜</span> Continue
                 </button>
+                <button class="menu-btn menu-btn-text-only" id="btn-leaderboard" onclick="Game.showLeaderboard()">
+                    View Leaderboard
+                </button>
                 <button class="menu-btn" id="btn-settings" onclick="Game.showSettings()">
                     <span class="btn-icon">⚙️</span> Settings
                 </button>
                 <button class="menu-btn" id="btn-about" onclick="Game.showAbout()">
                     <span class="btn-icon">📖</span> About
                 </button>
+            </div>
+            <div class="account-panel">
+                <span>Logged in as <strong data-auth-username>Guardian</strong></span>
+                <span>User ID: <strong id="session-user-id">-</strong></span>
+                <a class="account-link" href="php/logout.php">Log out</a>
             </div>
             <p class="menu-footer">A Java Programming Learning Adventure</p>
         </div>
@@ -102,6 +163,32 @@
                 Loops, Methods, and Introductory Object-Oriented Programming.
             </p>
             <button class="menu-btn" onclick="Game.closeModal('about-modal')">Close</button>
+        </div>
+    </div>
+
+    <div id="leaderboard-modal" class="modal" style="display:none;">
+        <div class="modal-content leaderboard-content">
+            <div class="leaderboard-header">
+                <div>
+                    <p class="leaderboard-kicker">Hall of Guardians</p>
+                    <h2 class="modal-title leaderboard-title">Realm Leaderboard</h2>
+                    <p class="leaderboard-subtitle">Witness the strongest code guardians in the Java Realm.</p>
+                </div>
+                <button class="menu-btn leaderboard-close-btn" onclick="Game.closeModal('leaderboard-modal')">Close</button>
+            </div>
+            <div class="leaderboard-controls" role="tablist" aria-label="Leaderboard ranking type">
+                <button class="leaderboard-tab is-active" type="button" data-metric="xp" aria-pressed="true">Highest XP</button>
+                <button class="leaderboard-tab" type="button" data-metric="level" aria-pressed="false">Highest Level</button>
+                <button class="leaderboard-tab" type="button" data-metric="time_completed" aria-pressed="false">Fastest Clear</button>
+            </div>
+            <div class="leaderboard-status-row">
+                <span id="leaderboard-refresh-status" class="leaderboard-refresh-status">Loading leaderboard...</span>
+                <button id="leaderboard-refresh-btn" class="leaderboard-refresh-btn" type="button">Refresh</button>
+            </div>
+            <div id="leaderboard-current-user" class="leaderboard-current-user" hidden></div>
+            <div id="leaderboard-list" class="leaderboard-list" aria-live="polite">
+                <div class="leaderboard-empty">Summoning the latest rankings...</div>
+            </div>
         </div>
     </div>
 
@@ -193,7 +280,7 @@
 
         <!-- Centered Character Portrait Display -->
         <div id="centered-portrait-display" class="centered-portrait-display" style="display:none;">
-            <img id="centered-portrait-img" class="centered-portrait-img" src="" alt="Character Portrait">
+            <img id="centered-portrait-img" class="centered-portrait-img" src="" alt="" aria-hidden="true">
         </div>
 
         <!-- Dialogue Box -->
@@ -263,10 +350,13 @@
         <div id="pause-menu" class="pause-overlay" style="display:none;">
             <div class="pause-content">
                 <h2 class="pause-title">Game Paused</h2>
+                <p class="pause-account">Signed in as <strong data-auth-username>Guardian</strong></p>
                 <button class="menu-btn" onclick="Game.togglePauseMenu()">Resume</button>
                 <button class="menu-btn" onclick="Game.saveGame()">Save Game</button>
+                <button class="menu-btn" onclick="Game.showLeaderboard()">Leaderboard</button>
                 <button class="menu-btn" onclick="Game.showSettings()">Settings</button>
                 <button class="menu-btn" onclick="Game.returnToMenu()">Main Menu</button>
+                <a class="menu-btn account-link account-link-button" href="php/logout.php">Log Out</a>
             </div>
         </div>
 
@@ -339,7 +429,6 @@
                         src="assets/background/cityMap.png"
                         alt="Syntax City map"
                     >
-                    <button class="world-map-hotspot city-map-hotspot city-map-hotspot-castle is-locked" type="button" aria-label="Castle locked" data-destination="castle" data-label="Castle" data-state="Locked" onclick="Game.handleCityMapTravel('castle')" title="Locked for now"></button>
                     <button class="world-map-hotspot city-map-hotspot city-map-hotspot-market is-locked" type="button" aria-label="City Market locked" data-destination="city_market" data-label="City Market" data-state="Locked" onclick="Game.handleCityMapTravel('city_market')" title="Locked for now"></button>
                     <button class="world-map-hotspot city-map-hotspot city-map-hotspot-square is-locked" type="button" aria-label="City Square locked" data-destination="city_square" data-label="City Square" data-state="Locked" onclick="Game.handleCityMapTravel('city_square')" title="Locked for now"></button>
                     <button class="world-map-hotspot city-map-hotspot city-map-hotspot-tavern is-locked" type="button" aria-label="Tavern locked" data-destination="tavern" data-label="Tavern" data-state="Locked" onclick="Game.handleCityMapTravel('tavern')" title="Locked for now"></button>
@@ -417,22 +506,30 @@
     </div>
 
     <!-- Scripts -->
+    <script>
+        window.__AUTH_BOOTSTRAP__ = <?php echo json_encode([
+            'user' => $authUser,
+            'progress' => $authProgress,
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
+    </script>
     <script src="js/config.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/state.js"></script>
+<script src="js/utils.js?v=20260403e"></script>
+    <script src="js/state.js?v=20260403"></script>
     <script src="js/assets.js"></script>
     <script src="js/audio.js?v=20260320"></script>
-    <script src="js/dialogue.js"></script>
+    <script src="js/dialogue.js?v=20260403d"></script>
     <script src="js/npc.js"></script>
-    <script src="js/combat.js"></script>
+    <script src="js/combat.js?v=20260403b"></script>
     <script src="js/cutscene.js"></script>
     <script src="js/world.js"></script>
     <script src="js/platformer.js"></script>
     <script src="js/scenes/intro.js"></script>
     <script src="js/scenes/tutorial.js"></script>
     <script src="js/scenes/portal.js"></script>
-    <script src="js/scenes/chapter1.js"></script>
-    <script src="js/game.js?v=20260324"></script>
+    <script src="js/scenes/chapter1.js?v=20260403b"></script>
+    <script src="js/auth.js?v=20260403"></script>
+    <script src="js/leaderboard.js?v=20260404a"></script>
+<script src="js/game.js?v=20260403f"></script>
     <script src="js/worldMapOverlay.js?v=20260324"></script>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/easystarjs@0.4.4/bin/easystar-0.4.4.min.js"></script>

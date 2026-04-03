@@ -3980,6 +3980,7 @@ ______________________</pre>
         
         // Complete main quest
         GameState.completeQuest('ch1_main');
+        GameState.markChapterOneComplete();
         
         // Add item
         GameState.addItem({
@@ -4115,8 +4116,8 @@ ______________________</pre>
                 questionType: 'Fill in the Blank',
                 area,
                 npc,
-                question: `<em>"Sometimes one symbol is enough," Rowan says.</em> Fill in the missing character: <code>char grade = '___';</code>`,
-                answerTip: 'Type only the missing character, without quotes.',
+                question: `<em>"Sometimes one symbol is enough," Rowan says.</em> Fill in the missing character: <code>char grade = '_';</code>`,
+                answerTip: 'Type the missing character, with or without quotes.',
                 inputPlaceholder: 'Type the missing character',
                 matchMode: 'exact',
                 narrative: 'A single rune hovers in front of the dummy. Complete the char literal correctly.',

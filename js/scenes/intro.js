@@ -61,6 +61,17 @@ const IntroScene = {
      * Name input scene
      */
     nameInput() {
+        const authenticatedUser = window.Auth && window.Auth.currentUser
+            ? window.Auth.currentUser
+            : null;
+
+        if (authenticatedUser && authenticatedUser.username) {
+            GameState.player.name = authenticatedUser.username;
+            GameState.player.userId = authenticatedUser.userId;
+            GameState.updateHUD();
+            return Promise.resolve();
+        }
+
         return new Promise(resolve => {
             Utils.setSceneArt('campus', 'modern-city');
             Utils.setSceneText(`

@@ -17,21 +17,36 @@ const Utils = {
 
         const title = challenge?.title || 'Challenge';
         const details = [
-            challenge?.questionType ? `<p><strong>Type:</strong> ${this.escapeHtml(challenge.questionType)}</p>` : '',
-            challenge?.area ? `<p><strong>Area:</strong> ${this.escapeHtml(challenge.area)}</p>` : '',
-            challenge?.npc ? `<p><strong>NPC/Boss:</strong> ${this.escapeHtml(challenge.npc)}</p>` : ''
+            challenge?.questionType
+                ? `<div class="challenge-meta-row"><span class="challenge-meta-label">Type</span><span class="challenge-meta-value">${this.escapeHtml(challenge.questionType)}</span></div>`
+                : '',
+            challenge?.area
+                ? `<div class="challenge-meta-row"><span class="challenge-meta-label">Area</span><span class="challenge-meta-value">${this.escapeHtml(challenge.area)}</span></div>`
+                : '',
+            challenge?.npc
+                ? `<div class="challenge-meta-row"><span class="challenge-meta-label">NPC/Boss</span><span class="challenge-meta-value">${this.escapeHtml(challenge.npc)}</span></div>`
+                : ''
         ].filter(Boolean).join('');
-        const question = challenge?.question ? `<p>${challenge.question}</p>` : '';
+        const question = challenge?.question
+            ? `<div class="challenge-question">${challenge.question}</div>`
+            : '';
         const code = challenge?.code
-            ? `<p><strong>Code:</strong></p><pre>${this.escapeHtml(challenge.code)}</pre>`
+            ? `
+                <div class="challenge-code-block">
+                    <span class="challenge-section-label">Code</span>
+                    <pre>${this.escapeHtml(challenge.code)}</pre>
+                </div>
+            `
             : '';
         const answerTip = challenge?.answerTip
-            ? `<p><em>${challenge.answerTip}</em></p>`
+            ? `<div class="challenge-answer-tip">${this.escapeHtml(challenge.answerTip)}</div>`
             : '';
 
         return `
-            <span class="challenge-title">${this.escapeHtml(title)}</span>
-            ${details}
+            <div class="challenge-header">
+                <span class="challenge-title">${this.escapeHtml(title)}</span>
+            </div>
+            ${details ? `<div class="challenge-meta">${details}</div>` : ''}
             ${question}
             ${code}
             ${answerTip}
@@ -292,6 +307,7 @@ const Utils = {
     generateCodeParticles() {
         const container = this.$('code-particles');
         if (!container) return;
+        container.textContent = '';
         
         const codeSnippets = [
             'public class', 'void main()', 'int x = 0;', 'String name',
@@ -302,6 +318,7 @@ const Utils = {
             'private', 'public', 'protected', 'final',
             'class Guardian', 'void attack()', 'int hp = 100'
         ];
+        const fragment = document.createDocumentFragment();
         
         for (let i = 0; i < 20; i++) {
             const particle = document.createElement('div');
@@ -311,8 +328,10 @@ const Utils = {
             particle.style.animationDuration = (15 + Math.random() * 20) + 's';
             particle.style.animationDelay = Math.random() * 15 + 's';
             particle.style.fontSize = (0.6 + Math.random() * 0.4) + 'rem';
-            container.appendChild(particle);
+            fragment.appendChild(particle);
         }
+
+        container.appendChild(fragment);
     },
 
     /**

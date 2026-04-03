@@ -9,6 +9,14 @@
     background: var(--bg-darker);
     position: relative;
     overflow: hidden;
+    padding: clamp(1.5rem, 4vh, 3rem) 1rem;
+    contain: layout paint;
+}
+
+body.app-booting #main-menu {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .menu-background {
@@ -62,24 +70,47 @@
 .menu-content {
     position: relative;
     z-index: 10;
+    width: min(92vw, 760px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     animation: fadeIn 1s ease;
 }
 
+body.app-booting .menu-content,
+body.app-booting .menu-title,
+body.app-booting .code-particle {
+    animation: none !important;
+}
+
+body.app-booting .menu-btn,
+body.app-booting .account-link {
+    transition: none !important;
+}
+
 .menu-title-container {
-    margin-bottom: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: clamp(128px, 20vh, 210px);
+    margin-bottom: 2.5rem;
 }
 
 .menu-title {
     font-family: var(--font-title);
-    font-size: 4rem;
+    font-size: clamp(3.1rem, 6vw, 4.4rem);
     color: var(--text-gold);
     text-shadow: 
         0 0 20px rgba(240, 208, 96, 0.5),
         0 2px 4px rgba(0, 0, 0, 0.8);
     letter-spacing: 4px;
+    line-height: 1.05;
     animation: titleGlow 3s ease-in-out infinite alternate;
     margin-bottom: 0.5rem;
+    white-space: nowrap;
 }
 
 .menu-subtitle {
@@ -87,6 +118,7 @@
     font-size: 1.2rem;
     color: var(--text-dim);
     letter-spacing: 6px;
+    line-height: 1.35;
     text-transform: uppercase;
     font-weight: 400;
 }
@@ -96,6 +128,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: min(100%, 308px);
     gap: 0.8rem;
     margin-bottom: 2rem;
 }
@@ -106,14 +139,29 @@
     color: var(--text-light);
     background: linear-gradient(180deg, var(--bg-panel-light) 0%, var(--bg-panel) 100%);
     border: 1px solid var(--border-gold-dim);
-    padding: 0.8rem 2.5rem;
-    min-width: 250px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    padding: 0.8rem 1.6rem;
+    min-height: 52px;
     cursor: pointer;
     border-radius: 4px;
     transition: all var(--transition-fast);
     letter-spacing: 1px;
     position: relative;
     overflow: hidden;
+    text-decoration: none;
+}
+
+.menu-buttons .menu-btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 58px;
+}
+
+.menu-buttons .menu-btn.menu-btn-text-only {
+    gap: 0;
 }
 
 .menu-btn::before {
@@ -143,8 +191,12 @@
     transform: scale(0.98);
 }
 
-.btn-icon {
-    margin-right: 0.5rem;
+.menu-buttons .btn-icon {
+    width: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 1.2rem;
 }
 
 .menu-footer {
@@ -156,8 +208,19 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+    #main-menu {
+        padding: 1.1rem 0.85rem 1.5rem;
+    }
+
+    .menu-title-container {
+        min-height: 104px;
+        margin-bottom: 1.6rem;
+    }
+
     .menu-title {
-        font-size: 2.5rem;
+        font-size: 2.35rem;
+        letter-spacing: 2px;
+        white-space: normal;
     }
     
     .menu-subtitle {
@@ -165,8 +228,13 @@
         letter-spacing: 3px;
     }
     
-    .menu-btn {
-        min-width: 200px;
+    .menu-buttons {
+        width: min(100%, 280px);
+    }
+
+    .menu-buttons .menu-btn {
+        width: 100%;
+        min-width: 0;
         font-size: 1rem;
         padding: 0.7rem 2rem;
     }

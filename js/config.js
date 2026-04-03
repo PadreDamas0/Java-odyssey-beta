@@ -20,6 +20,7 @@ const CONFIG = {
         name: "Guardian",
         level: 1,
         xp: 0,
+        totalXp: 0,
         xpToNext: 100,
         gold: 0,
         hp: 100,
