@@ -92,7 +92,6 @@ const GameState = {
         currentIndex: 0,
         callback: null
     },
-
     createFreshMeta() {
         return {
             totalPlayTimeMs: 0,
@@ -232,7 +231,6 @@ const GameState = {
             }
         }, Math.max(0, delayMs));
     },
-
     /**
      * Initialize fresh game state
      */
@@ -603,7 +601,6 @@ const GameState = {
      */
     save() {
         this.commitPlayTimeSnapshot();
-
         const saveData = {
             player: this.player,
             progress: this.progress,

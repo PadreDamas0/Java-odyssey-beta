@@ -51,7 +51,6 @@ const Auth = {
         this.remoteProgress = normalized;
         this.lastProgressSignature = this.createProgressSignature(normalized);
     },
-
     bootstrapFromPage() {
         const bootstrap = window.__AUTH_BOOTSTRAP__;
         if (!bootstrap || !bootstrap.user) {
@@ -264,7 +263,6 @@ const Auth = {
             detail: payload
         }));
     },
-
     syncPlayerProgress(playerState) {
         if (!this.currentUser || !playerState) {
             return Promise.resolve();

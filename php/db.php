@@ -56,7 +56,6 @@ function ensure_table_column(PDO $db, string $table, string $column, string $def
 
     $db->exec(sprintf('ALTER TABLE `%s` ADD COLUMN %s', $table, $definition));
 }
-
 function initialize_database(): void
 {
     static $initialized = false;
@@ -119,7 +118,6 @@ function initialize_database(): void
     ensure_table_column($db, 'leaderboard_entries', 'level', '`level` INT NOT NULL DEFAULT 1 AFTER `username`');
     ensure_table_column($db, 'leaderboard_entries', 'xp', '`xp` INT NOT NULL DEFAULT 0 AFTER `level`');
     ensure_table_column($db, 'leaderboard_entries', 'time_completed', '`time_completed` INT DEFAULT NULL AFTER `xp`');
-
     $initialized = true;
 }
 
@@ -237,7 +235,6 @@ function ensure_leaderboard_entry(int $userId): void
         'xp' => (int) $progress['total_xp'],
     ]);
 }
-
 function get_player_progress(int $userId): ?array
 {
     if (!find_user_by_id($userId)) {

@@ -429,6 +429,7 @@ $authProgress = $authUser ? get_player_progress((int) $authUser['user_id']) : nu
                         src="assets/background/cityMap.png"
                         alt="Syntax City map"
                     >
+                    <button class="world-map-hotspot city-map-hotspot city-map-hotspot-castle is-locked" type="button" aria-label="Castle locked" data-destination="castle" data-label="Castle" data-state="Locked" onclick="Game.handleCityMapTravel('castle')" title="Locked for now"></button>
                     <button class="world-map-hotspot city-map-hotspot city-map-hotspot-market is-locked" type="button" aria-label="City Market locked" data-destination="city_market" data-label="City Market" data-state="Locked" onclick="Game.handleCityMapTravel('city_market')" title="Locked for now"></button>
                     <button class="world-map-hotspot city-map-hotspot city-map-hotspot-square is-locked" type="button" aria-label="City Square locked" data-destination="city_square" data-label="City Square" data-state="Locked" onclick="Game.handleCityMapTravel('city_square')" title="Locked for now"></button>
                     <button class="world-map-hotspot city-map-hotspot city-map-hotspot-tavern is-locked" type="button" aria-label="Tavern locked" data-destination="tavern" data-label="Tavern" data-state="Locked" onclick="Game.handleCityMapTravel('tavern')" title="Locked for now"></button>
@@ -513,7 +514,7 @@ $authProgress = $authUser ? get_player_progress((int) $authUser['user_id']) : nu
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
     </script>
     <script src="js/config.js"></script>
-<script src="js/utils.js?v=20260403e"></script>
+    <script src="js/utils.js?v=20260403e"></script>
     <script src="js/state.js?v=20260403"></script>
     <script src="js/assets.js"></script>
     <script src="js/audio.js?v=20260320"></script>
@@ -529,7 +530,7 @@ $authProgress = $authUser ? get_player_progress((int) $authUser['user_id']) : nu
     <script src="js/scenes/chapter1.js?v=20260403b"></script>
     <script src="js/auth.js?v=20260403"></script>
     <script src="js/leaderboard.js?v=20260404a"></script>
-<script src="js/game.js?v=20260403f"></script>
+    <script src="js/game.js?v=20260403f"></script>
     <script src="js/worldMapOverlay.js?v=20260324"></script>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/easystarjs@0.4.4/bin/easystar-0.4.4.min.js"></script>
