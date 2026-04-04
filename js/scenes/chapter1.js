@@ -4032,6 +4032,66 @@ ______________________</pre>
         return [
             {
                 id: 'ch1_train_story_1',
+                type: 'multiple_choice',
+                title: 'Say Hello To Java',
+                questionType: 'Multiple Choice',
+                area,
+                npc,
+                question: `<em>Rowan smiles and points at the first rune.</em> Which line correctly prints <code>Hello, World!</code> in Java?`,
+                narrative: 'Rowan starts with the classic first spell. Pick the line that prints Hello, World!.',
+                hints: [
+                    'Java prints text with System.out.println.',
+                    'The message must be inside double quotes.',
+                    'The correct answer ends with a semicolon.'
+                ],
+                choices: [
+                    'print("Hello, World!");',
+                    'System.out.println("Hello, World!");',
+                    'System.out.println(Hello, World!);',
+                    'System.out.printline("Hello, World!");'
+                ],
+                correctOption: 1,
+                answers: ['System.out.println("Hello, World!");'],
+                damage: 6,
+                autoShowHint: true,
+                explanation: 'System.out.println("Hello, World!"); is the standard Java print statement for beginner output.',
+                concept: 'hello_world',
+                conceptTitle: 'Hello World',
+                codexTitle: 'Training Dummy - Hello World',
+                feedbackDuration: 2600
+            },
+            {
+                id: 'ch1_train_story_2',
+                type: 'multiple_choice',
+                title: 'Pick The Print Word',
+                questionType: 'Multiple Choice',
+                area,
+                npc,
+                question: `<em>"Now do it yourself," Rowan says.</em> Which word completes this Java line: <code>System.out.______("Hello, Rowan!");</code>?`,
+                narrative: 'One more easy win. Just choose the right print word.',
+                hints: [
+                    'Java uses println to print a line.',
+                    'You are choosing only the missing word.',
+                    'The correct answer prints a full line.'
+                ],
+                choices: [
+                    'println',
+                    'printline',
+                    'echo',
+                    'write'
+                ],
+                correctOption: 0,
+                answers: ['println', 'println()'],
+                damage: 6,
+                autoShowHint: true,
+                explanation: 'println prints a full line of output in Java.',
+                concept: 'print_statements',
+                conceptTitle: 'Print Statements',
+                codexTitle: 'Training Dummy - Print Statements',
+                feedbackDuration: 2600
+            },
+            {
+                id: 'ch1_train_story_3',
                 title: 'Count Your Strength',
                 questionType: 'True or False',
                 area,
@@ -4040,126 +4100,76 @@ ______________________</pre>
                 answerTip: 'Type only true or false.',
                 inputPlaceholder: 'Type true or false',
                 matchMode: 'exact',
-                narrative: 'Rowan opens with whole-number strength. First, confirm the declaration is valid.',
+                narrative: 'Now Rowan checks whether you can recognize a basic integer declaration.',
                 hints: [
                     'int stores whole numbers.',
                     'score is a valid variable name.',
                     '10 should not be wrapped in quotes.'
                 ],
                 answers: ['true'],
-                damage: 14,
+                damage: 7,
                 autoShowHint: true,
-                explanation: 'int is the Java type for whole numbers.',
+                explanation: 'int is the Java type for whole numbers like 10.',
                 concept: 'int_declaration',
                 conceptTitle: 'Integer Variables',
                 codexTitle: 'Training Dummy - int Variables',
                 feedbackDuration: 2600
             },
             {
-                id: 'ch1_train_story_2',
-                title: 'Name The Village',
-                questionType: 'Fill in the Blank',
+                id: 'ch1_train_story_4',
+                type: 'multiple_choice',
+                title: 'Pick The Text Type',
+                questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>"Words matter too," Rowan says.</em> Fill in the missing type: <code>_____ village = "Oakroot";</code>`,
-                answerTip: 'Type only the missing type.',
-                inputPlaceholder: 'Type the missing type',
-                matchMode: 'exact',
-                narrative: 'The dummy shifts. Text values need the right type.',
+                question: `<em>"Words matter too," Rowan says.</em> Which type correctly fits here: <code>_____ village = "Oakroot";</code>?`,
+                narrative: 'Still easy. Just pick the type Java uses for text.',
                 hints: [
                     'Use String with a capital S.',
                     'Text literals need double quotes.',
-                    'The blank is the type, not the variable name.'
+                    'You are choosing the type only.'
                 ],
+                choices: [
+                    'String',
+                    'int',
+                    'double',
+                    'boolean'
+                ],
+                correctOption: 0,
                 answers: ['String'],
-                damage: 14,
+                damage: 7,
                 autoShowHint: true,
-                explanation: 'String stores text, and Java String literals use double quotes.',
+                explanation: 'String stores text values, and Java String literals use double quotes.',
                 concept: 'string_declaration',
                 conceptTitle: 'String Variables',
                 codexTitle: 'Training Dummy - String Variables',
                 feedbackDuration: 2600
             },
             {
-                id: 'ch1_train_story_3',
-                type: 'multiple_choice',
-                title: 'Measure Mana',
-                questionType: 'Multiple Choice',
-                area,
-                npc,
-                question: `<em>Rowan raises a vial of moonwater.</em> Which line correctly declares a <code>double</code> named <code>mana</code> with the value <code>19.5</code>?`,
-                narrative: 'The lesson turns to decimal values. Precision matters now.',
-                hints: [
-                    'double stores decimal values.',
-                    'The variable name is mana.',
-                    '19.5 is not an int.'
-                ],
-                choices: [
-                    'double mana = 19.5;',
-                    'int mana = 19.5;',
-                    'double mana = "19.5";',
-                    'decimal mana = 19.5;'
-                ],
-                correctOption: 0,
-                answers: ['double mana = 19.5;'],
-                damage: 14,
-                autoShowHint: true,
-                explanation: 'double is used for decimal numbers such as 19.5.',
-                concept: 'double_declaration',
-                conceptTitle: 'double Variables',
-                codexTitle: 'Training Dummy - double Variables',
-                feedbackDuration: 2600
-            },
-            {
-                id: 'ch1_train_story_4',
-                title: 'Mark The Rank',
-                questionType: 'Fill in the Blank',
-                area,
-                npc,
-                question: `<em>"Sometimes one symbol is enough," Rowan says.</em> Fill in the missing character: <code>char grade = '_';</code>`,
-                answerTip: 'Type the missing character, with or without quotes.',
-                inputPlaceholder: 'Type the missing character',
-                matchMode: 'exact',
-                narrative: 'A single rune hovers in front of the dummy. Complete the char literal correctly.',
-                hints: [
-                    'char stores exactly one character.',
-                    'A char literal uses single quotes.',
-                    'The missing character is A.'
-                ],
-                answers: ['A', "'A'"],
-                damage: 14,
-                autoShowHint: true,
-                explanation: 'char stores a single character, and character literals use single quotes.',
-                concept: 'char_declaration',
-                conceptTitle: 'char Variables',
-                codexTitle: 'Training Dummy - char Variables',
-                feedbackDuration: 2600
-            },
-            {
                 id: 'ch1_train_story_5',
                 type: 'multiple_choice',
-                title: 'Raise Or Lower The Shield',
+                title: 'Raise The Ready Flag',
                 questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>Rowan locks the dummy in place.</em> Which line correctly declares a <code>boolean</code> named <code>shieldUp</code> with the value <code>false</code>?`,
-                narrative: 'The dummy glows with a true-or-false sigil. Only one line names that state correctly.',
+                question: `<em>Rowan nods toward the final beginner sigil.</em> Which line correctly declares a <code>boolean</code> named <code>isReady</code> with the value <code>true</code>?`,
+                narrative: 'This is Rowan\'s last easy check: spot the correct true-or-false declaration.',
                 hints: [
                     'Use boolean for true or false values.',
-                    'false is lowercase in Java.',
-                    'Do not wrap false in quotes.'
+                    'true is lowercase in Java.',
+                    'Do not wrap true in quotes.'
                 ],
                 choices: [
-                    'Boolean shieldUp = false;',
-                    'boolean shieldUp = "false";',
-                    'boolean shieldUp = false;',
-                    'int shieldUp = false;'
+                    'Boolean isReady = true;',
+                    'boolean ready = "true";',
+                    'boolean isReady = true;',
+                    'int isReady = true;'
                 ],
                 correctOption: 2,
-                answers: ['boolean shieldUp = false;'],
-                damage: 14,
+                answers: ['boolean isReady = true;'],
+                damage: 8,
                 autoShowHint: true,
-                explanation: 'boolean stores only true or false.',
+                explanation: 'boolean stores true or false values, and Java writes them in lowercase.',
                 concept: 'boolean_declaration',
                 conceptTitle: 'boolean Variables',
                 codexTitle: 'Training Dummy - boolean Variables',
@@ -4167,27 +4177,34 @@ ______________________</pre>
             },
             {
                 id: 'ch1_train_story_6',
-                title: 'Seal The Oath',
-                questionType: 'Short Answer',
+                type: 'multiple_choice',
+                title: 'Print The Variable',
+                questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>For the final strike, Rowan engraves an unchanging rune.</em> What Java keyword makes a variable constant after it is declared?`,
-                answerTip: 'Type only the keyword.',
-                inputPlaceholder: 'Type the keyword',
-                matchMode: 'exact',
-                narrative: 'This last answer is an oath. Name the keyword that keeps a value from changing.',
+                question: `<em>Rowan points to the spell you just prepared.</em> Which line correctly prints the variable below?`,
+                code: `String greeting = "Hello, Java Realm!";
+_____`,
+                narrative: 'Last Rowan question. Pick the line that uses the variable correctly.',
                 hints: [
-                    'Java uses final for constants.',
-                    'The type can still be int, String, or another type.',
-                    'The missing word comes before the type.'
+                    'Use System.out.println to print a line.',
+                    'Put the variable name inside the parentheses.',
+                    'Do not wrap greeting in quotes.'
                 ],
-                answers: ['final'],
-                damage: 16,
+                choices: [
+                    'System.out.println("greeting");',
+                    'System.out.println(greeting);',
+                    'print(greeting);',
+                    'System.out.println = greeting;'
+                ],
+                correctOption: 1,
+                answers: ['System.out.println(greeting);'],
+                damage: 8,
                 autoShowHint: true,
-                explanation: 'final makes the variable a constant so its value cannot be reassigned.',
-                concept: 'final_constants',
-                conceptTitle: 'Constants With final',
-                codexTitle: 'Training Dummy - Constants',
+                explanation: 'When printing a variable, use its name directly inside System.out.println(...).',
+                concept: 'print_variable',
+                conceptTitle: 'Printing Variables',
+                codexTitle: 'Training Dummy - Printing Variables',
                 feedbackDuration: 2800
             }
         ];
@@ -4200,150 +4217,154 @@ ______________________</pre>
         return [
             {
                 id: 'ch1_goblin_story_1',
-                title: 'Add The Strike',
-                questionType: 'Predict the Output',
+                type: 'multiple_choice',
+                title: 'Lock In The HP',
+                questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>The goblin rushes through the brush.</em> What is printed by this code?`,
-                code: `int sword = 7;
-int spell = 5;
-System.out.println(sword + spell);`,
-                answerTip: 'Type only the output.',
-                inputPlaceholder: 'Type the exact output',
-                matchMode: 'exact',
-                narrative: 'The first hit is pure arithmetic. Add the damage before the goblin closes in.',
+                question: `<em>The goblin rushes from the brush.</em> Which type correctly fits here: <code>_____ goblinHp = 45;</code>?`,
+                narrative: 'This first forest fight is still very easy. Just choose the type for a whole number.',
                 hints: [
-                    'Use the + operator to add the two int values.',
-                    '7 + 5 is a whole number.',
-                    'The output is the result of the addition.'
+                    '45 is a whole number.',
+                    'Java uses int for whole numbers.',
+                    'You are picking the type only.'
                 ],
-                answers: ['12'],
-                damage: 22,
-                explanation: 'The + operator adds the two integer values, so the result is 12.',
-                concept: 'operators_arithmetic',
-                conceptTitle: 'Arithmetic Operators',
-                codexTitle: 'Goblin - Arithmetic Operators'
+                choices: [
+                    'int',
+                    'String',
+                    'double',
+                    'boolean'
+                ],
+                correctOption: 0,
+                answers: ['int'],
+                damage: 8,
+                autoShowHint: true,
+                explanation: 'int is the correct Java type for whole numbers such as 45.',
+                concept: 'goblin_int_variable',
+                conceptTitle: 'Integer Variables',
+                codexTitle: 'Goblin - Integer Variables'
             },
             {
                 id: 'ch1_goblin_story_2',
-                title: 'Recover The Arrows',
-                questionType: 'Fill in the Blank',
+                type: 'multiple_choice',
+                title: 'Fill The Mana Flask',
+                questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>You count the arrows left after a quick exchange.</em> Fill in the missing operator so the code subtracts 2 and stores the new value.`,
-                code: `int arrows = 6;
-arrows ____ 2;`,
-                answerTip: 'Type only the missing operator.',
-                inputPlaceholder: 'Type the missing operator',
-                matchMode: 'exact',
-                narrative: 'The goblin ducks. Compound assignment keeps your count moving quickly.',
+                question: `<em>The goblin stumbles back as a mana vial glows.</em> Which line correctly declares a <code>double</code> named <code>mana</code> with the value <code>19.5</code>?`,
+                narrative: 'You are still in beginner territory. Pick the correct decimal declaration.',
                 hints: [
-                    'The operator subtracts and reassigns in one step.',
-                    'It is not just a single minus sign.',
-                    'The correct operator has two characters.'
+                    'double stores decimal values.',
+                    'The variable name must be mana.',
+                    'Do not put 19.5 in quotes.'
                 ],
-                answers: ['-='],
-                damage: 22,
-                explanation: '-= subtracts the value on the right and stores the result back in the variable.',
-                concept: 'operators_assignment',
-                conceptTitle: 'Assignment Operators',
-                codexTitle: 'Goblin - Assignment Operators'
+                choices: [
+                    'double mana = 19.5;',
+                    'int mana = 19.5;',
+                    'double "mana" = 19.5;',
+                    'double mana = "19.5";'
+                ],
+                correctOption: 0,
+                answers: ['double mana = 19.5;'],
+                damage: 8,
+                autoShowHint: true,
+                explanation: 'double is used for decimal numbers such as 19.5.',
+                concept: 'goblin_double_variable',
+                conceptTitle: 'double Variables',
+                codexTitle: 'Goblin - double Variables'
             },
             {
                 id: 'ch1_goblin_story_3',
-                title: 'Rising Fury',
-                questionType: 'Predict the Output',
+                type: 'multiple_choice',
+                title: 'Name The Warning',
+                questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>The goblin snarls and your battle focus surges.</em> What is printed by this code?`,
-                code: `int rage = 3;
-System.out.println(rage++);`,
-                answerTip: 'Type only the output.',
-                inputPlaceholder: 'Type the exact output',
-                matchMode: 'exact',
-                narrative: 'This time the forest tests whether you know when the increment happens.',
+                question: `<em>The goblin growls as you call out a warning.</em> Which line correctly creates a <code>String</code> named <code>warning</code> with the value <code>"Stay back"</code>?`,
+                narrative: 'Still beginner level. Pick the clean text declaration.',
                 hints: [
-                    'Post-increment prints the current value first.',
-                    'rage increases only after the expression is evaluated.',
-                    'Watch the order carefully.'
+                    'Use String with a capital S.',
+                    'The text must use double quotes.',
+                    'The variable name is warning.'
                 ],
-                answers: ['3'],
-                damage: 22,
-                explanation: 'With post-increment, Java prints 3 first and only then increases rage to 4.',
-                concept: 'operators_increment',
-                conceptTitle: 'Increment And Decrement',
-                codexTitle: 'Goblin - Increment'
+                choices: [
+                    'String warning = "Stay back";',
+                    'string warning = "Stay back";',
+                    'String warning = Stay back;',
+                    'warning = "Stay back";'
+                ],
+                correctOption: 0,
+                answers: ['String warning = "Stay back";'],
+                damage: 9,
+                autoShowHint: true,
+                explanation: 'String variables store text, and Java wraps text literals in double quotes.',
+                concept: 'goblin_string_variable',
+                conceptTitle: 'String Variables',
+                codexTitle: 'Goblin - String Variables'
             },
             {
                 id: 'ch1_goblin_story_4',
-                title: 'Judge The Threat',
-                questionType: 'True or False',
+                type: 'multiple_choice',
+                title: 'Add The Strike',
+                questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>You glance at the goblin's crude armor.</em> True or false: when <code>guard</code> is <code>9</code>, the expression <code>guard >= 5</code> evaluates to true.`,
-                answerTip: 'Type only true or false.',
-                inputPlaceholder: 'Type true or false',
-                matchMode: 'exact',
-                narrative: 'The next strike is a comparison. Decide whether the condition holds.',
+                question: `<em>The goblin braces itself for your next hit.</em> Which line correctly declares <code>totalDamage</code> as <code>dagger + spell</code>?`,
+                code: `int dagger = 12;
+int spell = 8;
+_____`,
+                narrative: 'Now you add two beginner variables together. Pick the right line.',
                 hints: [
-                    '>= means greater than or equal to.',
-                    'Compare 9 with 5.',
-                    '9 is larger than 5.'
+                    'Create a new int variable.',
+                    'Use dagger + spell on the right side.',
+                    'The variable name must be totalDamage.'
                 ],
-                answers: ['true'],
-                damage: 22,
-                explanation: 'Because 9 is greater than 5, the expression guard >= 5 is true.',
-                concept: 'operators_relational',
-                conceptTitle: 'Relational Operators',
-                codexTitle: 'Goblin - Relational Operators'
+                choices: [
+                    'int totalDamage = dagger + spell;',
+                    'totalDamage = dagger + spell;',
+                    'int totalDamage = "dagger + spell";',
+                    'int totalDamage = dagger spell;'
+                ],
+                correctOption: 0,
+                answers: ['int totalDamage = dagger + spell;'],
+                damage: 10,
+                autoShowHint: true,
+                explanation: 'You can add two int variables and store the result in a new int variable.',
+                concept: 'goblin_damage_sum',
+                conceptTitle: 'Using Variables In Expressions',
+                codexTitle: 'Goblin - Variable Expressions'
             },
             {
                 id: 'ch1_goblin_story_5',
-                title: 'Hold The Line',
-                questionType: 'Scenario-based Question',
+                type: 'multiple_choice',
+                title: 'Finish With A Message',
+                questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>To push deeper into the forest, you need both light and a working map.</em> Which Java logical operator combines two conditions that must both be true?`,
-                answerTip: 'Type only the operator.',
-                inputPlaceholder: 'Type the operator',
-                matchMode: 'exact',
-                narrative: 'The forest tests two conditions at once. Name the operator that binds them.',
+                question: `<em>The goblin is almost down.</em> Which line correctly prints <code>Goblin took 20 damage</code> using the variables below?`,
+                code: `String enemy = "Goblin";
+int totalDamage = 20;
+_____`,
+                narrative: 'The first goblin ends with one easy message. Pick the line that joins text and variables.',
                 hints: [
-                    'You want both conditions to be true.',
-                    'This is Java\'s logical AND operator.',
-                    'It uses the ampersand character twice.'
+                    'Use System.out.println.',
+                    'Join the text and variables with +.',
+                    'Keep the spaces inside the quoted text.'
                 ],
-                answers: ['&&'],
-                damage: 22,
-                explanation: 'The && operator is true only when both conditions are true.',
-                concept: 'operators_logical',
-                conceptTitle: 'Logical Operators',
-                codexTitle: 'Goblin - Logical Operators'
-            },
-            {
-                id: 'ch1_goblin_story_6',
-                title: 'Cut Away The Fraction',
-                questionType: 'Fix the Code',
-                area,
-                npc,
-                question: `<em>A corrupted reading shows too much detail.</em> Fix the broken line so it stores only the whole-number part of <code>double damage = 14.9;</code> in an <code>int</code> named <code>heavyHit</code>.`,
-                code: `int heavyHit = damage;`,
-                answerTip: 'Type the full corrected line.',
-                inputPlaceholder: 'Type the corrected Java line',
-                inputMode: 'code',
-                matchMode: 'exact',
-                narrative: 'The goblin stumbles. A precise cast turns a messy value into a usable one.',
-                hints: [
-                    'Converting from double to int needs an explicit cast.',
-                    'Place (int) in front of damage.',
-                    'Keep the variable type as int.'
+                choices: [
+                    'System.out.println(enemy + " took " + totalDamage + " damage");',
+                    'System.out.println("enemy took totalDamage damage");',
+                    'print(enemy + totalDamage);',
+                    'System.out.println(enemy, totalDamage);'
                 ],
-                answers: ['int heavyHit = (int) damage;'],
-                damage: 24,
-                explanation: 'Casting with (int) removes the decimal part and lets the value be stored in an int.',
-                concept: 'type_casting',
-                conceptTitle: 'Type Casting',
-                codexTitle: 'Goblin - Type Casting'
+                correctOption: 0,
+                answers: ['System.out.println(enemy + " took " + totalDamage + " damage");'],
+                damage: 10,
+                autoShowHint: true,
+                explanation: 'String concatenation lets you mix text and variables in one printed message.',
+                concept: 'goblin_print_damage',
+                conceptTitle: 'Printing With Concatenation',
+                codexTitle: 'Goblin - Printing With Concatenation'
             }
         ];
     },
@@ -4355,174 +4376,131 @@ System.out.println(rage++);`,
         return [
             {
                 id: 'ch1_abandoned_story_1',
-                title: 'Prove The Gate Rule',
-                questionType: 'Scenario-based Question',
+                title: 'Mark The Rank',
+                questionType: 'True or False',
                 area,
                 npc,
-                question: `<em>The ruined gate opens only for a worthy Guardian with the proper seal.</em> Write the Java condition that checks the hero is at least level 5 and has a boolean variable named <code>hasSeal</code>.`,
-                answerTip: 'Type only the condition.',
-                inputPlaceholder: 'Type the Java condition',
-                inputMode: 'code',
+                question: `<em>A weathered sign still clings to the village gate.</em> True or false: <code>char rank = 'A';</code> is a valid Java declaration.`,
+                answerTip: 'Type only true or false.',
+                inputPlaceholder: 'Type true or false',
                 matchMode: 'exact',
-                narrative: 'The broken road becomes a trial of conditions. One wrong check and the gate stays closed.',
+                narrative: 'The abandoned road is still part of the tutorial. First, recognize a valid char declaration.',
                 hints: [
-                    'You need both conditions to be true.',
-                    'Use >= for the level check.',
-                    'Use && to combine the level requirement with hasSeal.'
+                    'char stores one character.',
+                    'A character literal uses single quotes.',
+                    'A is a single character.'
                 ],
-                answers: ['level >= 5 && hasSeal'],
-                damage: 18,
-                explanation: '&& checks that both the level condition and hasSeal are true.',
-                concept: 'boolean_expressions',
-                conceptTitle: 'Boolean Expressions',
-                codexTitle: 'Abandoned Village - Boolean Expressions'
+                answers: ['true'],
+                damage: 10,
+                autoShowHint: true,
+                explanation: 'char is the correct Java type for a single character like A.',
+                concept: 'abandoned_char_intro',
+                conceptTitle: 'char Variables',
+                codexTitle: 'Abandoned Village - char Variables'
             },
             {
                 id: 'ch1_abandoned_story_2',
-                title: 'A Single If',
+                title: 'Count The Supplies',
                 questionType: 'Predict the Output',
                 area,
                 npc,
-                question: `<em>A lantern rune flares on the wall.</em> What is printed by this code?`,
-                code: `int keys = 1;
-if (keys > 0) {
-    System.out.println("Open");
-}`,
+                question: `<em>You check what the village still has left.</em> What is printed by this code?`,
+                code: `int food = 2;
+int water = 3;
+System.out.println(food + water);`,
                 answerTip: 'Type only the output.',
                 inputPlaceholder: 'Type the exact output',
                 matchMode: 'exact',
-                narrative: 'A single if statement decides whether the path responds.',
+                narrative: 'This is still a gentle warm-up. Add the two whole numbers together.',
                 hints: [
-                    'The if block runs only if keys > 0 is true.',
-                    'keys is 1 here.',
-                    'So the print statement inside the block runs.'
+                    'Use the + operator.',
+                    '2 + 3 is a whole number.',
+                    'The output is the total.'
                 ],
-                answers: ['Open'],
-                damage: 18,
-                explanation: 'Because keys > 0 is true, the code inside the if block executes.',
-                concept: 'if_statement',
-                conceptTitle: 'if Statements',
-                codexTitle: 'Abandoned Village - if Statement'
+                answers: ['5'],
+                damage: 10,
+                autoShowHint: true,
+                explanation: 'The + operator adds the two int values, so the output is 5.',
+                concept: 'abandoned_simple_output',
+                conceptTitle: 'Basic Output',
+                codexTitle: 'Abandoned Village - Basic Output'
             },
             {
                 id: 'ch1_abandoned_story_3',
-                title: 'Light Or Dark',
+                title: 'Clear The Road',
                 questionType: 'Fill in the Blank',
                 area,
                 npc,
-                question: `<em>The road vanishes into shadow.</em> Fill in the missing branch keyword.`,
-                code: `if (light > 0) {
-    System.out.println("Bright");
-} ____ {
-    System.out.println("Dark");
-}`,
-                answerTip: 'Type only the missing keyword.',
-                inputPlaceholder: 'Type the keyword',
+                question: `<em>A faded marker shows the road is safe again.</em> Fill in the missing type: <code>_____ pathClear = true;</code>`,
+                answerTip: 'Type only the missing type.',
+                inputPlaceholder: 'Type the missing type',
                 matchMode: 'exact',
-                narrative: 'Now the ruins answer with two possible outcomes. Restore the missing branch.',
+                narrative: 'The goblin is weakening. Restore one more beginner variable correctly.',
                 hints: [
-                    'This branch runs when the if condition is false.',
-                    'Java uses a single keyword for the alternative branch.',
-                    'It comes after the closing brace of the if block.'
+                    'This variable stores only true or false.',
+                    'Java uses the boolean type for that.',
+                    'Type only the keyword.'
                 ],
-                answers: ['else'],
-                damage: 18,
-                explanation: 'else runs when the condition in the if statement is false.',
-                concept: 'if_else_statement',
-                conceptTitle: 'if-else Statements',
-                codexTitle: 'Abandoned Village - if-else'
+                answers: ['boolean'],
+                damage: 11,
+                autoShowHint: true,
+                explanation: 'boolean is the Java type used for true and false values.',
+                concept: 'abandoned_boolean_intro',
+                conceptTitle: 'boolean Variables',
+                codexTitle: 'Abandoned Village - boolean Variables'
             },
             {
                 id: 'ch1_abandoned_story_4',
-                title: 'Rank The Hero',
-                questionType: 'Predict the Output',
-                area,
-                npc,
-                question: `<em>An ancient noticeboard still judges every traveler.</em> What is printed by this code?`,
-                code: `int score = 83;
-if (score >= 90) {
-    System.out.println("Legend");
-} else if (score >= 75) {
-    System.out.println("Guardian");
-} else {
-    System.out.println("Novice");
-}`,
-                answerTip: 'Type only the output.',
-                inputPlaceholder: 'Type the exact output',
-                matchMode: 'exact',
-                narrative: 'The village tests rank in stages now. Only one branch can answer.',
-                hints: [
-                    '83 is not at least 90.',
-                    '83 is at least 75.',
-                    'So the else-if branch runs.'
-                ],
-                answers: ['Guardian'],
-                damage: 18,
-                explanation: 'The first condition is false, but the else-if condition score >= 75 is true.',
-                concept: 'else_if_statement',
-                conceptTitle: 'else-if Statements',
-                codexTitle: 'Abandoned Village - else-if'
-            },
-            {
-                id: 'ch1_abandoned_story_5',
-                title: 'Repair The Gate Check',
+                title: 'Repair The Village Name',
                 questionType: 'Fix the Code',
                 area,
                 npc,
-                question: `<em>The mayor's hall rejects malformed magic.</em> Fix the broken first line of this conditional.`,
-                code: `if level >= 10 {
-    System.out.println("Enter");
-}`,
-                answerTip: 'Type only the corrected first line.',
+                question: `<em>A cracked sign still tries to name the place.</em> Fix the broken line so the String value is written correctly.`,
+                code: `String village = Oakroot;`,
+                answerTip: 'Type the full corrected line.',
                 inputPlaceholder: 'Type the corrected Java line',
                 inputMode: 'code',
                 matchMode: 'exact',
-                narrative: 'The goblin backs toward the hall. Repair the condition before the door rejects you.',
+                narrative: 'One missing pair of quotes keeps the sign from making sense.',
                 hints: [
-                    'Java if conditions must be wrapped in parentheses.',
-                    'The opening brace should stay at the end of the line.',
-                    'Only the first line is broken.'
+                    'String values use double quotes.',
+                    'Keep the variable name village.',
+                    'The word Oakroot is text, not a variable.'
                 ],
-                answers: ['if (level >= 10) {'],
-                damage: 18,
-                explanation: 'Java requires parentheses around the condition in an if statement.',
-                concept: 'nested_if',
-                conceptTitle: 'Nested if Statements',
-                codexTitle: 'Abandoned Village - Nested if'
+                answers: ['String village = "Oakroot";'],
+                damage: 12,
+                autoShowHint: true,
+                explanation: 'Java String literals must be wrapped in double quotes.',
+                concept: 'abandoned_string_fix',
+                conceptTitle: 'Fixing String Literals',
+                codexTitle: 'Abandoned Village - String Literals'
             },
             {
-                id: 'ch1_abandoned_story_6',
-                title: 'Choose The Road',
+                id: 'ch1_abandoned_story_5',
+                title: 'Announce Arrival',
                 questionType: 'Code Completion',
                 area,
                 npc,
-                question: `<em>A broken signpost still obeys the old travel codes.</em> Fill in the missing statement so <code>case 2</code> stops after printing <code>"East"</code>.`,
-                code: `switch (gate) {
-    case 1:
-        System.out.println("North");
-        break;
-    case 2:
-        System.out.println("East");
-        _____
-    default:
-        System.out.println("Unknown");
-}`,
-                answerTip: 'Type only the missing statement.',
-                inputPlaceholder: 'Type the missing Java statement',
+                question: `<em>The path opens deeper into the village.</em> Write the line that prints <code>Entering Abandoned Village</code> using the variable below.`,
+                code: `String place = "Abandoned Village";
+_____`,
+                answerTip: 'Type the full missing line.',
+                inputPlaceholder: 'Type the Java print line',
                 inputMode: 'code',
                 matchMode: 'exact',
-                narrative: 'The last fork in the road is governed by a switch. Restore the missing stop.',
+                narrative: 'The last tutorial step here is a simple print with concatenation.',
                 hints: [
-                    'Without it, execution falls through to default.',
-                    'The missing statement ends the current case.',
-                    'Do not forget the semicolon.'
+                    'Use System.out.println.',
+                    'Start with the text "Entering ".',
+                    'Then add the variable place.'
                 ],
-                answers: ['break;', 'break'],
-                damage: 20,
-                explanation: 'break stops the switch after the matching case finishes.',
-                concept: 'switch_statement',
-                conceptTitle: 'switch Statements',
-                codexTitle: 'Abandoned Village - switch'
+                answers: ['System.out.println("Entering " + place);'],
+                damage: 12,
+                autoShowHint: true,
+                explanation: 'You can join a String literal and a variable with + inside System.out.println.',
+                concept: 'abandoned_print_concat',
+                conceptTitle: 'Printing With Concatenation',
+                codexTitle: 'Abandoned Village - Printing'
             }
         ];
     },
@@ -4554,7 +4532,8 @@ if (score >= 90) {
                 ],
                 correctOption: 0,
                 answers: ['import java.util.Scanner;'],
-                damage: 24,
+                damage: 14,
+                autoShowHint: true,
                 explanation: 'Scanner belongs to the java.util package, so that package must be imported.',
                 concept: 'scanner_import',
                 conceptTitle: 'Scanner Setup',
@@ -4579,7 +4558,8 @@ if (score >= 90) {
                     'Do not type the whole line unless the question asks for it.'
                 ],
                 answers: ['System.in'],
-                damage: 24,
+                damage: 14,
+                autoShowHint: true,
                 explanation: 'A Scanner object for keyboard input is created with new Scanner(System.in).',
                 concept: 'scanner_creation',
                 conceptTitle: 'Creating A Scanner',
@@ -4603,7 +4583,8 @@ if (score >= 90) {
                     'It begins with next.'
                 ],
                 answers: ['nextInt', 'nextInt()'],
-                damage: 24,
+                damage: 16,
+                autoShowHint: true,
                 explanation: 'nextInt() reads the next integer token from the Scanner.',
                 concept: 'scanner_next_int',
                 conceptTitle: 'Reading int Input',
@@ -4627,7 +4608,8 @@ if (score >= 90) {
                     'It begins with next.'
                 ],
                 answers: ['nextDouble', 'nextDouble()'],
-                damage: 24,
+                damage: 16,
+                autoShowHint: true,
                 explanation: 'nextDouble() reads a decimal value from the Scanner.',
                 concept: 'scanner_next_double',
                 conceptTitle: 'Reading double Input',
@@ -4651,7 +4633,8 @@ if (score >= 90) {
                     'Include the parentheses.'
                 ],
                 answers: ['nextLine()', 'input.nextLine()'],
-                damage: 26,
+                damage: 18,
+                autoShowHint: true,
                 explanation: 'nextLine() reads an entire line of text into a String.',
                 concept: 'scanner_next_line',
                 conceptTitle: 'Reading String Input',
@@ -4667,174 +4650,141 @@ if (score >= 90) {
         return [
             {
                 id: 'ch1_fire_story_1',
-                title: 'March The Counter',
+                title: 'Build The Shield',
                 questionType: 'Code Completion',
                 area,
                 npc,
-                question: `<em>The worm coils three times before striking.</em> Fill in the missing condition so the loop prints <code>123</code>.`,
-                code: `for (int i = 1; i ____ 3; i++) {
-    System.out.print(i);
-}`,
-                answerTip: 'Type only the missing condition.',
-                inputPlaceholder: 'Type the missing loop condition',
+                question: `<em>The worm erupts beside the tunnel wall.</em> Write the two lines that set up your defense.`,
+                code: `_____
+_____`,
+                answerTip: 'Type both Java lines.',
+                inputPlaceholder: 'Type the two Java lines',
                 inputMode: 'code',
                 matchMode: 'exact',
-                narrative: 'The worm circles once, twice, three times. Complete the loop before it lunges.',
+                narrative: 'This is the first real spike. Start with a clean multi-line setup before the heat closes in.',
                 hints: [
-                    'The loop should include 3.',
-                    'The condition compares i with 3.',
-                    'Use a relational operator, not a full if statement.'
+                    'The first line declares an int shield with value 18.',
+                    'The second line declares a boolean ready with value true.',
+                    'Write one statement per line.'
                 ],
-                answers: ['<='],
-                damage: 28,
-                explanation: 'Using <= lets the loop run for 1, 2, and 3.',
-                concept: 'loops_for',
-                conceptTitle: 'for Loops',
-                codexTitle: 'Fire Worm - for Loops'
+                answers: [
+                    'int shield = 18;\nboolean ready = true;',
+                    'boolean ready = true;\nint shield = 18;'
+                ],
+                damage: 24,
+                explanation: 'Boss fights can still start with strong basics: correct types, correct values, clean syntax.',
+                concept: 'fire_worm_multi_setup',
+                conceptTitle: 'Multi-Line Setup',
+                codexTitle: 'Fire Worm - Setup'
             },
             {
                 id: 'ch1_fire_story_2',
-                title: 'Count Down The Heat',
-                questionType: 'Predict the Output',
+                type: 'multiple_choice',
+                title: 'Choose The Counter',
+                questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>Heat drains from the tunnel little by little.</em> What is printed by this code?`,
-                code: `int heat = 3;
-while (heat > 0) {
-    System.out.print(heat);
-    heat--;
-}`,
-                answerTip: 'Type the exact output with no spaces.',
-                inputPlaceholder: 'Type the exact output',
-                matchMode: 'exact',
-                narrative: 'The tunnel cools in steps. Read the while loop correctly to hold your ground.',
+                question: `<em>The worm thrashes through the lava glow.</em> Which line correctly declares <code>burstDamage</code> as <code>(flame + strike) * 2</code>?`,
+                narrative: 'Now the boss expects a more careful expression. Parentheses matter here.',
                 hints: [
-                    'The loop runs while heat is greater than 0.',
-                    'heat is printed before it is decremented.',
-                    'The values appear in descending order.'
+                    'Create a new int variable named burstDamage.',
+                    'Add flame and strike first, then multiply by 2.',
+                    'Only one option keeps the intended grouping.'
                 ],
-                answers: ['321'],
+                choices: [
+                    'int burstDamage = flame + strike * 2;',
+                    'int burstDamage = (flame + strike) * 2;',
+                    'burstDamage = (flame + strike) * 2;',
+                    'int burstDamage = (flame + strike) * "2";'
+                ],
+                correctOption: 1,
+                answers: ['int burstDamage = (flame + strike) * 2;'],
                 damage: 28,
-                explanation: 'The loop prints 3, then 2, then 1 before stopping.',
-                concept: 'loops_while',
-                conceptTitle: 'while Loops',
-                codexTitle: 'Fire Worm - while Loops'
+                explanation: 'Parentheses ensure flame and strike are added together before the result is multiplied.',
+                concept: 'fire_worm_expression_order',
+                conceptTitle: 'Expression Order',
+                codexTitle: 'Fire Worm - Expressions'
             },
             {
                 id: 'ch1_fire_story_3',
-                title: 'The Last Ember',
-                questionType: 'True or False',
+                title: 'Cut Away The Heat',
+                questionType: 'Fix the Code',
                 area,
                 npc,
-                question: `<em>Even when the tunnel looks cold, one ember still burns once.</em> True or false: this do-while loop prints <code>0</code> exactly one time.`,
-                code: `int ember = 0;
-do {
-    System.out.print(ember);
-    ember++;
-} while (ember < 0);`,
-                answerTip: 'Type only true or false.',
-                inputPlaceholder: 'Type true or false',
+                question: `<em>The heat reading is too precise for the shield spell.</em> Fix the broken line so only the whole-number part of <code>double heat = 14.9;</code> is stored in <code>int heavyHit</code>.`,
+                code: `int heavyHit = heat;`,
+                answerTip: 'Type the full corrected line.',
+                inputPlaceholder: 'Type the corrected Java line',
+                inputMode: 'code',
                 matchMode: 'exact',
-                narrative: 'The worm tests whether you understand the loop that always runs once.',
+                narrative: 'This boss starts demanding cleaner thinking. You need a cast now.',
                 hints: [
-                    'A do-while loop executes the body before checking the condition.',
-                    'ember starts at 0.',
-                    'The condition is checked only after the first pass.'
+                    'Converting from double to int needs an explicit cast.',
+                    'Place (int) in front of heat.',
+                    'Keep the variable type as int.'
                 ],
-                answers: ['true'],
-                damage: 28,
-                explanation: 'The do-while body runs once before the false condition stops the loop.',
-                concept: 'loops_do_while',
-                conceptTitle: 'do-while Loops',
-                codexTitle: 'Fire Worm - do-while Loops'
+                answers: ['int heavyHit = (int) heat;'],
+                damage: 30,
+                explanation: 'Casting with (int) removes the decimal part and allows the value to be stored in an int.',
+                concept: 'fire_worm_type_casting',
+                conceptTitle: 'Type Casting',
+                codexTitle: 'Fire Worm - Type Casting'
             },
             {
                 id: 'ch1_fire_story_4',
-                type: 'multiple_choice',
-                title: 'Endless Flame',
-                questionType: 'Identify the Error',
+                title: 'Read The Fragment Signal',
+                questionType: 'Predict the Output',
                 area,
                 npc,
-                question: `<em>The worm tries to trap you in a loop of endless heat.</em> Which loop runs forever if <code>energy</code> starts at <code>1</code>?`,
-                narrative: 'You must spot the infinite loop before it traps you in the tunnel.',
+                question: `<em>The fragment flashes through the fire.</em> What is printed by this code?`,
+                code: `String fragment = "Prime";
+int piece = 2;
+System.out.println(fragment + " " + piece);`,
+                answerTip: 'Type only the output.',
+                inputPlaceholder: 'Type the exact output',
+                matchMode: 'exact',
+                narrative: 'You are now mixing text and numbers under pressure.',
                 hints: [
-                    'Look for a condition that never becomes false.',
-                    'If energy keeps increasing while the condition checks for energy > 0, the loop never ends.',
-                    'An infinite loop does not naturally reach a stopping condition.'
+                    'fragment stores text.',
+                    'A space is added between the String and the number.',
+                    'The output keeps both values.'
                 ],
-                choices: [
-                    'while (energy > 0) { energy++; }',
-                    'while (energy > 0) { energy--; }',
-                    'for (int i = 0; i < 3; i++) { energy++; }',
-                    'do { energy--; } while (energy > 0);'
-                ],
-                correctOption: 0,
-                answers: ['while (energy > 0) { energy++; }'],
-                damage: 30,
-                explanation: 'Because energy keeps increasing and remains greater than 0, the condition never becomes false.',
-                concept: 'loops_infinite',
-                conceptTitle: 'Infinite Loops',
-                codexTitle: 'Fire Worm - Infinite Loops'
+                answers: ['Prime 2'],
+                damage: 32,
+                explanation: 'Java concatenates the String, the space, and the number to produce Prime 2.',
+                concept: 'fire_worm_mixed_output',
+                conceptTitle: 'Mixed Output',
+                codexTitle: 'Fire Worm - Mixed Output'
             },
             {
                 id: 'ch1_fire_story_5',
-                title: 'Break The Charge',
-                questionType: 'Fill in the Blank',
+                title: 'Seal The Fragment',
+                questionType: 'Boss Challenge',
                 area,
                 npc,
-                question: `<em>You stop the worm's rush at the exact moment the tunnel wall cracks.</em> Fill in the missing statement so the loop stops when <code>i == 4</code>.`,
-                code: `for (int i = 1; i <= 5; i++) {
-    if (i == 4) {
-        _____
-    }
-    System.out.print(i);
-}`,
-                answerTip: 'Type only the missing statement.',
-                inputPlaceholder: 'Type the missing Java statement',
+                question: `<em>The cave shakes as the boss starts to fall.</em> Write the two lines that mark the fragment as secured and print <code>Fragment secured</code>.`,
+                code: `_____
+_____`,
+                answerTip: 'Type both Java lines.',
+                inputPlaceholder: 'Type the two Java lines',
                 inputMode: 'code',
                 matchMode: 'exact',
-                narrative: 'One clean stop ends the charge early.',
+                narrative: 'This is the boss finish. You need one correct declaration and one correct print line under pressure.',
                 hints: [
-                    'This statement exits the loop immediately.',
-                    'Do not forget the semicolon.',
-                    'It is different from continue.'
+                    'The first line declares String fragment = "secured";',
+                    'The second line prints "Fragment " plus the variable.',
+                    'Write one full statement per line.'
                 ],
-                answers: ['break;', 'break'],
-                damage: 30,
-                explanation: 'break exits the loop immediately when i reaches 4.',
-                concept: 'loops_break',
-                conceptTitle: 'break',
-                codexTitle: 'Fire Worm - break'
-            },
-            {
-                id: 'ch1_fire_story_6',
-                title: 'Skip The Burst',
-                questionType: 'Fill in the Blank',
-                area,
-                npc,
-                question: `<em>A sudden burst of flame appears at count 3, and you leap over it without stopping the whole loop.</em> Fill in the missing statement.`,
-                code: `for (int i = 1; i <= 5; i++) {
-    if (i == 3) {
-        _____
-    }
-    System.out.print(i);
-}`,
-                answerTip: 'Type only the missing statement.',
-                inputPlaceholder: 'Type the missing Java statement',
-                inputMode: 'code',
-                matchMode: 'exact',
-                narrative: 'This time you do not stop the loop. You skip only the dangerous step.',
-                hints: [
-                    'This statement skips the rest of the current iteration.',
-                    'Do not forget the semicolon.',
-                    'It lets the loop continue with the next value.'
+                answers: [
+                    'String fragment = "secured";\nSystem.out.println("Fragment " + fragment);',
+                    'String fragment="secured";\nSystem.out.println("Fragment " + fragment);',
+                    'String fragment = "secured";\nSystem.out.println("Fragment "+fragment);'
                 ],
-                answers: ['continue;', 'continue'],
-                damage: 32,
-                explanation: 'continue skips printing 3 but allows the loop to keep going.',
-                concept: 'loops_continue',
-                conceptTitle: 'continue',
-                codexTitle: 'Fire Worm - continue'
+                damage: 34,
+                explanation: 'The boss finale combines a String declaration and a printed result using concatenation.',
+                concept: 'fire_worm_boss_finish',
+                conceptTitle: 'Boss Finish',
+                codexTitle: 'Fire Worm - Boss Finish'
             }
         ];
     },
