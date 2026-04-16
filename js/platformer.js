@@ -18,6 +18,7 @@ const Platformer = {
   npcFrameTimer: 0,
   assetsLoaded: false,
   assetsLoadingPromise: null,
+  lazyAssetsStarted: false,
   currentSceneId: null,
   currentMap: null,
   exitPrompt: {
@@ -761,31 +762,52 @@ const Platformer = {
     };
 
     const keys = Object.keys(images);
-    let loaded = 0;
-    const total = keys.length;
-
-    this.assetsLoadingPromise = new Promise((resolve) => {
-      keys.forEach((key) => {
+    const loadImage = (key) => new Promise((resolve) => {
         const img = new Image();
+        img.decoding = 'async';
         img.src = images[key];
         img.onload = () => {
           this.assets[key] = img;
-          loaded += 1;
-          if (loaded === total) {
-            this.assetsLoaded = true;
-            resolve();
-          }
+          resolve();
         };
         img.onerror = () => {
           console.warn('Platformer asset failed to load:', images[key]);
-          loaded += 1;
-          if (loaded === total) {
-            this.assetsLoaded = true;
-            resolve();
-          }
+          resolve();
         };
-      });
     });
+
+    const sceneAssetKeys = new Set([
+      this.currentMap?.backgroundKey,
+      'ui_exclamation',
+      'ui_right_arrow',
+      'idle_0',
+      'idle_1',
+      'idle_2',
+      'run_0',
+      'run_1',
+      'jump_0'
+    ]);
+
+    this.npcs.forEach((npc) => {
+      if (npc.assetKey) {
+        sceneAssetKeys.add(npc.assetKey);
+      }
+    });
+
+    const priorityKeys = keys.filter((key) => sceneAssetKeys.has(key));
+    const lazyKeys = keys.filter((key) => !sceneAssetKeys.has(key));
+
+    this.assetsLoadingPromise = (async () => {
+      await Promise.all(priorityKeys.map(loadImage));
+
+      if (!this.lazyAssetsStarted) {
+        this.lazyAssetsStarted = true;
+        window.setTimeout(async () => {
+          await Promise.all(lazyKeys.map(loadImage));
+          this.assetsLoaded = true;
+        }, 700);
+      }
+    })();
 
     return this.assetsLoadingPromise;
   },
@@ -821,8 +843,11 @@ const Platformer = {
 
   async start(containerId) {
     this.init(containerId);
-    await this.loadAssets();
     this.syncSceneState(!this.running);
+
+    this.loadAssets().catch((error) => {
+      console.warn('Platformer assets are still loading in the background.', error);
+    });
 
     if (this.running) return;
 
@@ -1240,6 +1265,13 @@ const Platformer = {
       case 'rowan':
         return GameState.hasFlag('ch1_elder_intro_complete') && !GameState.hasFlag('ch1_training_complete');
       case 'hera':
+        if (
+          this.currentSceneId === 'ch1_corrupted_forest_2' &&
+          GameState.hasFlag('ch1_goblin_defeated') &&
+          !GameState.hasFlag('ch1_abandoned_village_unlocked')
+        ) {
+          return true;
+        }
         return !GameState.hasFlag('ch1_hera_help_started');
       case 'cave_hera':
         return GameState.hasFlag('ch1_cave_unlocked') && !GameState.hasFlag('ch1_fragment_recovered');

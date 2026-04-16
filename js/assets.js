@@ -123,31 +123,20 @@ const Assets = {
      * In production, this would actually load images/sounds
      */
     async loadAll(progressCallback) {
-        const totalAssets = 20; // Simulated count
-        let loaded = 0;
-        
         const loadingMessages = [
             'Initializing Java Realm...',
-            'Loading Prime Scripts...',
-            'Summoning Code Guardians...',
             'Preparing challenges...',
-            'Calibrating difficulty engine...',
-            'Loading character sprites...',
-            'Rendering medieval landscapes...',
-            'Compiling quest data...',
-            'Establishing portal connections...',
             'Ready to begin your journey...'
         ];
-        
-        for (let i = 0; i < totalAssets; i++) {
-            await Utils.wait(100 + Math.random() * 150);
-            loaded++;
-            const progress = (loaded / totalAssets) * 100;
-            const msgIndex = Math.floor((loaded / totalAssets) * (loadingMessages.length - 1));
-            
+
+        for (let i = 0; i < loadingMessages.length; i++) {
+            const progress = ((i + 1) / loadingMessages.length) * 100;
+
             if (progressCallback) {
-                progressCallback(progress, loadingMessages[msgIndex]);
+                progressCallback(progress, loadingMessages[i]);
             }
+
+            await Utils.wait(35);
         }
     },
     

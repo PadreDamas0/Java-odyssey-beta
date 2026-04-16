@@ -172,7 +172,7 @@ const Game = {
         console.log('Java Odyssey: Ready!');
     },
 
-    async waitForMenuReady(timeoutMs = 5000) {
+    async waitForMenuReady(timeoutMs = 1200) {
         const waitForFonts = async () => {
             if (!document.fonts || typeof document.fonts.load !== 'function') {
                 return;
@@ -439,41 +439,42 @@ const Game = {
     },
 
     /**
-     * Handle defeat, then respawn the player in the village
+     * Handle defeat, then return to the scene that started the battle.
      */
     async handleDeath() {
         if (this.respawnInProgress) return;
 
         this.respawnInProgress = true;
         try {
+            const retrySceneId = (typeof World !== 'undefined' && World.currentScene)
+                || GameState.progress.currentScene
+                || this.getRespawnSceneId();
+
             if (typeof Combat !== 'undefined' && GameState.combat.active && typeof Combat.handlePlayerDefeat === 'function') {
                 await Combat.handlePlayerDefeat();
             }
 
-            Utils.notify('You have been defeated. Returning to village...', 'incorrect', CONFIG.PLAYER_HEALTH.respawnDelayMs);
+            Utils.notify('You have been defeated. Returning to the last checkpoint...', 'incorrect', CONFIG.PLAYER_HEALTH.respawnDelayMs);
             await Utils.wait(CONFIG.PLAYER_HEALTH.respawnDelayMs);
 
-            this.resetChapterOneProgress();
             GameState.player.hp = GameState.player.maxHp;
-            GameState.setPlayerPosition(CONFIG.PLAYER_HEALTH.startingPosition);
+            GameState.setPlayerPosition(this.getPositionForScene(retrySceneId));
             GameState.updateHUD();
 
-            if (typeof Chapter1Scene !== 'undefined' && typeof Chapter1Scene.start === 'function') {
+            if (
+                typeof World !== 'undefined' &&
+                (!World.scenes || !World.scenes[retrySceneId]) &&
+                typeof Chapter1Scene !== 'undefined' &&
+                typeof Chapter1Scene.registerScenes === 'function'
+            ) {
+                Chapter1Scene.registerScenes();
+            }
+
+            if (typeof World !== 'undefined' && World.scenes && World.scenes[retrySceneId]) {
+                GameState.phase = 'chapter1';
+                await World.goTo(retrySceneId, 'Returning to the last checkpoint...');
+            } else if (typeof Chapter1Scene !== 'undefined' && typeof Chapter1Scene.start === 'function') {
                 await Chapter1Scene.start();
-            } else {
-                const respawnSceneId = this.getRespawnSceneId();
-                if (
-                    typeof World !== 'undefined' &&
-                    (!World.scenes || !World.scenes[respawnSceneId]) &&
-                    typeof Chapter1Scene !== 'undefined' &&
-                    typeof Chapter1Scene.registerScenes === 'function'
-                ) {
-                    Chapter1Scene.registerScenes();
-                }
-                if (typeof World !== 'undefined' && World.scenes && World.scenes[respawnSceneId]) {
-                    GameState.phase = 'chapter1';
-                    await World.goTo(respawnSceneId, 'Returning to the village...');
-                }
             }
 
             GameState.save();

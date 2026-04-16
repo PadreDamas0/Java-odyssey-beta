@@ -18,8 +18,8 @@ const TutorialScene = {
         // Define the tutorial enemy
         const enemy = {
             name: 'Syntax Bug',
-            hp: 75,
-            maxHp: 75,
+            hp: 36,
+            maxHp: 36,
             coinReward: 40,
             art: 'enemyBug',
             description: 'A corrupted creature born from broken code. It feeds on syntax errors!',
@@ -43,32 +43,30 @@ const TutorialScene = {
     getTutorialChallenges() {
         return [
             {
-                id: 'tutorial_java_intro',
-                type: 'multiple_choice',
-                title: 'The First Oath',
-                questionType: 'Multiple Choice',
+                id: 'tutorial_light_attack',
+                title: 'Light Attack',
+                questionType: 'Code Completion',
                 area: 'Dark Alley',
                 npc: 'Cipher',
-                question: `<em>Cipher steadies the portal.</em> Which statement best describes <code>Java</code>?`,
-                narrative: 'The Syntax Bug lashes out. Understanding the language itself is your first defense.',
+                question: `<em>Cipher raises a glowing hand.</em> Type the Java command that will print <code>Light Attack</code>.`,
+                answerTip: 'Type the full System.out.println command. Semicolon is accepted but optional here.',
+                inputPlaceholder: 'System.out.println("Light Attack");',
+                inputMode: 'code',
+                narrative: 'Your first combat spell is simple: print the attack name exactly.',
                 hints: [
-                    'Java is a programming language, not a database or operating system.',
-                    'It is commonly described as high-level and object-oriented.',
-                    'Pick the answer about building applications.'
+                    'Printing text in Java starts with System.out.println.',
+                    'The words Light Attack must be inside double quotes.',
+                    'Full answer: System.out.println("Light Attack");'
                 ],
-                choices: [
-                    'A high-level, object-oriented programming language used to build many kinds of applications.',
-                    'A styling language used only to design web pages.',
-                    'A database engine that stores rows and tables.',
-                    'An operating system made only for mobile games.'
+                answers: [
+                    'System.out.println("Light Attack");',
+                    'System.out.println("Light Attack")'
                 ],
-                correctOption: 0,
-                answers: ['A high-level, object-oriented programming language used to build many kinds of applications.'],
-                damage: 20,
-                explanation: 'Java is a general-purpose, high-level programming language and is commonly taught as an object-oriented language.',
-                concept: 'java_intro_language',
-                conceptTitle: 'What Java Is',
-                codexTitle: 'Tutorial - What Is Java?'
+                damage: 16,
+                explanation: 'System.out.println("Light Attack"); prints the text Light Attack on its own line.',
+                concept: 'print_light_attack',
+                conceptTitle: 'Printing A Basic Attack',
+                codexTitle: 'Tutorial - Light Attack'
             },
             {
                 id: 'tutorial_program_structure',
@@ -87,7 +85,7 @@ const TutorialScene = {
                     'The braces form the class body.'
                 ],
                 answers: ['true'],
-                damage: 18,
+                damage: 14,
                 explanation: 'A Java class declaration uses the class keyword, a class name, and braces to hold the class body.',
                 concept: 'java_program_structure',
                 conceptTitle: 'Structure Of A Java Program',
@@ -110,7 +108,7 @@ const TutorialScene = {
                     'The missing word is the method name.'
                 ],
                 answers: ['main', 'main()'],
-                damage: 18,
+                damage: 14,
                 explanation: 'The standard Java entry point is public static void main(String[] args).',
                 concept: 'java_main_method',
                 conceptTitle: 'The main Method',

@@ -60,6 +60,7 @@ try {
     header('Location: ' . app_url('game.php'));
     exit;
 } catch (Throwable $exception) {
+    log_app_exception($exception);
     redirect_with_message(app_url('login.php'), 'error', 'Unable to log in right now.', [
         'email' => $email,
     ]);

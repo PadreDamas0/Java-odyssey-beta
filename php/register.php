@@ -19,8 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $username = trim($_POST['username'] ?? '');
 $email = strtolower(trim($_POST['email'] ?? ''));
 $password = (string) ($_POST['password'] ?? '');
+$confirmPassword = (string) ($_POST['confirm_password'] ?? '');
 
-if ($username === '' || $email === '' || trim($password) === '') {
+if ($username === '' || $email === '' || trim($password) === '' || trim($confirmPassword) === '') {
     redirect_with_message(app_url('register.php'), 'error', 'Please fill in all fields.', [
         'username' => $username,
         'email' => $email,
@@ -36,6 +37,13 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
 if (strlen($password) < 6) {
     redirect_with_message(app_url('register.php'), 'error', 'Password must be at least 6 characters long.', [
+        'username' => $username,
+        'email' => $email,
+    ]);
+}
+
+if ($password !== $confirmPassword) {
+    redirect_with_message(app_url('register.php'), 'error', 'Passwords do not match.', [
         'username' => $username,
         'email' => $email,
     ]);
@@ -62,6 +70,7 @@ try {
 
     redirect_with_message(app_url('login.php'), 'success', 'Registration successful. You can log in now.');
 } catch (Throwable $exception) {
+    log_app_exception($exception);
     redirect_with_message(app_url('register.php'), 'error', 'Unable to create your account right now.', [
         'username' => $username,
         'email' => $email,

@@ -82,6 +82,7 @@ try {
         'message' => 'Progress saved.',
     ]);
 } catch (Throwable $exception) {
+    log_app_exception($exception);
     http_response_code(500);
     echo json_encode([
         'success' => false,

@@ -52,6 +52,7 @@ $authProgress = $authUser ? get_player_progress((int) $authUser['user_id']) : nu
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" as="style" fetchpriority="high" href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700;900&family=IM+Fell+English:ital@0;1&family=Uncial+Antiqua&display=swap">
+    <link rel="preload" as="image" fetchpriority="high" href="assets/background/village.jpg">
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700;900&family=IM+Fell+English:ital@0;1&family=Uncial+Antiqua&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="css/styles.css?v=20260404c">
@@ -59,7 +60,7 @@ $authProgress = $authUser ? get_player_progress((int) $authUser['user_id']) : nu
     <link rel="stylesheet" href="css/dialogue.css?v=20260403c">
     <link rel="stylesheet" href="css/combat.css?v=20260403c">
     <link rel="stylesheet" href="css/world.css">
-    <link rel="stylesheet" href="css/auth.css?v=20260401d">
+    <link rel="stylesheet" href="css/auth.css?v=20260416a">
 </head>
 <body class="game-page app-booting">
     <div id="auth-loading-overlay" class="auth-loading-overlay" hidden>
@@ -516,25 +517,22 @@ $authProgress = $authUser ? get_player_progress((int) $authUser['user_id']) : nu
     <script src="js/config.js"></script>
     <script src="js/utils.js?v=20260403e"></script>
     <script src="js/state.js?v=20260403"></script>
-    <script src="js/assets.js"></script>
+    <script src="js/assets.js?v=20260416a"></script>
     <script src="js/audio.js?v=20260320"></script>
     <script src="js/dialogue.js?v=20260403d"></script>
     <script src="js/npc.js"></script>
-    <script src="js/combat.js?v=20260403b"></script>
+    <script src="js/combat.js?v=20260416b"></script>
     <script src="js/cutscene.js"></script>
     <script src="js/world.js"></script>
-    <script src="js/platformer.js"></script>
+    <script src="js/platformer.js?v=20260416b"></script>
     <script src="js/scenes/intro.js"></script>
-    <script src="js/scenes/tutorial.js"></script>
+    <script src="js/scenes/tutorial.js?v=20260416a"></script>
     <script src="js/scenes/portal.js"></script>
-    <script src="js/scenes/chapter1.js?v=20260403b"></script>
-    <script src="js/auth.js?v=20260403"></script>
+    <script src="js/scenes/chapter1.js?v=20260416b"></script>
+    <script src="js/auth.js?v=20260416b"></script>
     <script src="js/leaderboard.js?v=20260404a"></script>
-    <script src="js/game.js?v=20260403f"></script>
+    <script src="js/game.js?v=20260416b"></script>
     <script src="js/worldMapOverlay.js?v=20260324"></script>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/easystarjs@0.4.4/bin/easystar-0.4.4.min.js"></script>
-    <script src="js/phaserWorld.js"></script>
 
 </body>
 </html>

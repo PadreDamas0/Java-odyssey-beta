@@ -3,14 +3,47 @@ const Auth = {
     remoteProgress: null,
     authPromise: null,
     lastProgressSignature: '',
+    passwordTogglesReady: false,
 
     init() {
         this.initAuthPage();
+        this.initPasswordToggles();
 
         if (document.body.classList.contains('game-page')) {
             this.bootstrapFromPage();
             this.bindProgressFlush();
         }
+    },
+
+    initPasswordToggles() {
+        if (this.passwordTogglesReady) {
+            return;
+        }
+
+        this.passwordTogglesReady = true;
+
+        document.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-toggle-password]');
+            if (!button) {
+                return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const targetId = button.getAttribute('data-toggle-password');
+            const input = targetId ? document.getElementById(targetId) : null;
+
+            if (!input) {
+                return;
+            }
+
+            const shouldShow = input.type === 'password';
+            input.type = shouldShow ? 'text' : 'password';
+            button.textContent = shouldShow ? 'Hide' : 'Show';
+            button.setAttribute('aria-pressed', shouldShow ? 'true' : 'false');
+            button.setAttribute('aria-label', shouldShow ? 'Hide password' : 'Show password');
+        });
     },
 
     normalizeProgressPayload(progress = {}) {

@@ -57,8 +57,8 @@ If your host does **not** support `.htaccess` or PHP on `.html` files, the safer
 2. Choose hosting with PHP and MySQL support.
 3. Upload the full project root, including `.htaccess`.
 4. Create the database and user.
-5. Update the database credentials in `php/db.php`.
-6. Import `php/schema.sql` if you do not want the app to initialize tables automatically.
+5. Copy `php/config.example.php` to `php/config.php` on the server and fill in the host, database name, username, and password from the hosting control panel.
+6. For InfinityFree, import `php/schema.infinityfree.sql` into the already-created database. Do not import the local `CREATE DATABASE` statements from `php/schema.sql`.
 7. Enable HTTPS before testing login.
 8. Test register, login, logout, and save progress on the live URL.
 
@@ -68,6 +68,7 @@ If your host does **not** support `.htaccess` or PHP on `.html` files, the safer
 - `.htaccess` treats `.html` files as PHP.
 - `php/auth_check.php` uses PHP sessions.
 - `php/db.php` connects to MySQL and stores player progress.
+- `php/config.php` is an untracked deployment-only file for live database credentials.
 - `js/auth.js` sends authenticated same-origin requests to the PHP endpoints.
 
 ## When A Game Portal Will Not Be Enough

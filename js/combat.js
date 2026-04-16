@@ -815,7 +815,7 @@ const Combat = {
         this.encounterResolved = true;
         this.clearPendingTimeouts();
         this.multipleChoiceLocked = true;
-        this.showFeedback('💀 You have been defeated. Returning to village...', 'incorrect');
+        this.showFeedback('💀 You have been defeated. Returning to the last checkpoint...', 'incorrect');
         this.lockMultipleChoiceOptions();
         await Utils.wait(450);
         this.endCombat('defeat');

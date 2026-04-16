@@ -1,2 +1,39 @@
 AddType application/x-httpd-php .html
 DirectoryIndex index.php login.php index.html
+
+RewriteEngine On
+RewriteRule ^adminpanel/?$ adminpanel.php [L]
+RewriteRule ^index\.html$ game.php [R=302,L]
+RewriteRule ^login\.html$ login.php [R=302,L]
+RewriteRule ^register\.html$ register.php [R=302,L]
+
+<Files "config.php">
+    Require all denied
+</Files>
+
+<FilesMatch "^schema.*\.sql$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType audio/mpeg "access plus 1 month"
+    ExpiresByType video/mp4 "access plus 1 month"
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|png|jpe?g|gif|svg|mp3|mp4)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript text/javascript application/json image/svg+xml
+</IfModule>

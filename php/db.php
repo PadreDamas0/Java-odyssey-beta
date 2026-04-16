@@ -1,11 +1,67 @@
 <?php
 declare(strict_types=1);
 
-const DB_HOST = '127.0.0.1';
-const DB_PORT = 3306;
-const DB_NAME = 'java_odyssey';
-const DB_USER = 'root';
-const DB_PASS = '';
+function load_app_config(): array
+{
+    $configPath = __DIR__ . '/config.php';
+
+    if (!is_file($configPath)) {
+        return [];
+    }
+
+    $config = require $configPath;
+
+    if (!is_array($config)) {
+        throw new RuntimeException('php/config.php must return a configuration array.');
+    }
+
+    return $config;
+}
+
+function app_config_value(array $config, string $key, string $envKey, mixed $default): mixed
+{
+    if (array_key_exists($key, $config)) {
+        return $config[$key];
+    }
+
+    $envValue = getenv($envKey);
+    if ($envValue !== false) {
+        return $envValue;
+    }
+
+    return $default;
+}
+
+function app_config_bool(mixed $value): bool
+{
+    if (is_bool($value)) {
+        return $value;
+    }
+
+    if (is_string($value)) {
+        return in_array(strtolower($value), ['1', 'true', 'yes', 'on'], true);
+    }
+
+    return (bool) $value;
+}
+
+$appConfig = load_app_config();
+
+define('DB_HOST', (string) app_config_value($appConfig, 'host', 'JAVA_ODYSSEY_DB_HOST', '127.0.0.1'));
+define('DB_PORT', (int) app_config_value($appConfig, 'port', 'JAVA_ODYSSEY_DB_PORT', 3306));
+define('DB_NAME', (string) app_config_value($appConfig, 'name', 'JAVA_ODYSSEY_DB_NAME', 'java_odyssey'));
+define('DB_USER', (string) app_config_value($appConfig, 'user', 'JAVA_ODYSSEY_DB_USER', 'root'));
+define('DB_PASS', (string) app_config_value($appConfig, 'pass', 'JAVA_ODYSSEY_DB_PASS', ''));
+
+$defaultAutoCreateDatabase = DB_USER === 'root' && in_array(DB_HOST, ['127.0.0.1', 'localhost'], true);
+define(
+    'DB_AUTO_CREATE_DATABASE',
+    app_config_bool(app_config_value($appConfig, 'auto_create_database', 'JAVA_ODYSSEY_DB_AUTO_CREATE_DATABASE', $defaultAutoCreateDatabase))
+);
+define(
+    'DB_AUTO_CREATE_TABLES',
+    app_config_bool(app_config_value($appConfig, 'auto_create_tables', 'JAVA_ODYSSEY_DB_AUTO_CREATE_TABLES', true))
+);
 
 function create_pdo_connection(?string $database = null): PDO
 {
@@ -21,6 +77,17 @@ function create_pdo_connection(?string $database = null): PDO
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES => false,
     ]);
+}
+
+function log_app_exception(Throwable $exception): void
+{
+    error_log(sprintf(
+        '[Java Odyssey] %s: %s in %s:%d',
+        get_class($exception),
+        $exception->getMessage(),
+        $exception->getFile(),
+        $exception->getLine()
+    ));
 }
 
 function assert_sql_identifier(string $identifier): string
@@ -64,10 +131,17 @@ function initialize_database(): void
         return;
     }
 
-    $server = create_pdo_connection();
-    $server->exec(
-        'CREATE DATABASE IF NOT EXISTS `' . DB_NAME . '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci'
-    );
+    if (DB_AUTO_CREATE_DATABASE) {
+        $server = create_pdo_connection();
+        $server->exec(
+            'CREATE DATABASE IF NOT EXISTS `' . DB_NAME . '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci'
+        );
+    }
+
+    if (!DB_AUTO_CREATE_TABLES) {
+        $initialized = true;
+        return;
+    }
 
     $db = create_pdo_connection(DB_NAME);
     $db->exec(

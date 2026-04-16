@@ -2330,8 +2330,8 @@ int guard = 3;</pre>
 
         const shroom = {
             name: 'Evil Java Shroom',
-            hp: 135,
-            maxHp: 135,
+            hp: 52,
+            maxHp: 52,
             coinReward: 45,
             art: 'assets/sprites/enemies/evilshroom.png',
             hurtArt: 'assets/sprites/enemies/evilshroom_hurt.png',
@@ -2807,8 +2807,8 @@ System.out.println("Fragment " + fragment);</pre>
 
         const goblin = {
             name: 'Corrupted Goblin',
-            hp: 120,
-            maxHp: 120,
+            hp: 26,
+            maxHp: 26,
             coinReward: 30,
             art: 'assets/sprites/enemies/code_goblin.png',
             hurtArt: 'assets/sprites/enemies/code_goblin_hurt.png',
@@ -2851,8 +2851,8 @@ System.out.println("Fragment " + fragment);</pre>
 
         const goblin = {
             name: 'Village Goblin',
-            hp: 82,
-            maxHp: 82,
+            hp: 24,
+            maxHp: 24,
             coinReward: 30,
             art: 'assets/sprites/enemies/code_goblin.png',
             hurtArt: 'assets/sprites/enemies/code_goblin_hurt.png',
@@ -3184,8 +3184,8 @@ int totalDamage = 20;</pre>
 
         const easyEnemy = {
             name: 'Training Dummy',
-            hp: 72,
-            maxHp: 72,
+            hp: 24,
+            maxHp: 24,
             coinReward: 25,
             art: `
     ╔═══════════════════════════════════╗
@@ -4032,62 +4032,58 @@ ______________________</pre>
         return [
             {
                 id: 'ch1_train_story_1',
-                type: 'multiple_choice',
-                title: 'Say Hello To Java',
-                questionType: 'Multiple Choice',
+                title: 'Light Attack',
+                questionType: 'Code Completion',
                 area,
                 npc,
-                question: `<em>Rowan smiles and points at the first rune.</em> Which line correctly prints <code>Hello, World!</code> in Java?`,
-                narrative: 'Rowan starts with the classic first spell. Pick the line that prints Hello, World!.',
+                question: `<em>Rowan points to the dummy.</em> Type the Java command that will print <code>Light Attack</code>.`,
+                answerTip: 'Type the full print command. Semicolon is accepted but optional here.',
+                inputPlaceholder: 'System.out.println("Light Attack");',
+                inputMode: 'code',
+                narrative: 'Rowan keeps the first strike short: print the attack name exactly.',
                 hints: [
-                    'Java prints text with System.out.println.',
-                    'The message must be inside double quotes.',
-                    'The correct answer ends with a semicolon.'
+                    'Use System.out.println to print text.',
+                    'Light Attack must be inside double quotes.',
+                    'Full answer: System.out.println("Light Attack");'
                 ],
-                choices: [
-                    'print("Hello, World!");',
-                    'System.out.println("Hello, World!");',
-                    'System.out.println(Hello, World!);',
-                    'System.out.printline("Hello, World!");'
+                answers: [
+                    'System.out.println("Light Attack");',
+                    'System.out.println("Light Attack")'
                 ],
-                correctOption: 1,
-                answers: ['System.out.println("Hello, World!");'],
-                damage: 6,
+                damage: 10,
                 autoShowHint: true,
-                explanation: 'System.out.println("Hello, World!"); is the standard Java print statement for beginner output.',
-                concept: 'hello_world',
-                conceptTitle: 'Hello World',
-                codexTitle: 'Training Dummy - Hello World',
+                explanation: 'System.out.println("Light Attack"); prints the attack name on its own line.',
+                concept: 'light_attack_print',
+                conceptTitle: 'Printing A Basic Attack',
+                codexTitle: 'Training Dummy - Light Attack',
                 feedbackDuration: 2600
             },
             {
                 id: 'ch1_train_story_2',
-                type: 'multiple_choice',
-                title: 'Pick The Print Word',
-                questionType: 'Multiple Choice',
+                title: 'Guard Command',
+                questionType: 'Code Completion',
                 area,
                 npc,
-                question: `<em>"Now do it yourself," Rowan says.</em> Which word completes this Java line: <code>System.out.______("Hello, Rowan!");</code>?`,
-                narrative: 'One more easy win. Just choose the right print word.',
+                question: `<em>"Now block," Rowan says.</em> Type the Java command that will print <code>Guard Up</code>.`,
+                answerTip: 'Type the full System.out.println command.',
+                inputPlaceholder: 'System.out.println("Guard Up");',
+                inputMode: 'code',
+                narrative: 'A second beginner spell: print a short defensive command.',
                 hints: [
-                    'Java uses println to print a line.',
-                    'You are choosing only the missing word.',
-                    'The correct answer prints a full line.'
+                    'Use the same print command as the Light Attack.',
+                    'Guard Up is text, so put it inside double quotes.',
+                    'Full answer: System.out.println("Guard Up");'
                 ],
-                choices: [
-                    'println',
-                    'printline',
-                    'echo',
-                    'write'
+                answers: [
+                    'System.out.println("Guard Up");',
+                    'System.out.println("Guard Up")'
                 ],
-                correctOption: 0,
-                answers: ['println', 'println()'],
-                damage: 6,
+                damage: 10,
                 autoShowHint: true,
-                explanation: 'println prints a full line of output in Java.',
-                concept: 'print_statements',
-                conceptTitle: 'Print Statements',
-                codexTitle: 'Training Dummy - Print Statements',
+                explanation: 'The same System.out.println pattern can print any short text command.',
+                concept: 'guard_up_print',
+                conceptTitle: 'Printing Text Commands',
+                codexTitle: 'Training Dummy - Guard Up',
                 feedbackDuration: 2600
             },
             {
@@ -4217,32 +4213,30 @@ _____`,
         return [
             {
                 id: 'ch1_goblin_story_1',
-                type: 'multiple_choice',
-                title: 'Lock In The HP',
-                questionType: 'Multiple Choice',
+                title: 'Slash Attack',
+                questionType: 'Code Completion',
                 area,
                 npc,
-                question: `<em>The goblin rushes from the brush.</em> Which type correctly fits here: <code>_____ goblinHp = 45;</code>?`,
-                narrative: 'This first forest fight is still very easy. Just choose the type for a whole number.',
+                question: `<em>The goblin rushes from the brush.</em> Type the Java command that will print <code>Slash Attack</code>.`,
+                answerTip: 'Type the full System.out.println command. Semicolon is accepted but optional here.',
+                inputPlaceholder: 'System.out.println("Slash Attack");',
+                inputMode: 'code',
+                narrative: 'The first forest counter is still beginner-friendly: print the attack name.',
                 hints: [
-                    '45 is a whole number.',
-                    'Java uses int for whole numbers.',
-                    'You are picking the type only.'
+                    'Start with System.out.println.',
+                    'Slash Attack must be inside double quotes.',
+                    'Full answer: System.out.println("Slash Attack");'
                 ],
-                choices: [
-                    'int',
-                    'String',
-                    'double',
-                    'boolean'
+                answers: [
+                    'System.out.println("Slash Attack");',
+                    'System.out.println("Slash Attack")'
                 ],
-                correctOption: 0,
-                answers: ['int'],
-                damage: 8,
+                damage: 10,
                 autoShowHint: true,
-                explanation: 'int is the correct Java type for whole numbers such as 45.',
-                concept: 'goblin_int_variable',
-                conceptTitle: 'Integer Variables',
-                codexTitle: 'Goblin - Integer Variables'
+                explanation: 'System.out.println("Slash Attack"); prints the attack text and makes a clean basic command.',
+                concept: 'goblin_slash_print',
+                conceptTitle: 'Printing A Combat Command',
+                codexTitle: 'Goblin - Slash Attack'
             },
             {
                 id: 'ch1_goblin_story_2',
@@ -4376,27 +4370,30 @@ _____`,
         return [
             {
                 id: 'ch1_abandoned_story_1',
-                title: 'Mark The Rank',
-                questionType: 'True or False',
+                title: 'Clear Path',
+                questionType: 'Code Completion',
                 area,
                 npc,
-                question: `<em>A weathered sign still clings to the village gate.</em> True or false: <code>char rank = 'A';</code> is a valid Java declaration.`,
-                answerTip: 'Type only true or false.',
-                inputPlaceholder: 'Type true or false',
-                matchMode: 'exact',
-                narrative: 'The abandoned road is still part of the tutorial. First, recognize a valid char declaration.',
+                question: `<em>A smaller goblin blocks the road.</em> Type the Java command that will print <code>Clear Path</code>.`,
+                answerTip: 'Type the full System.out.println command. Semicolon is accepted but optional here.',
+                inputPlaceholder: 'System.out.println("Clear Path");',
+                inputMode: 'code',
+                narrative: 'This second goblin begins with another short print attack.',
                 hints: [
-                    'char stores one character.',
-                    'A character literal uses single quotes.',
-                    'A is a single character.'
+                    'Use System.out.println for a line of output.',
+                    'Clear Path is text, so wrap it in double quotes.',
+                    'Full answer: System.out.println("Clear Path");'
                 ],
-                answers: ['true'],
+                answers: [
+                    'System.out.println("Clear Path");',
+                    'System.out.println("Clear Path")'
+                ],
                 damage: 10,
                 autoShowHint: true,
-                explanation: 'char is the correct Java type for a single character like A.',
-                concept: 'abandoned_char_intro',
-                conceptTitle: 'char Variables',
-                codexTitle: 'Abandoned Village - char Variables'
+                explanation: 'System.out.println("Clear Path"); prints a short command for the road-clearing strike.',
+                concept: 'abandoned_clear_path_print',
+                conceptTitle: 'Printing A Path Command',
+                codexTitle: 'Abandoned Village - Clear Path'
             },
             {
                 id: 'ch1_abandoned_story_2',
@@ -4512,133 +4509,114 @@ _____`,
         return [
             {
                 id: 'ch1_shroom_story_1',
-                type: 'multiple_choice',
-                title: 'Call The Input Rune',
-                questionType: 'Multiple Choice',
-                area,
-                npc,
-                question: `<em>The cave mushrooms hiss with stolen voices.</em> Which import statement is needed to use <code>Scanner</code> in Java?`,
-                narrative: 'The shroom spreads corrupted prompts through the tunnel. Start by importing the right tool.',
-                hints: [
-                    'Scanner is in the java.util package.',
-                    'The line begins with import.',
-                    'You are importing the Scanner class.'
-                ],
-                choices: [
-                    'import java.util.Scanner;',
-                    'import java.io.Scanner;',
-                    'import java.Scanner.util;',
-                    'include java.util.Scanner;'
-                ],
-                correctOption: 0,
-                answers: ['import java.util.Scanner;'],
-                damage: 14,
-                autoShowHint: true,
-                explanation: 'Scanner belongs to the java.util package, so that package must be imported.',
-                concept: 'scanner_import',
-                conceptTitle: 'Scanner Setup',
-                codexTitle: 'Shroom - Import Scanner'
-            },
-            {
-                id: 'ch1_shroom_story_2',
-                title: 'Open The Input Channel',
+                title: 'Torch Spark',
                 questionType: 'Code Completion',
                 area,
                 npc,
-                question: `<em>You need a Scanner that listens to the keyboard.</em> Fill in the missing source in this line.`,
-                code: `Scanner input = new Scanner(_____);`,
-                answerTip: 'Type only the missing source.',
-                inputPlaceholder: 'Type the missing Java expression',
+                question: `<em>The shroom blocks the cave path.</em> Type the Java command that will print <code>Torch Spark</code>.`,
+                answerTip: 'Type the full System.out.println command. Semicolon is accepted but optional here.',
+                inputPlaceholder: 'System.out.println("Torch Spark");',
                 inputMode: 'code',
-                matchMode: 'exact',
-                narrative: 'The spores shift around you. Build the Scanner correctly before the next burst.',
+                narrative: 'Start with a simple print attack to light the cave.',
                 hints: [
-                    'Keyboard input comes from System.in.',
-                    'The Scanner constructor needs that expression inside parentheses.',
-                    'Do not type the whole line unless the question asks for it.'
+                    'Use System.out.println to print text.',
+                    'Torch Spark must be inside double quotes.',
+                    'Full answer: System.out.println("Torch Spark");'
                 ],
-                answers: ['System.in'],
+                answers: [
+                    'System.out.println("Torch Spark");',
+                    'System.out.println("Torch Spark")'
+                ],
                 damage: 14,
                 autoShowHint: true,
-                explanation: 'A Scanner object for keyboard input is created with new Scanner(System.in).',
-                concept: 'scanner_creation',
-                conceptTitle: 'Creating A Scanner',
-                codexTitle: 'Shroom - Create Scanner'
+                explanation: 'System.out.println("Torch Spark"); prints a short text attack.',
+                concept: 'shroom_print_attack',
+                conceptTitle: 'Printing A Cave Attack',
+                codexTitle: 'Shroom - Torch Spark'
+            },
+            {
+                id: 'ch1_shroom_story_2',
+                type: 'multiple_choice',
+                title: 'Count The Spores',
+                questionType: 'Multiple Choice',
+                area,
+                npc,
+                question: `<em>Three glowing spores float near the shroom.</em> Which line correctly stores the number <code>3</code> in an <code>int</code> named <code>spores</code>?`,
+                narrative: 'Use the beginner whole-number type.',
+                hints: [
+                    'int stores whole numbers.',
+                    'The variable name is spores.',
+                    'Numbers like 3 do not need quotes.'
+                ],
+                choices: [
+                    'int spores = 3;',
+                    'String spores = 3;',
+                    'int spores = "3";',
+                    'spores int = 3;'
+                ],
+                correctOption: 0,
+                answers: ['int spores = 3;'],
+                damage: 14,
+                autoShowHint: true,
+                explanation: 'int spores = 3; stores the whole number 3 in an integer variable.',
+                concept: 'shroom_int_variable',
+                conceptTitle: 'Integer Variables',
+                codexTitle: 'Shroom - int Variables'
             },
             {
                 id: 'ch1_shroom_story_3',
-                title: 'Count The Spores',
-                questionType: 'Fill in the Blank',
+                title: 'Name The Potion',
+                questionType: 'Code Completion',
                 area,
                 npc,
-                question: `<em>The shroom spits numbered spores into the air.</em> Fill in the missing Scanner method so the code reads an <code>int</code>.`,
-                code: `int spores = input._______();`,
-                answerTip: 'Type only the missing method name.',
-                inputPlaceholder: 'Type the missing method name',
+                question: `<em>Hera tosses you a cave potion.</em> Write the line that stores <code>"Healing Potion"</code> in a <code>String</code> named <code>item</code>.`,
+                answerTip: 'Type the full Java line.',
+                inputPlaceholder: 'String item = "Healing Potion";',
+                inputMode: 'code',
                 matchMode: 'exact',
-                narrative: 'The spores come fast. Use the correct Scanner method for an integer value.',
+                narrative: 'The shroom weakens when you label the item correctly.',
                 hints: [
-                    'The target variable is an int.',
-                    'The method name ends with Int.',
-                    'It begins with next.'
+                    'String stores text.',
+                    'Text values need double quotes.',
+                    'Full answer: String item = "Healing Potion";'
                 ],
-                answers: ['nextInt', 'nextInt()'],
-                damage: 16,
+                answers: [
+                    'String item = "Healing Potion";',
+                    'String item = "Healing Potion"'
+                ],
+                damage: 14,
                 autoShowHint: true,
-                explanation: 'nextInt() reads the next integer token from the Scanner.',
-                concept: 'scanner_next_int',
-                conceptTitle: 'Reading int Input',
-                codexTitle: 'Shroom - nextInt'
+                explanation: 'String item = "Healing Potion"; stores text in a String variable.',
+                concept: 'shroom_string_variable',
+                conceptTitle: 'String Variables',
+                codexTitle: 'Shroom - String Variables'
             },
             {
                 id: 'ch1_shroom_story_4',
-                title: 'Measure The Potion',
-                questionType: 'Fill in the Blank',
+                title: 'Add The Spores',
+                questionType: 'Predict the Output',
                 area,
                 npc,
-                question: `<em>A cracked flask rolls from the shadows.</em> Fill in the missing Scanner method so the code reads a <code>double</code>.`,
-                code: `double manaPotion = input._______();`,
-                answerTip: 'Type only the missing method name.',
-                inputPlaceholder: 'Type the missing method name',
+                question: `<em>The shroom splits into two small clouds.</em> What is printed by this code?`,
+                code: `int left = 2;
+int right = 3;
+System.out.println(left + right);`,
+                answerTip: 'Type only the output.',
+                inputPlaceholder: 'Type the exact output',
                 matchMode: 'exact',
-                narrative: 'The cave tries to blur the number. Use the Scanner method built for decimal input.',
+                narrative: 'Finish with a tiny addition check.',
                 hints: [
-                    'The target variable type is double.',
-                    'The method ends with Double.',
-                    'It begins with next.'
+                    'left is 2.',
+                    'right is 3.',
+                    '2 + 3 equals 5.'
                 ],
-                answers: ['nextDouble', 'nextDouble()'],
-                damage: 16,
+                answers: ['5'],
+                damage: 14,
                 autoShowHint: true,
-                explanation: 'nextDouble() reads a decimal value from the Scanner.',
-                concept: 'scanner_next_double',
-                conceptTitle: 'Reading double Input',
-                codexTitle: 'Shroom - nextDouble'
-            },
-            {
-                id: 'ch1_shroom_story_5',
-                title: 'Speak The Full Name',
-                questionType: 'Identify the Error',
-                area,
-                npc,
-                question: `<em>Hera points to an old cave registry.</em> The line below reads only one word, but the title may contain spaces. What method should replace <code>next()</code>?`,
-                code: `String title = input.next();`,
-                answerTip: 'Type only the replacement method call.',
-                inputPlaceholder: 'Type the correct method call',
-                matchMode: 'exact',
-                narrative: 'The final cave record must be read as a full line, not a single word.',
-                hints: [
-                    'You want an entire line of input.',
-                    'The Scanner method ends with Line.',
-                    'Include the parentheses.'
-                ],
-                answers: ['nextLine()', 'input.nextLine()'],
-                damage: 18,
-                autoShowHint: true,
-                explanation: 'nextLine() reads an entire line of text into a String.',
-                concept: 'scanner_next_line',
-                conceptTitle: 'Reading String Input',
-                codexTitle: 'Shroom - nextLine'
+                explanation: 'System.out.println(left + right); adds the two int values and prints 5.',
+                concept: 'shroom_basic_addition',
+                conceptTitle: 'Adding Integer Variables',
+                codexTitle: 'Shroom - Basic Addition'
             }
         ];
     },
