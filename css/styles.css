@@ -621,16 +621,18 @@ html, body {
         radial-gradient(circle at top, rgba(84, 139, 255, 0.08), transparent 38%),
         rgba(2, 4, 10, 0.88);
     backdrop-filter: blur(10px);
+    overflow: hidden;
 }
 
 .leaderboard-content {
     position: relative;
     display: flex;
     flex-direction: column;
-    width: min(94vw, 980px);
+    width: min(96vw, 980px);
     max-width: 980px;
     max-height: min(88vh, 920px);
-    padding: 1.75rem;
+    max-height: min(88dvh, 920px);
+    padding: clamp(1rem, 0.85rem + 1vw, 1.75rem);
     background:
         radial-gradient(circle at top right, rgba(240, 208, 96, 0.1), transparent 26%),
         radial-gradient(circle at bottom left, rgba(71, 107, 192, 0.08), transparent 32%),
@@ -667,8 +669,14 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    flex-wrap: wrap;
     gap: 1.2rem;
     margin-bottom: 1.2rem;
+}
+
+.leaderboard-header > div {
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 .leaderboard-kicker {
@@ -698,6 +706,8 @@ html, body {
 }
 
 .leaderboard-close-btn {
+    flex: 0 0 auto;
+    align-self: flex-start;
     min-width: 170px;
     min-height: 56px;
     padding: 0.85rem 1.6rem;
@@ -706,13 +716,14 @@ html, body {
 
 .leaderboard-controls {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 0.75rem;
     margin-bottom: 1.1rem;
 }
 
 .leaderboard-tab,
 .leaderboard-refresh-btn {
+    min-width: 0;
     border: 1px solid rgba(240, 208, 96, 0.18);
     border-radius: 999px;
     background: rgba(19, 24, 43, 0.72);
@@ -721,6 +732,8 @@ html, body {
     font-size: 0.95rem;
     letter-spacing: 0.05em;
     line-height: 1.2;
+    text-align: center;
+    white-space: normal;
     cursor: pointer;
     transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
 }
@@ -755,6 +768,7 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
     gap: 0.9rem;
     margin-bottom: 1.15rem;
     padding: 0.9rem 1rem;
@@ -764,10 +778,13 @@ html, body {
 }
 
 .leaderboard-refresh-status {
+    flex: 1 1 240px;
+    min-width: 0;
     color: rgba(236, 232, 223, 0.82);
     font-family: Georgia, "Palatino Linotype", "Times New Roman", serif;
     font-size: 0.96rem;
     line-height: 1.45;
+    overflow-wrap: anywhere;
 }
 
 .leaderboard-refresh-status.is-error {
@@ -775,6 +792,7 @@ html, body {
 }
 
 .leaderboard-refresh-btn {
+    flex: 0 0 auto;
     padding: 0.7rem 1.15rem;
     min-width: 128px;
 }
@@ -891,6 +909,7 @@ html, body {
     font-family: Georgia, "Palatino Linotype", "Times New Roman", serif;
     font-size: 0.9rem;
     line-height: 1.5;
+    overflow-wrap: anywhere;
 }
 
 .leaderboard-list {
@@ -898,6 +917,7 @@ html, body {
     min-height: 0;
     display: flex;
     flex-direction: column;
+    align-items: stretch;
     gap: 0.9rem;
     max-height: none;
     padding-right: 0.35rem;
@@ -906,9 +926,10 @@ html, body {
 }
 
 .leaderboard-row {
+    flex: 0 0 auto;
     position: relative;
     display: grid;
-    grid-template-columns: 88px minmax(0, 1fr) minmax(170px, auto);
+    grid-template-columns: 88px minmax(0, 1fr) minmax(140px, auto);
     align-items: center;
     gap: 1.15rem;
     padding: 1.15rem 1.2rem;
@@ -1093,9 +1114,11 @@ html, body {
     font-family: Georgia, "Palatino Linotype", "Times New Roman", serif;
     font-size: 0.88rem;
     line-height: 1.45;
+    overflow-wrap: anywhere;
 }
 
 .leaderboard-empty {
+    flex: 0 0 auto;
     padding: 2.6rem 1rem;
     text-align: center;
     border: 1px dashed rgba(240, 208, 96, 0.2);
@@ -1109,6 +1132,12 @@ html, body {
 }
 
 @media (max-width: 820px) {
+    .leaderboard-content {
+        width: min(96vw, 900px);
+        max-height: min(90vh, 920px);
+        max-height: min(90dvh, 920px);
+    }
+
     .leaderboard-header {
         flex-direction: column;
         align-items: stretch;
@@ -1121,12 +1150,24 @@ html, body {
     }
 
     .leaderboard-row {
-        grid-template-columns: auto 1fr;
+        grid-template-columns: 72px minmax(0, 1fr);
+        gap: 1rem;
+        padding: 1rem 1.05rem;
     }
 
     .leaderboard-current-card {
         grid-template-columns: 1fr;
         align-items: stretch;
+    }
+
+    .leaderboard-rank-badge {
+        width: 72px;
+        min-height: 72px;
+        border-radius: 18px;
+    }
+
+    .leaderboard-rank-number {
+        font-size: 1.15rem;
     }
 
     .leaderboard-score-block {
@@ -1142,31 +1183,90 @@ html, body {
 
 @media (max-width: 640px) {
     .leaderboard-content {
-        width: min(95vw, 900px);
-        max-height: min(90vh, 920px);
-        padding: 1.15rem;
+        width: min(96vw, 900px);
+        max-height: min(94vh, 920px);
+        max-height: min(94dvh, 920px);
+        padding: 1rem;
+        border-radius: 18px;
+    }
+
+    .leaderboard-header {
+        gap: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .leaderboard-title {
+        font-size: clamp(1.65rem, 7.5vw, 2.2rem);
+    }
+
+    .leaderboard-subtitle {
+        font-size: 0.92rem;
+        line-height: 1.5;
+    }
+
+    .leaderboard-close-btn {
+        width: 100%;
+        min-width: 0;
+        min-height: 50px;
     }
 
     .leaderboard-controls {
         grid-template-columns: 1fr;
     }
 
+    .leaderboard-tab {
+        min-height: 50px;
+        padding: 0.8rem 0.95rem;
+    }
+
     .leaderboard-status-row {
         flex-direction: column;
         align-items: stretch;
+        padding: 0.85rem 0.9rem;
     }
 
     .leaderboard-refresh-btn {
         width: 100%;
+        min-width: 0;
+    }
+
+    .leaderboard-current-card {
+        gap: 0.85rem;
+        padding: 1rem;
+    }
+
+    .leaderboard-current-rank-text {
+        font-size: 1.2rem;
+    }
+
+    .leaderboard-current-score span {
+        font-size: 1.05rem;
+    }
+
+    .leaderboard-current-score small {
+        max-width: none;
+    }
+
+    .leaderboard-list {
+        gap: 0.75rem;
+        padding-right: 0;
     }
 
     .leaderboard-rank-badge {
-        width: 68px;
-        min-height: 68px;
+        width: 64px;
+        min-height: 64px;
+        border-radius: 16px;
     }
 
     .leaderboard-rank-number {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
+    }
+
+    .leaderboard-row {
+        grid-template-columns: 64px minmax(0, 1fr);
+        gap: 0.85rem;
+        padding: 0.95rem;
+        border-radius: 16px;
     }
 
     .leaderboard-player-name {
@@ -1176,10 +1276,46 @@ html, body {
     .leaderboard-fact-pill {
         width: 100%;
         justify-content: space-between;
+        min-width: 0;
     }
 
     .leaderboard-score-value {
-        font-size: 1.35rem;
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    #leaderboard-modal.modal {
+        padding: 0.5rem;
+    }
+
+    .leaderboard-content {
+        width: calc(100vw - 1rem);
+        padding: 0.9rem;
+        border-radius: 16px;
+    }
+
+    .leaderboard-row {
+        grid-template-columns: 1fr;
+    }
+
+    .leaderboard-rank-badge {
+        width: 100%;
+        min-height: 0;
+        padding: 0.65rem 0.75rem;
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 0.75rem;
+        border-radius: 14px;
+    }
+
+    .leaderboard-rank-caption {
+        text-align: right;
+    }
+
+    .leaderboard-current-facts,
+    .leaderboard-player-facts {
+        gap: 0.4rem;
     }
 }
 
