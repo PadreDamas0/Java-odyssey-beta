@@ -1620,14 +1620,14 @@ System.out.println(cheer(3));`,
             return {
                 id: 'ch1_arena_trials',
                 title: 'Arena Of Heroes Trial',
-                description: 'Only the Big Boss remains. Move close and press E to begin the final arena battle.'
+                description: 'Only the Arena Sovereign remains. Move close and press E to begin the final arena battle.'
             };
         }
 
         return {
             id: 'ch1_arena_trials',
             title: 'Arena Of Heroes Cleared',
-            description: 'All three arena opponents have been defeated.'
+            description: 'The Arena Sovereign has fallen, and the gate beyond the arena now stands open.'
         };
     },
 
@@ -1635,8 +1635,8 @@ System.out.println(cheer(3));`,
         const enemyId = this.getArenaCurrentEnemyId();
         if (enemyId === 'slimebug') return 'Approach the Slimebug and press E to start the fight.';
         if (enemyId === 'bird') return 'Approach the Bird and press E to start the fight.';
-        if (enemyId === 'bigboss') return 'Approach the Big Boss and press E to start the final fight.';
-        return 'The Arena of Heroes is clear.';
+        if (enemyId === 'bigboss') return 'Approach the Arena Sovereign and press E to start the final fight.';
+        return 'The Arena Sovereign is down. The gate beyond the arena stands open.';
     },
 
     refreshArenaInsideNpcs() {
@@ -1658,7 +1658,7 @@ System.out.println(cheer(3));`,
                 {
                     speaker: 'narrator',
                     name: 'Narrator',
-                    text: `<em>The Arena of Heroes falls quiet for a moment. Three opponents will challenge you here: the Slimebug, the Bird, and the Big Boss.</em>`,
+                    text: `<em>The Arena of Heroes falls quiet for a moment. Three opponents will challenge you here: the Slimebug, the Bird, and the Arena Sovereign.</em>`,
                     portrait: '📜'
                 },
                 {
@@ -1673,6 +1673,12 @@ System.out.println(cheer(3));`,
         }
 
         this.refreshArenaInsideNpcs();
+        if (GameState.hasFlag('ch1_chapter_complete')) {
+            this.showArenaChapterCompleteState();
+            Utils.notify('Chapter 1 is complete. The gate beyond the arena stands open.', 'quest-update', 3200);
+            return;
+        }
+
         Utils.notify(this.getArenaPromptForCurrentEnemy(), 'quest-update', 3200);
     },
 
@@ -1942,7 +1948,7 @@ System.out.println(cheer(3));`,
             {
                 speaker: 'narrator',
                 name: 'Narrator',
-                text: `<em>The Bird crashes into the arena sand and fades into static. Heat rolls through the coliseum as the Big Boss steps forward for the final battle.</em>`,
+                text: `<em>The Bird crashes into the arena sand and fades into static. Heat rolls through the coliseum as the Arena Sovereign steps forward for the final battle.</em>`,
                 portrait: '📜'
             },
             {
@@ -1953,7 +1959,7 @@ System.out.println(cheer(3));`,
             }
         ]);
 
-        Utils.notify('Approach the Big Boss and press E to start the final fight.', 'quest-update', 3600);
+        Utils.notify('Approach the Arena Sovereign and press E to start the final fight.', 'quest-update', 3600);
     },
 
     async startArenaBigBossEncounter() {
@@ -1961,24 +1967,42 @@ System.out.println(cheer(3));`,
             {
                 speaker: 'narrator',
                 name: 'Narrator',
-                text: `<em>The Big Boss plants its burning weapon against the arena floor. The final match begins under the roar of the crowd.</em>`,
+                text: `<em>The battlefield falls silent as the sky fractures above the Arena. The final guardian of Chapter 1 steps forward: the <span class="highlight">Arena Sovereign</span>.</em>`,
+                portrait: '📜'
+            },
+            {
+                speaker: 'narrator',
+                name: 'Narrator',
+                text: `<em>Forged from fallen champions, he speaks with many voices at once. Chains of cursed light drag behind him. With each step, the ground cracks, the walls shift, and fire spills from the stone.</em>`,
+                portrait: '📜'
+            },
+            {
+                speaker: 'boss',
+                name: 'The Arena Sovereign',
+                text: `You are not the first to reach me... and you will not be the last to fall.`,
+                portrait: '🔥'
+            },
+            {
+                speaker: 'narrator',
+                name: 'Narrator',
+                text: `<em>Shadows lash in from every angle. This is not just a battle. This is a judgment.</em>`,
                 portrait: '📜'
             },
             {
                 speaker: 'player',
                 name: GameState.player.name,
-                text: `You're the last wall between me and this arena. I'm ending it here.`,
+                text: `Then hear my answer. I'm still standing.`,
                 portrait: '\u{1F9D1}\u200D\u{1F4BB}'
             }
         ]);
 
         const bigBoss = {
-            name: 'Big Boss',
+            name: 'Arena Sovereign',
             hp: 162,
             maxHp: 162,
             coinReward: 70,
             art: 'assets/sprites/worldEnemies/arena_bigboss.png',
-            description: 'The final arena tyrant, armored in corrupted fire and heavy code.',
+            description: 'The final guardian of the Arena of Heroes, forged from fallen champions and cursed fire.',
             maxHints: 3,
             correctXpReward: 26,
             firstTryXpReward: 40,
@@ -1993,12 +2017,12 @@ System.out.println(cheer(3));`,
             {
                 id: 'ch1_arena_bigboss_1',
                 prompt: `
-                    <span class="challenge-title">Big Boss: Arm The Counter</span>
+                    <span class="challenge-title">Arena Sovereign: Arm The Counter</span>
                     <p>Write <strong>two lines</strong>:</p>
                     <pre>int fire = 8;
 int guard = 3;</pre>
                 `,
-                narrative: 'The Big Boss raises its weapon. Build your counter with two clean integer declarations.',
+                narrative: 'The Arena Sovereign raises its weapon. Build your counter with two clean integer declarations.',
                 hints: [
                     'Both lines use int.',
                     'The variable names are fire and guard.',
@@ -2012,19 +2036,19 @@ int guard = 3;</pre>
                 explanation: 'Multiple int variables can be declared on separate lines in one response.',
                 concept: 'arena_bigboss_two_line_setup',
                 conceptTitle: 'Multiple Integer Declarations',
-                codexTitle: 'Big Boss - Arm The Counter'
+                codexTitle: 'Arena Sovereign - Arm The Counter'
             },
             {
                 id: 'ch1_arena_bigboss_2',
                 type: 'multiple_choice',
                 prompt: `
-                    <span class="challenge-title">Big Boss: Choose The Damage Formula</span>
+                    <span class="challenge-title">Arena Sovereign: Choose The Damage Formula</span>
                     <p>Given:</p>
                     <pre>int fire = 8;
 int guard = 3;</pre>
                     <p>Which line correctly declares <code>totalDamage</code> as <code>(fire * 2) - guard</code>?</p>
                 `,
-                narrative: 'The Big Boss lunges. Only the right expression will cut through its armor.',
+                narrative: 'The Arena Sovereign lunges. Only the right expression will cut through its armor.',
                 hints: [
                     'Create a new int named totalDamage.',
                     'Use parentheses around fire * 2.',
@@ -2042,12 +2066,12 @@ int guard = 3;</pre>
                 explanation: 'The correct expression keeps the multiplication grouped before subtracting guard.',
                 concept: 'arena_bigboss_expression',
                 conceptTitle: 'Arithmetic Expressions',
-                codexTitle: 'Big Boss - Choose The Damage Formula'
+                codexTitle: 'Arena Sovereign - Choose The Damage Formula'
             },
             {
                 id: 'ch1_arena_bigboss_3',
                 prompt: `
-                    <span class="challenge-title">Big Boss: Claim The Finish</span>
+                    <span class="challenge-title">Arena Sovereign: Claim The Finish</span>
                     <p>Declare a <strong>String</strong> named <code>title</code> with the value <strong>"Champion"</strong>.</p>
                 `,
                 narrative: 'The final blow is within reach. Lock in the winning title and finish the arena cleanly.',
@@ -2061,33 +2085,85 @@ int guard = 3;</pre>
                 explanation: 'Strings store text values, and Java wraps text literals in double quotes.',
                 concept: 'arena_bigboss_title',
                 conceptTitle: 'String Declarations',
-                codexTitle: 'Big Boss - Claim The Finish'
+                codexTitle: 'Arena Sovereign - Claim The Finish'
             }
         ];
     },
 
     async onArenaBigBossVictory() {
+        const chapterAlreadyComplete = GameState.hasFlag('ch1_chapter_complete')
+            || GameState.meta.chapter1CompletedMs !== null;
+
         GameState.setFlag('ch1_arena_bigboss_defeated');
         GameState.setFlag('ch1_arena_trials_complete');
+        GameState.setFlag('ch1_arena_gate_opened');
+        GameState.setFlag('ch1_chapter_complete');
         this.refreshArenaInsideNpcs();
         GameState.completeQuest('ch1_arena_trials');
+        GameState.completeQuest('ch1_syntax_city');
+        GameState.completeQuest('ch1_main');
+        Utils.setActions([]);
 
-        await Dialogue.start([
-            {
-                speaker: 'narrator',
-                name: 'Narrator',
-                text: `<em>The Big Boss drops to one knee, then shatters into drifting embers. The crowd erupts as the Arena of Heroes falls silent around you.</em>`,
-                portrait: '📜'
-            },
-            {
-                speaker: 'player',
-                name: GameState.player.name,
-                text: `All three are down. The arena is mine now.`,
-                portrait: '\u{1F9D1}\u200D\u{1F4BB}'
-            }
+        await this.playArenaSovereignEndingCutscene();
+
+        if (!chapterAlreadyComplete) {
+            GameState.addXP(CONFIG.XP_REWARDS.chapterComplete);
+        }
+
+        GameState.markChapterOneComplete();
+        GameState.save();
+
+        await Utils.showTransition(`
+            <div class="chapter-title-display" style="position:relative;background:transparent;">
+                <div class="chapter-number">Chapter 1 Complete</div>
+                <div class="chapter-name">Champion of the Arena</div>
+                <div class="chapter-subtitle">The Arena has chosen its champion, but the journey ends here for now.</div>
+            </div>
+        `, 2600);
+
+        this.showArenaChapterCompleteState();
+        Utils.notify('Chapter 1 complete. The Arena Sovereign has fallen.', 'level-up', 5000);
+    },
+
+    async playArenaSovereignEndingCutscene() {
+        await new Promise((resolve) => {
+            Cutscene.play([
+                {
+                    art: 'assets/background/ArenaInside.png',
+                    text: `<em>The battlefield falls silent. Beneath the fractured sky, your final strike drives the Arena Sovereign to one knee.</em>`,
+                    waitForClick: true
+                },
+                {
+                    art: 'assets/sprites/worldEnemies/arena_bigboss.png',
+                    text: `<em>The Sovereign kneels... then shatters into light. The chains of fallen warriors break apart, and the Arena collapses into silence.</em>`,
+                    waitForClick: true
+                },
+                {
+                    art: 'assets/background/ArenaInside.png',
+                    text: `"You have proven yourself... but the world beyond this Arena is far more cruel..."`,
+                    waitForClick: true
+                },
+                {
+                    art: 'assets/background/ArenaInside.png',
+                    text: `<em>A massive gate opens ahead of you. Before you can step forward, the screen fades to black.</em>`,
+                    waitForClick: true
+                }
+            ], resolve);
+        });
+    },
+
+    showArenaChapterCompleteState() {
+        Utils.setSceneText(`
+            <div class="location-intro">Chapter 1 Complete</div>
+            <p class="narrator">The Arena has chosen its champion. The coliseum stands silent, and the great gate beyond the sands has finally opened.</p>
+            <p class="narrator">What waits past that gate belongs to another chapter. For now, your journey pauses here.</p>
+        `);
+
+        Utils.setActions([
+            { label: 'Continue Beyond the Gate (Coming Soon)', primary: true, callback: () => this.showComingSoon() },
+            { label: 'Return to Syntax City', callback: () => World.goTo('ch1_syntax_city_square', 'Leaving the Arena of Heroes...') },
+            { label: 'Return to Main Menu', callback: () => Game.returnToMenu() }
         ]);
-
-        Utils.notify('Arena cleared! Slimebug, Bird, and Big Boss defeated.', 'level-up', 4200);
     },
 
     async showCaveGuideDialogue() {
@@ -4011,13 +4087,13 @@ ______________________</pre>
             {
                 speaker: 'narrator',
                 name: 'Narrator',
-                text: `<em>Chapter 2: The Conditional Crossroads is coming soon! In the next chapter, you'll learn about if-else statements, comparison operators, and logical conditions.</em>`,
+                text: `<em>The road ahead leads toward Chapter 2: The Conditional Crossroads. That path is not open yet, but harsher trials are waiting there.</em>`,
                 portrait: '📖'
             },
             {
                 speaker: 'narrator',
                 name: 'Narrator',
-                text: `<em>For now, you can explore the restored Village of Variables, review your Codex, or return to the main menu. Your progress has been saved!</em>`,
+                text: `<em>For now, you can revisit Chapter 1, review your Codex, or return to the main menu. Your progress has been saved.</em>`,
                 portrait: '📖'
             }
         ]);
@@ -5070,7 +5146,7 @@ System.out.println(b.speed);`,
 
     getArenaBigBossChallenges() {
         const area = 'Arena of Heroes';
-        const npc = 'Big Boss';
+        const npc = 'Arena Sovereign';
 
         return [
             {
@@ -5079,7 +5155,7 @@ System.out.println(b.speed);`,
                 questionType: 'Predict the Output',
                 area,
                 npc,
-                question: `<em>The Big Boss raises rune-shields across the arena.</em> What is printed by this code?`,
+                question: `<em>The Arena Sovereign raises rune-shields across the arena.</em> What is printed by this code?`,
                 code: `public static int pulse(int n) {
     if (n % 2 == 0) return n / 2;
     return n * 2;
@@ -5105,7 +5181,7 @@ System.out.println(total);`,
                 explanation: 'The loop adds pulse(1)=2, pulse(2)=1, and pulse(3)=6 for a total of 9.',
                 concept: 'boss_methods_loops',
                 conceptTitle: 'Methods And Loops',
-                codexTitle: 'Big Boss - Pulse Sequence'
+                codexTitle: 'Arena Sovereign - Pulse Sequence'
             },
             {
                 id: 'ch1_arena_boss_story_2',
@@ -5114,7 +5190,7 @@ System.out.println(total);`,
                 questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>The Big Boss grins.</em> What is printed by this code?`,
+                question: `<em>The Arena Sovereign grins with many voices.</em> What is printed by this code?`,
                 code: `int hp = 4;
 int mana = 6;
 boolean shield = hp++ > 3 || --mana > 5;
@@ -5133,7 +5209,7 @@ System.out.println(hp + ":" + mana + ":" + shield);`,
                 explanation: 'The left side is true, so the right side is skipped. hp becomes 5, mana stays 6, and shield is true.',
                 concept: 'boss_short_circuit',
                 conceptTitle: 'Logical Short-Circuiting',
-                codexTitle: 'Big Boss - Short-Circuit Logic'
+                codexTitle: 'Arena Sovereign - Short-Circuit Logic'
             },
             {
                 id: 'ch1_arena_boss_story_3',
@@ -5167,7 +5243,7 @@ switch (mark) {
                 explanation: 'With no break after case 2, execution continues into case 3 and default, printing BCD.',
                 concept: 'boss_switch_fallthrough',
                 conceptTitle: 'switch Fallthrough',
-                codexTitle: 'Big Boss - switch Fallthrough'
+                codexTitle: 'Arena Sovereign - switch Fallthrough'
             },
             {
                 id: 'ch1_arena_boss_story_4',
@@ -5198,7 +5274,7 @@ System.out.println(sum);`,
                 explanation: 'The loop adds runes[0] and runes[2], which are 3 and 4, for a total of 7.',
                 concept: 'boss_arrays_loops',
                 conceptTitle: 'Arrays With Loops',
-                codexTitle: 'Big Boss - Skipping Runes'
+                codexTitle: 'Arena Sovereign - Skipping Runes'
             },
             {
                 id: 'ch1_arena_boss_story_5',
@@ -5225,7 +5301,7 @@ System.out.println(sum);`,
                 explanation: 'this.name refers to the field in the object, while name refers to the constructor parameter.',
                 concept: 'boss_constructor_this',
                 conceptTitle: 'Constructors And this',
-                codexTitle: 'Big Boss - Constructors'
+                codexTitle: 'Arena Sovereign - Constructors'
             },
             {
                 id: 'ch1_arena_boss_story_6',
@@ -5248,7 +5324,7 @@ System.out.println(sum);`,
                 explanation: 'a and b refer to the same object, so changing the object through b is visible through a.',
                 concept: 'boss_reference_aliasing',
                 conceptTitle: 'Object References',
-                codexTitle: 'Big Boss - Shared References'
+                codexTitle: 'Arena Sovereign - Shared References'
             },
             {
                 id: 'ch1_arena_boss_story_7',
@@ -5283,7 +5359,7 @@ System.out.println(score);`,
                 explanation: 'The surviving pairs contribute 3, 3, 4, and 5, so the total is 15.',
                 concept: 'boss_nested_loops',
                 conceptTitle: 'Nested Loops',
-                codexTitle: 'Big Boss - Nested Loops'
+                codexTitle: 'Arena Sovereign - Nested Loops'
             },
             {
                 id: 'ch1_arena_boss_story_8',
@@ -5327,7 +5403,7 @@ System.out.println(o.power);`,
                 explanation: 'The orb starts at 1 and gains 2, 2, and 4, so it ends with power 9.',
                 concept: 'boss_oop_loop_mix',
                 conceptTitle: 'Objects, Methods, And Loops',
-                codexTitle: 'Big Boss - Charge The Orb'
+                codexTitle: 'Arena Sovereign - Charge The Orb'
             }
         ];
     },

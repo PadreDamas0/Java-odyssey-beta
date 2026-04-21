@@ -419,10 +419,10 @@ const Platformer = {
       id: 'arena-bigboss',
       role: 'arena_enemy',
       enemyId: 'bigboss',
-      name: 'Big Boss',
+      name: 'Arena Sovereign',
       relX: 0.76,
       interactionRange: 132,
-      dialogue: 'The Big Boss towers over the arena, burning with corrupted power.',
+      dialogue: 'The Arena Sovereign towers over the arena, dragging the weight of fallen champions behind him.',
       portrait: '🔥',
       sprite: {
         assetKey: 'enemy_arena_bigboss_world',
