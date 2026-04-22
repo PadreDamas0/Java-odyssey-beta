@@ -4,15 +4,136 @@ const Auth = {
     authPromise: null,
     lastProgressSignature: '',
     passwordTogglesReady: false,
+    authMusic: null,
+    authMusicUnlockCleanup: null,
+    authMusicInitialized: false,
 
     init() {
         this.initAuthPage();
+        this.initAuthMusic();
         this.initPasswordToggles();
 
         if (document.body.classList.contains('game-page')) {
             this.bootstrapFromPage();
             this.bindProgressFlush();
         }
+    },
+
+    getAuthSettingsKey() {
+        if (typeof window.CONFIG !== 'undefined' && CONFIG && CONFIG.SETTINGS_KEY) {
+            return CONFIG.SETTINGS_KEY;
+        }
+
+        return 'java_odyssey_settings';
+    },
+
+    getAuthMusicPreferences() {
+        const fallback = {
+            volume: 0.7,
+            muted: false
+        };
+
+        try {
+            const raw = window.localStorage.getItem(this.getAuthSettingsKey());
+            if (!raw) {
+                return fallback;
+            }
+
+            const parsed = JSON.parse(raw);
+            const musicVolume = Number(parsed?.musicVolume);
+
+            return {
+                volume: Number.isFinite(musicVolume)
+                    ? Math.max(0, Math.min(musicVolume / 100, 1))
+                    : fallback.volume,
+                muted: Boolean(parsed?.muted)
+            };
+        } catch (error) {
+            console.warn('Unable to read auth audio settings.', error);
+            return fallback;
+        }
+    },
+
+    applyAuthMusicPreferences() {
+        if (!this.authMusic) {
+            return;
+        }
+
+        const preferences = this.getAuthMusicPreferences();
+        this.authMusic.volume = preferences.volume;
+        this.authMusic.muted = preferences.muted;
+    },
+
+    clearAuthMusicUnlockHandlers() {
+        if (typeof this.authMusicUnlockCleanup === 'function') {
+            this.authMusicUnlockCleanup();
+        }
+
+        this.authMusicUnlockCleanup = null;
+    },
+
+    async startAuthMusic() {
+        if (!this.authMusic) {
+            return false;
+        }
+
+        this.applyAuthMusicPreferences();
+
+        if (!this.authMusic.paused) {
+            return true;
+        }
+
+        try {
+            await this.authMusic.play();
+            this.clearAuthMusicUnlockHandlers();
+            return true;
+        } catch (error) {
+            if (error?.name !== 'NotAllowedError') {
+                console.warn('Auth page music could not start.', error);
+            }
+
+            return false;
+        }
+    },
+
+    initAuthMusic() {
+        if (!document.body.classList.contains('auth-page') || this.authMusicInitialized) {
+            return;
+        }
+
+        this.authMusicInitialized = true;
+        this.authMusic = new window.Audio('assets/audio/bgm/main_menu.mp3');
+        this.authMusic.loop = true;
+        this.authMusic.preload = 'auto';
+        this.applyAuthMusicPreferences();
+
+        const unlockAudio = () => {
+            this.startAuthMusic();
+        };
+
+        const teardown = () => {
+            ['pointerdown', 'keydown', 'touchstart'].forEach((eventName) => {
+                document.removeEventListener(eventName, unlockAudio);
+            });
+        };
+
+        ['pointerdown', 'keydown', 'touchstart'].forEach((eventName) => {
+            document.addEventListener(eventName, unlockAudio, { passive: true });
+        });
+
+        this.authMusicUnlockCleanup = teardown;
+
+        window.addEventListener('pageshow', () => {
+            this.startAuthMusic();
+        });
+
+        window.addEventListener('pagehide', () => {
+            if (this.authMusic) {
+                this.authMusic.pause();
+            }
+        });
+
+        this.startAuthMusic();
     },
 
     initPasswordToggles() {
