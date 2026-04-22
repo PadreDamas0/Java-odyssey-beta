@@ -2660,169 +2660,6 @@ System.out.println(threat + " blocked the tunnel");</pre>
         Combat.start(fireWorm, this.getFireWormChallenges(), () => this.onFireWormVictory());
     },
 
-    getFireWormChallenges() {
-        return [
-            {
-                id: 'ch1_fire_worm_1',
-                prompt: `
-                    <span class="challenge-title">Fire Worm: Build The Shield</span>
-                    <p>Write <strong>two lines</strong>:</p>
-                    <pre>int shield = 18;
-boolean ready = true;</pre>
-                `,
-                narrative: 'The worm surges forward in a wave of heat. Build your defense in two clean lines!',
-                hints: [
-                    'First declare shield as an int.',
-                    'Then declare ready as a boolean.',
-                    'Answer:\nint shield = 18;\nboolean ready = true;'
-                ],
-                answers: [
-                    'int shield = 18;\nboolean ready = true;',
-                    'boolean ready = true;\nint shield = 18;'
-                ],
-                damage: 46,
-                explanation: 'A stronger encounter can still be stabilized one declaration at a time.',
-                concept: 'fire_worm_shield_setup',
-                conceptTitle: 'Multi-Line Setup',
-                codexTitle: 'Fire Worm - Build The Shield',
-                feedbackDuration: 3200
-            },
-            {
-                id: 'ch1_fire_worm_2',
-                type: 'multiple_choice',
-                prompt: `
-                    <span class="challenge-title">Fire Worm: Choose The Counter</span>
-                    <p>Given:</p>
-                    <pre>int flame = 12;
-int strike = 9;</pre>
-                    <p>Which answer correctly creates <code>totalDamage</code> and prints it?</p>
-                `,
-                narrative: 'The cave trembles. Pick the correct two-line counter before the worm crashes through your guard.',
-                hints: [
-                    'Line 1 declares totalDamage with parentheses.',
-                    'Line 2 prints totalDamage.',
-                    'Answer:\nint totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);'
-                ],
-                choices: [
-                    'int totalDamage = flame + strike * 2;\nSystem.out.println(flame);',
-                    'int totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);',
-                    'totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);',
-                    'int totalDamage = (flame + strike) * 2;\nSystem.out.println("totalDamage");'
-                ],
-                correctOption: 1,
-                answers: ['int totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);'],
-                damage: 54,
-                explanation: 'You can combine arithmetic and output across multiple lines.',
-                concept: 'fire_worm_counter_combo',
-                conceptTitle: 'Multi-Line Combat Expressions',
-                codexTitle: 'Fire Worm - Counter Choice',
-                feedbackDuration: 3200
-            },
-            {
-                id: 'ch1_fire_worm_3',
-                prompt: `
-                    <span class="challenge-title">Fire Worm: Seal The Fragment</span>
-                    <p>Write <strong>two lines</strong>:</p>
-                    <pre>String fragment = "secured";
-System.out.println("Fragment " + fragment);</pre>
-                `,
-                narrative: 'The fire worm weakens. Seal the fragment state before the cave collapses around it!',
-                hints: [
-                    'First declare the fragment String.',
-                    'Then print "Fragment " plus fragment.',
-                    'Answer:\nString fragment = "secured";\nSystem.out.println("Fragment " + fragment);'
-                ],
-                answers: [
-                    'String fragment = "secured";\nSystem.out.println("Fragment " + fragment);',
-                    'String fragment="secured";\nSystem.out.println("Fragment " + fragment);',
-                    'String fragment = "secured";\nSystem.out.println("Fragment "+fragment);'
-                ],
-                damage: 62,
-                explanation: 'A variable declared on one line can be used immediately on the next line.',
-                concept: 'fire_worm_fragment_finish',
-                conceptTitle: 'Completing A Multi-Line Finish',
-                codexTitle: 'Fire Worm - Seal The Fragment',
-                feedbackDuration: 3200
-            }
-        ];
-
-        return [
-            {
-                id: 'ch1_fire_worm_1',
-                prompt: `
-                    <span class="challenge-title">🔥 Fire Worm: Build The Shield</span>
-                    <p>Write <strong>two lines</strong>:</p>
-                    <pre>int shield = 18;
-boolean ready = true;</pre>
-                `,
-                narrative: 'The worm surges forward in a wave of heat. Build your defense in two clean lines!',
-                hints: [
-                    'First declare shield as an int.',
-                    'Then declare ready as a boolean.',
-                    'Answer:\nint shield = 18;\nboolean ready = true;'
-                ],
-                answers: [
-                    'int shield = 18;\nboolean ready = true;',
-                    'boolean ready = true;\nint shield = 18;'
-                ],
-                damage: 46,
-                explanation: 'A stronger encounter can still be stabilized one declaration at a time.',
-                concept: 'fire_worm_shield_setup',
-                conceptTitle: 'Multi-Line Setup'
-            },
-            {
-                id: 'ch1_fire_worm_2',
-                prompt: `
-                    <span class="challenge-title">🔥 Fire Worm: Calculate The Counter</span>
-                    <p>Given:</p>
-                    <pre>int flame = 12;
-int strike = 9;</pre>
-                    <p>Write <strong>two lines</strong>:</p>
-                    <pre>int totalDamage = (flame + strike) * 2;
-System.out.println(totalDamage);</pre>
-                `,
-                narrative: 'The cave trembles. Only a stronger two-line counterattack will break its guard.',
-                hints: [
-                    'Line 1 declares totalDamage with parentheses.',
-                    'Line 2 prints totalDamage.',
-                    'Answer:\nint totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);'
-                ],
-                answers: [
-                    'int totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);',
-                    'int totalDamage=(flame+strike)*2;\nSystem.out.println(totalDamage);'
-                ],
-                damage: 54,
-                explanation: 'You can combine arithmetic and output across multiple lines.',
-                concept: 'fire_worm_counter_combo',
-                conceptTitle: 'Multi-Line Combat Expressions'
-            },
-            {
-                id: 'ch1_fire_worm_3',
-                prompt: `
-                    <span class="challenge-title">🔥 Fire Worm: Seal The Fragment</span>
-                    <p>Write <strong>two lines</strong>:</p>
-                    <pre>String fragment = "secured";
-System.out.println("Fragment " + fragment);</pre>
-                `,
-                narrative: 'The fire worm weakens. Seal the fragment state before the cave collapses around it!',
-                hints: [
-                    'First declare the fragment String.',
-                    'Then print "Fragment " plus fragment.',
-                    'Answer:\nString fragment = "secured";\nSystem.out.println("Fragment " + fragment);'
-                ],
-                answers: [
-                    'String fragment = "secured";\nSystem.out.println("Fragment " + fragment);',
-                    'String fragment="secured";\nSystem.out.println("Fragment " + fragment);',
-                    'String fragment = "secured";\nSystem.out.println("Fragment "+fragment);'
-                ],
-                damage: 62,
-                explanation: 'A variable declared on one line can be used immediately on the next line.',
-                concept: 'fire_worm_fragment_finish',
-                conceptTitle: 'Completing A Multi-Line Finish'
-            }
-        ];
-    },
-
     async onFireWormVictory() {
         GameState.setFlag('ch1_fire_worm_defeated');
         GameState.setFlag('ch1_fragment_recovered');
@@ -4708,7 +4545,7 @@ System.out.println(left + right);`,
                 questionType: 'Code Completion',
                 area,
                 npc,
-                question: `<em>The worm erupts beside the tunnel wall.</em> Write the two lines that set up your defense.`,
+                question: `<em>The worm erupts beside the tunnel wall.</em> Write the two Java lines that declare <code>shield</code> as <code>18</code> and <code>ready</code> as <code>true</code>.`,
                 code: `_____
 _____`,
                 answerTip: 'Type both Java lines.',
@@ -4717,9 +4554,9 @@ _____`,
                 matchMode: 'exact',
                 narrative: 'This is the first real spike. Start with a clean multi-line setup before the heat closes in.',
                 hints: [
-                    'The first line declares an int shield with value 18.',
-                    'The second line declares a boolean ready with value true.',
-                    'Write one statement per line.'
+                    'Line 1 should be int shield = 18;',
+                    'Line 2 should be boolean ready = true;',
+                    'Write one full Java statement per line.'
                 ],
                 answers: [
                     'int shield = 18;\nboolean ready = true;',
@@ -4738,12 +4575,12 @@ _____`,
                 questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>The worm thrashes through the lava glow.</em> Which line correctly declares <code>burstDamage</code> as <code>(flame + strike) * 2</code>?`,
+                question: `<em>The worm thrashes through the lava glow.</em> Which one-line answer correctly declares <code>burstDamage</code> as <code>(flame + strike) * 2</code>?`,
                 narrative: 'Now the boss expects a more careful expression. Parentheses matter here.',
                 hints: [
-                    'Create a new int variable named burstDamage.',
-                    'Add flame and strike first, then multiply by 2.',
-                    'Only one option keeps the intended grouping.'
+                    'Declare a new int variable named burstDamage.',
+                    'Add flame and strike first, then multiply the result by 2.',
+                    'Only one option is valid Java and keeps that grouping.'
                 ],
                 choices: [
                     'int burstDamage = flame + strike * 2;',
@@ -4765,7 +4602,7 @@ _____`,
                 questionType: 'Fix the Code',
                 area,
                 npc,
-                question: `<em>The heat reading is too precise for the shield spell.</em> Fix the broken line so only the whole-number part of <code>double heat = 14.9;</code> is stored in <code>int heavyHit</code>.`,
+                question: `<em>The heat reading is too precise for the shield spell.</em> Fix the broken line so <code>int heavyHit</code> stores only the whole-number part of <code>double heat = 14.9;</code>.`,
                 code: `int heavyHit = heat;`,
                 answerTip: 'Type the full corrected line.',
                 inputPlaceholder: 'Type the corrected Java line',
@@ -4774,8 +4611,8 @@ _____`,
                 narrative: 'This boss starts demanding cleaner thinking. You need a cast now.',
                 hints: [
                     'Converting from double to int needs an explicit cast.',
-                    'Place (int) in front of heat.',
-                    'Keep the variable type as int.'
+                    'Put (int) directly in front of heat.',
+                    'Keep heavyHit declared as an int.'
                 ],
                 answers: ['int heavyHit = (int) heat;'],
                 damage: 30,
@@ -4790,7 +4627,7 @@ _____`,
                 questionType: 'Predict the Output',
                 area,
                 npc,
-                question: `<em>The fragment flashes through the fire.</em> What is printed by this code?`,
+                question: `<em>The fragment flashes through the fire.</em> What exact output is printed by this code?`,
                 code: `String fragment = "Prime";
 int piece = 2;
 System.out.println(fragment + " " + piece);`,
@@ -4799,9 +4636,9 @@ System.out.println(fragment + " " + piece);`,
                 matchMode: 'exact',
                 narrative: 'You are now mixing text and numbers under pressure.',
                 hints: [
-                    'fragment stores text.',
-                    'A space is added between the String and the number.',
-                    'The output keeps both values.'
+                    'fragment stores text, and piece stores a number.',
+                    'The code adds a space between them.',
+                    'Type the final printed text exactly.'
                 ],
                 answers: ['Prime 2'],
                 damage: 32,
@@ -4816,7 +4653,7 @@ System.out.println(fragment + " " + piece);`,
                 questionType: 'Boss Challenge',
                 area,
                 npc,
-                question: `<em>The cave shakes as the boss starts to fall.</em> Write the two lines that mark the fragment as secured and print <code>Fragment secured</code>.`,
+                question: `<em>The cave shakes as the boss starts to fall.</em> Write two Java lines that store <code>"secured"</code> in a <code>String fragment</code> variable and then print <code>Fragment secured</code> using that variable.`,
                 code: `_____
 _____`,
                 answerTip: 'Type both Java lines.',
@@ -4825,14 +4662,19 @@ _____`,
                 matchMode: 'exact',
                 narrative: 'This is the boss finish. You need one correct declaration and one correct print line under pressure.',
                 hints: [
-                    'The first line declares String fragment = "secured";',
-                    'The second line prints "Fragment " plus the variable.',
-                    'Write one full statement per line.'
+                    'Line 1 should be String fragment = "secured";',
+                    'Line 2 should print "Fragment " + fragment.',
+                    'Use the fragment variable in the print line.'
                 ],
                 answers: [
                     'String fragment = "secured";\nSystem.out.println("Fragment " + fragment);',
                     'String fragment="secured";\nSystem.out.println("Fragment " + fragment);',
-                    'String fragment = "secured";\nSystem.out.println("Fragment "+fragment);'
+                    'String fragment = "secured";\nSystem.out.println("Fragment "+fragment);',
+                    'String fragment="secured";\nSystem.out.println("Fragment "+fragment);',
+                    'String fragment = "secured";\nSystem.out.println("Fragment " +fragment);',
+                    'String fragment="secured";\nSystem.out.println("Fragment " +fragment);',
+                    'String fragment = "secured";\nSystem.out.println("Fragment "+ fragment);',
+                    'String fragment="secured";\nSystem.out.println("Fragment "+ fragment);'
                 ],
                 damage: 34,
                 explanation: 'The boss finale combines a String declaration and a printed result using concatenation.',
