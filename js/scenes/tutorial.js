@@ -43,100 +43,124 @@ const TutorialScene = {
     getTutorialChallenges() {
         return [
             {
-                id: 'tutorial_light_attack',
-                title: 'Light Attack',
+                id: 'tutorial_variable_int',
+                title: 'Gold Storage',
                 questionType: 'Code Completion',
                 area: 'Dark Alley',
                 npc: 'Cipher',
-                question: `<em>Cipher raises a glowing hand.</em> Type the Java command that will print <code>Light Attack</code>.`,
-                answerTip: 'Type the full System.out.println command. Semicolon is accepted but optional here.',
-                inputPlaceholder: 'System.out.println("Light Attack");',
+                question: `<em>Cipher sketches a glowing inventory rune.</em> Which Java line declares an <code>int</code> variable named <code>gold</code> with the value <code>100</code>?`,
+                answerTip: 'Type the full Java line.',
+                inputPlaceholder: 'int gold = 100;',
                 inputMode: 'code',
-                narrative: 'Your first combat spell is simple: print the attack name exactly.',
+                narrative: 'The tutorial now starts with the most basic weapon in Java: declaring a variable.',
                 hints: [
-                    'Printing text in Java starts with System.out.println.',
-                    'The words Light Attack must be inside double quotes.',
-                    'Full answer: System.out.println("Light Attack");'
+                    'Use int for a whole number.',
+                    'The variable name must be gold.',
+                    'Full answer: int gold = 100;'
+                ],
+                answers: ['int gold = 100;'],
+                damage: 12,
+                explanation: 'int gold = 100; declares an integer variable named gold and stores the value 100.',
+                concept: 'variables_int',
+                conceptTitle: 'Integer Variables',
+                codexTitle: 'Tutorial - Gold Storage'
+            },
+            {
+                id: 'tutorial_variable_string',
+                title: 'Hero Name',
+                questionType: 'Code Completion',
+                area: 'Dark Alley',
+                npc: 'Cipher',
+                question: `<em>The next rune glows with your identity.</em> Which Java line stores <code>"Rowan"</code> in a variable named <code>hero</code>?`,
+                answerTip: 'Type the full Java line.',
+                inputPlaceholder: 'String hero = "Rowan";',
+                inputMode: 'code',
+                narrative: 'After whole numbers comes text. Java stores text with String variables.',
+                hints: [
+                    'Use String with a capital S.',
+                    'Text values need double quotes.',
+                    'Full answer: String hero = "Rowan";'
+                ],
+                answers: ['String hero = "Rowan";'],
+                damage: 12,
+                explanation: 'String hero = "Rowan"; stores a text value inside a String variable.',
+                concept: 'variables_string',
+                conceptTitle: 'String Variables',
+                codexTitle: 'Tutorial - Hero Name'
+            },
+            {
+                id: 'tutorial_variable_boolean',
+                title: 'Battle Flag',
+                questionType: 'Code Completion',
+                area: 'Dark Alley',
+                npc: 'Cipher',
+                question: `<em>Cipher raises a shield sigil.</em> Which line declares a <code>boolean</code> variable named <code>ready</code> and sets it to <code>true</code>?`,
+                answerTip: 'Type the full Java line.',
+                inputPlaceholder: 'boolean ready = true;',
+                inputMode: 'code',
+                narrative: 'The third lesson is true-or-false state. Java uses boolean for that.',
+                hints: [
+                    'Use boolean for true or false values.',
+                    'true is lowercase in Java.',
+                    'Full answer: boolean ready = true;'
+                ],
+                answers: ['boolean ready = true;'],
+                damage: 12,
+                explanation: 'boolean ready = true; creates a boolean variable and stores a true value in it.',
+                concept: 'variables_boolean',
+                conceptTitle: 'boolean Variables',
+                codexTitle: 'Tutorial - Battle Flag'
+            },
+            {
+                id: 'tutorial_variable_print',
+                title: 'Torch Message',
+                questionType: 'Code Completion',
+                area: 'Dark Alley',
+                npc: 'Cipher',
+                question: `<em>The alley darkens for a moment.</em> Type the Java command that will print <code>Torch Lit</code>.`,
+                answerTip: 'Type the full print command. Semicolon is accepted but optional here.',
+                inputPlaceholder: 'System.out.println("Torch Lit");',
+                inputMode: 'code',
+                narrative: 'Now you use a variable lesson together with output: clean Java still needs correct printing.',
+                hints: [
+                    'Printing text starts with System.out.println.',
+                    'Torch Lit must be inside double quotes.',
+                    'Full answer: System.out.println("Torch Lit");'
                 ],
                 answers: [
-                    'System.out.println("Light Attack");',
-                    'System.out.println("Light Attack")'
+                    'System.out.println("Torch Lit");',
+                    'System.out.println("Torch Lit")'
                 ],
-                damage: 16,
-                explanation: 'System.out.println("Light Attack"); prints the text Light Attack on its own line.',
-                concept: 'print_light_attack',
-                conceptTitle: 'Printing A Basic Attack',
-                codexTitle: 'Tutorial - Light Attack'
-            },
-            {
-                id: 'tutorial_program_structure',
-                title: 'Shape The Spell',
-                questionType: 'True or False',
-                area: 'Dark Alley',
-                npc: 'Cipher',
-                question: `<em>A rune tablet appears in the air.</em> True or false: <code>class FirstTrial { }</code> is a valid Java class declaration.`,
-                answerTip: 'Type only true or false.',
-                inputPlaceholder: 'Type true or false',
-                matchMode: 'exact',
-                narrative: 'The creature recoils. Confirm whether the cracked class shell is valid.',
-                hints: [
-                    'Java programs are organized into classes.',
-                    'The keyword comes before the class name.',
-                    'The braces form the class body.'
-                ],
-                answers: ['true'],
-                damage: 14,
-                explanation: 'A Java class declaration uses the class keyword, a class name, and braces to hold the class body.',
-                concept: 'java_program_structure',
-                conceptTitle: 'Structure Of A Java Program',
-                codexTitle: 'Tutorial - Program Structure'
-            },
-            {
-                id: 'tutorial_main_method',
-                title: 'Awaken The Entry Rune',
-                questionType: 'Fill in the Blank',
-                area: 'Dark Alley',
-                npc: 'Cipher',
-                question: `<em>Cipher points to the spell that begins every true journey.</em> Fill in the blank: <code>public static void ____ (String[] args)</code>`,
-                answerTip: 'Type only the missing method name.',
-                inputPlaceholder: 'Type the missing method name',
-                matchMode: 'exact',
-                narrative: 'The Syntax Bug falters. Restore the missing entry point.',
-                hints: [
-                    'The main method is public, static, and void.',
-                    'It uses String[] args as its parameter list.',
-                    'The missing word is the method name.'
-                ],
-                answers: ['main', 'main()'],
-                damage: 14,
-                explanation: 'The standard Java entry point is public static void main(String[] args).',
-                concept: 'java_main_method',
-                conceptTitle: 'The main Method',
-                codexTitle: 'Tutorial - The main Method'
-            },
-            {
-                id: 'tutorial_print_statement',
-                title: 'Speak The First Spell',
-                questionType: 'Code Completion',
-                area: 'Dark Alley',
-                npc: 'Cipher',
-                question: `<em>The final seal on the bug flickers.</em> Complete the missing method name so the line prints <code>"Hello, Java Realm!"</code>.`,
-                code: 'System.out._______("Hello, Java Realm!");',
-                answerTip: 'Type only the missing method name.',
-                inputPlaceholder: 'Type the missing method name',
-                matchMode: 'exact',
-                narrative: 'The Syntax Bug lunges one last time. Complete the print spell and end the fight.',
-                hints: [
-                    'Use System.out.println().',
-                    'The text must be inside double quotes.',
-                    'The missing part prints a full line.'
-                ],
-                answers: ['println', 'println()'],
-                damage: 20,
-                explanation: 'System.out.println() prints a line of text, and String literals must be wrapped in double quotes.',
-                concept: 'print_statement',
+                damage: 12,
+                explanation: 'System.out.println("Torch Lit"); prints the text Torch Lit on its own line.',
+                concept: 'variables_print',
                 conceptTitle: 'Printing Output',
-                codexTitle: 'Tutorial - Printing Output'
+                codexTitle: 'Tutorial - Torch Message'
+            },
+            {
+                id: 'tutorial_variable_output',
+                title: 'Print The Gold',
+                questionType: 'Predict the Output',
+                area: 'Dark Alley',
+                npc: 'Cipher',
+                question: `<em>The Syntax Bug flickers as one final rune appears.</em> What is printed by this code?`,
+                code: `int gold = 50;
+System.out.println(gold);`,
+                answerTip: 'Type only the output.',
+                inputPlaceholder: 'Type the exact output',
+                matchMode: 'exact',
+                narrative: 'The tutorial ends by reading a variable and predicting its printed value.',
+                hints: [
+                    'gold stores the whole number 50.',
+                    'System.out.println prints the value inside the parentheses.',
+                    'The output is just the number.'
+                ],
+                answers: ['50'],
+                damage: 16,
+                explanation: 'The variable gold contains 50, so printing gold outputs 50.',
+                concept: 'variables_output',
+                conceptTitle: 'Printing Variable Values',
+                codexTitle: 'Tutorial - Print The Gold'
             }
         ];
     },

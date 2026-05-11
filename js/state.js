@@ -51,7 +51,7 @@ const GameState = {
 
     remoteSyncTimer: null,
 
-    // Performance tracking (for adaptive difficulty)
+    // Performance tracking for adaptive difficulty
     performance: {
         totalAttempts: 0,
         correctAnswers: 0,
@@ -530,7 +530,7 @@ const GameState = {
     },
 
     /**
-     * Rule-based adaptive difficulty adjustment
+     * Rule-based adaptive difficulty adjustment (IMPORTANT)
      */
     adjustDifficulty() {
         const perf = this.performance;

@@ -1327,136 +1327,122 @@ const Chapter1Scene = {
         return [
             {
                 id: 'ch1_host_1',
-                type: 'multiple_choice',
-                title: 'Name The Technique',
-                questionType: 'Multiple Choice',
-                area: 'Rusty Tankard',
-                npc: 'Arena Host',
-                question: `<em>The Arena Host slams a tournament ledger onto the table.</em> Which declaration correctly defines a method that returns the sum of two integers?`,
-                narrative: 'The host tests whether you can shape a combat technique into a proper method.',
-                hints: [
-                    'The method should return an int.',
-                    'The parameters are int a and int b.',
-                    'A non-void method that computes a value must use return.'
-                ],
-                choices: [
-                    'public static int add(int a, int b) { return a + b; }',
-                    'public static void add(int a, int b) { a + b; }',
-                    'public static int add(a, b) { return a + b; }',
-                    'public static add(int a, int b) { return a + b; }'
-                ],
-                correctOption: 0,
-                answers: ['public static int add(int a, int b) { return a + b; }'],
-                damage: 24,
-                explanation: 'A method that returns a whole number needs the int return type and a return statement.',
-                concept: 'methods_declaration',
-                conceptTitle: 'Method Declaration',
-                codexTitle: 'Arena Host - Method Declaration'
-            },
-            {
-                id: 'ch1_host_2',
-                title: 'Call The Technique',
-                questionType: 'Predict the Output',
-                area: 'Rusty Tankard',
-                npc: 'Arena Host',
-                question: `<em>The host flicks his wrist.</em> What is printed by this method call?`,
-                code: `public static int cheer(int crowd) {
-    return crowd + 2;
-}
-
-System.out.println(cheer(3));`,
-                answerTip: 'Type only the output.',
-                inputPlaceholder: 'Type the exact output',
-                matchMode: 'exact',
-                narrative: 'He waits for a fast answer. Predict the result before he snaps the ledger shut.',
-                hints: [
-                    'The method returns crowd + 2.',
-                    'The argument passed is 3.',
-                    'Find the returned value, then print it.'
-                ],
-                answers: ['5'],
-                damage: 24,
-                explanation: 'The method is called with 3, so it returns 3 + 2, which is 5.',
-                concept: 'methods_calling',
-                conceptTitle: 'Method Calling',
-                codexTitle: 'Arena Host - Method Calls'
-            },
-            {
-                id: 'ch1_host_3',
-                title: 'The Shout That Returns Nothing',
+                title: 'Forge The Skill',
                 questionType: 'Code Completion',
                 area: 'Rusty Tankard',
                 npc: 'Arena Host',
-                question: `<em>"Some moves strike, some simply announce," the host says.</em> Fill in the missing return type so the method prints <code>"Ready!"</code> and returns nothing.`,
-                code: `public static ____ announce() {
-    System.out.println("Ready!");
-}`,
-                answerTip: 'Type only the missing return type.',
-                inputPlaceholder: 'Type the missing return type',
+                question: `<em>The Arena Host slams a tournament ledger onto the table.</em> Create a Java method named <code>attack</code>.`,
+                answerTip: 'Type the full method line.',
+                inputPlaceholder: 'static void attack(){ }',
                 inputMode: 'code',
                 matchMode: 'exact',
-                narrative: 'The tavern crowd leans in. Complete the method before the host loses patience.',
+                narrative: 'This fight becomes the methods/functions checkpoint from the research paper.',
                 hints: [
-                    'A method that returns nothing uses void.',
-                    'Use System.out.println("Ready!"); inside the braces.',
-                    'The missing piece is the return type, not the method name.'
+                    'The method does not need to return a value.',
+                    'Use static void in the method header.',
+                    'Full answer: static void attack(){ }'
                 ],
-                answers: ['void'],
+                answers: ['static void attack(){ }', 'static void attack(){}'],
                 damage: 24,
-                explanation: 'void means the method does not return a value, so printing inside the method is valid without returning anything.',
-                concept: 'methods_void',
-                conceptTitle: 'void Methods',
-                codexTitle: 'Arena Host - void Methods'
+                explanation: 'static void attack(){ } is a valid method declaration for a method named attack.',
+                concept: 'methods_declaration',
+                conceptTitle: 'Method Declaration',
+                codexTitle: 'Arena Host - Forge The Skill'
             },
             {
-                id: 'ch1_host_4',
-                title: 'Arguments At The Gate',
+                id: 'ch1_host_2',
+                title: 'Call The Spell',
+                questionType: 'Code Completion',
+                area: 'Rusty Tankard',
+                npc: 'Arena Host',
+                question: `<em>The host flicks his wrist.</em> Write the line that calls the method <code>heal()</code>.`,
+                answerTip: 'Type the exact Java line.',
+                inputPlaceholder: 'heal();',
+                inputMode: 'code',
+                matchMode: 'exact',
+                narrative: 'After declaring a method, the next step is calling it correctly.',
+                hints: [
+                    'Use the method name followed by parentheses.',
+                    'This method takes no arguments.',
+                    'End the statement with a semicolon.'
+                ],
+                answers: ['heal();'],
+                damage: 24,
+                explanation: 'heal(); is the correct method call for a method with no parameters.',
+                concept: 'methods_calling',
+                conceptTitle: 'Method Calling',
+                codexTitle: 'Arena Host - Call The Spell'
+            },
+            {
+                id: 'ch1_host_3',
+                title: 'Return The Damage',
                 questionType: 'Short Answer',
                 area: 'Rusty Tankard',
                 npc: 'Arena Host',
-                question: `<em>The host taps the registration form.</em> In the call <code>castSpell(5, "Fire")</code>, what are <code>5</code> and <code>"Fire"</code> called?`,
-                answerTip: 'Type one programming term.',
-                inputPlaceholder: 'Type the term',
+                question: `<em>"A proper technique must give back power," the host says.</em> What Java keyword is used to return a value from a method?`,
+                answerTip: 'Type only the keyword.',
+                inputPlaceholder: 'Type the keyword',
                 matchMode: 'exact',
-                narrative: 'This is a vocabulary strike. Miss it, and the host keeps the gate closed.',
+                narrative: 'This checks the core keyword used by value-returning methods.',
                 hints: [
-                    'Parameters appear in the method declaration.',
-                    'Values passed during the call are arguments.',
-                    'This question asks about the call, not the declaration.'
+                    'This keyword sends a value back to the caller.',
+                    'It appears inside the method body.',
+                    'The keyword itself is enough here.'
                 ],
-                answers: ['arguments', 'Arguments'],
+                answers: ['return', 'return;'],
                 damage: 24,
-                explanation: 'Values supplied when a method is called are arguments.',
-                concept: 'methods_arguments',
-                conceptTitle: 'Parameters And Arguments',
-                codexTitle: 'Arena Host - Arguments'
+                explanation: 'The return keyword sends a value back from a method.',
+                concept: 'methods_return',
+                conceptTitle: 'The return Keyword',
+                codexTitle: 'Arena Host - return'
+            },
+            {
+                id: 'ch1_host_4',
+                title: 'Method Output',
+                questionType: 'Predict the Output',
+                area: 'Rusty Tankard',
+                npc: 'Arena Host',
+                question: `<em>The host scratches a quick example into the tabletop.</em> What is the output of this code?`,
+                code: `static int add(int a, int b){ return a + b; }
+System.out.println(add(2,3));`,
+                answerTip: 'Type only the output.',
+                inputPlaceholder: 'Type the exact output',
+                matchMode: 'exact',
+                narrative: 'Now you apply a method and predict the returned value.',
+                hints: [
+                    'The method returns a + b.',
+                    'The call passes 2 and 3.',
+                    'That result is then printed.'
+                ],
+                answers: ['5'],
+                damage: 24,
+                explanation: 'add(2,3) returns 5, so the printed output is 5.',
+                concept: 'methods_output',
+                conceptTitle: 'Method Output',
+                codexTitle: 'Arena Host - Method Output'
             },
             {
                 id: 'ch1_host_5',
-                title: 'Truth In The Arena',
-                questionType: 'Identify the Error',
+                title: 'Empty Return',
+                questionType: 'Short Answer',
                 area: 'Rusty Tankard',
                 npc: 'Arena Host',
-                question: `<em>The host lowers his voice.</em> Identify the missing return type in this broken method header.`,
-                code: `public static ____ isReady(int hp) {
-    return hp > 0;
-}`,
-                answerTip: 'Type only the missing return type.',
-                inputPlaceholder: 'Type the missing return type',
-                inputMode: 'code',
+                question: `<em>The host lowers his voice.</em> What return type means a method does <strong>not</strong> return a value?`,
+                answerTip: 'Type only the return type.',
+                inputPlaceholder: 'Type the return type',
                 matchMode: 'exact',
-                narrative: 'One final answer decides whether the tournament gate opens for you.',
+                narrative: 'This finishes the methods section before the arena proper.',
                 hints: [
-                    'This method returns a logical value.',
-                    'Java uses a dedicated type for true/false.',
-                    'It is not String or int.'
+                    'This return type is used for methods that only perform an action.',
+                    'It is not int, String, or boolean.',
+                    'Java uses one short keyword for it.'
                 ],
-                answers: ['boolean'],
+                answers: ['void'],
                 damage: 26,
-                explanation: 'Methods that return true or false use the boolean return type.',
-                concept: 'methods_return_type',
-                conceptTitle: 'Return Types',
-                codexTitle: 'Arena Host - Return Types'
+                explanation: 'void means a method performs an action but does not return a value.',
+                concept: 'methods_void',
+                conceptTitle: 'void Return Type',
+                codexTitle: 'Arena Host - void'
             }
         ];
     },
@@ -4108,176 +4094,133 @@ ______________________</pre>
         return [
             {
                 id: 'ch1_train_story_1',
-                title: 'Light Attack',
-                questionType: 'Code Completion',
+                type: 'multiple_choice',
+                title: 'Mana Potion',
+                questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>Rowan points to the dummy.</em> Type the Java command that will print <code>Light Attack</code>.`,
-                answerTip: 'Type the full print command. Semicolon is accepted but optional here.',
-                inputPlaceholder: 'System.out.println("Light Attack");',
-                inputMode: 'code',
-                narrative: 'Rowan keeps the first strike short: print the attack name exactly.',
+                question: `<em>Rowan draws four glowing type sigils.</em> Which Java data type is used for decimal values?`,
+                narrative: 'The training dummy now moves from variables into data types.',
                 hints: [
-                    'Use System.out.println to print text.',
-                    'Light Attack must be inside double quotes.',
-                    'Full answer: System.out.println("Light Attack");'
+                    'A decimal number can store a fractional part.',
+                    'int is only for whole numbers.',
+                    'Java commonly uses double for decimal values.'
                 ],
-                answers: [
-                    'System.out.println("Light Attack");',
-                    'System.out.println("Light Attack")'
-                ],
-                damage: 10,
+                choices: ['int', 'double', 'char', 'boolean'],
+                correctOption: 1,
+                answers: ['double'],
+                damage: 8,
                 autoShowHint: true,
-                explanation: 'System.out.println("Light Attack"); prints the attack name on its own line.',
-                concept: 'light_attack_print',
-                conceptTitle: 'Printing A Basic Attack',
-                codexTitle: 'Training Dummy - Light Attack',
-                feedbackDuration: 2600
+                explanation: 'double is the Java data type used for decimal numbers.',
+                concept: 'data_types_double',
+                conceptTitle: 'Decimal Data Types',
+                codexTitle: 'Training Dummy - Decimal Types',
+                feedbackDuration: 2500
             },
             {
                 id: 'ch1_train_story_2',
-                title: 'Guard Command',
-                questionType: 'Code Completion',
+                type: 'multiple_choice',
+                title: 'Crystal Energy',
+                questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>"Now block," Rowan says.</em> Type the Java command that will print <code>Guard Up</code>.`,
-                answerTip: 'Type the full System.out.println command.',
-                inputPlaceholder: 'System.out.println("Guard Up");',
-                inputMode: 'code',
-                narrative: 'A second beginner spell: print a short defensive command.',
+                question: `<em>A crystal vial hums in Rowan's hand.</em> Which line correctly declares a variable with value <code>15.5</code>?`,
+                narrative: 'You now apply the correct decimal type in a full declaration.',
                 hints: [
-                    'Use the same print command as the Light Attack.',
-                    'Guard Up is text, so put it inside double quotes.',
-                    'Full answer: System.out.println("Guard Up");'
+                    '15.5 is not a whole number.',
+                    'Use double, not int.',
+                    'The variable name must stay energy.'
                 ],
-                answers: [
-                    'System.out.println("Guard Up");',
-                    'System.out.println("Guard Up")'
+                choices: [
+                    'int energy = 15.5;',
+                    'double energy = 15.5;',
+                    'char energy = 15.5;',
+                    'boolean energy = 15.5;'
                 ],
-                damage: 10,
+                correctOption: 1,
+                answers: ['double energy = 15.5;'],
+                damage: 8,
                 autoShowHint: true,
-                explanation: 'The same System.out.println pattern can print any short text command.',
-                concept: 'guard_up_print',
-                conceptTitle: 'Printing Text Commands',
-                codexTitle: 'Training Dummy - Guard Up',
-                feedbackDuration: 2600
+                explanation: 'double energy = 15.5; is the correct declaration for a decimal value.',
+                concept: 'data_types_decimal_declaration',
+                conceptTitle: 'Declaring Decimal Variables',
+                codexTitle: 'Training Dummy - Decimal Declaration',
+                feedbackDuration: 2500
             },
             {
                 id: 'ch1_train_story_3',
-                title: 'Count Your Strength',
-                questionType: 'True or False',
+                type: 'multiple_choice',
+                title: 'True Path',
+                questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>Rowan taps the dummy's chest.</em> True or false: <code>int score = 10;</code> is a valid Java declaration.`,
-                answerTip: 'Type only true or false.',
-                inputPlaceholder: 'Type true or false',
-                matchMode: 'exact',
-                narrative: 'Now Rowan checks whether you can recognize a basic integer declaration.',
+                question: `<em>Rowan marks one route as stable.</em> Which Java data type stores <code>true</code> or <code>false</code> values?`,
+                narrative: 'This is the boolean checkpoint.',
                 hints: [
-                    'int stores whole numbers.',
-                    'score is a valid variable name.',
-                    '10 should not be wrapped in quotes.'
+                    'This type is used for conditions and flags.',
+                    'It is not int or char.',
+                    'Java spells it in lowercase.'
                 ],
-                answers: ['true'],
-                damage: 7,
+                choices: ['int', 'char', 'boolean', 'double'],
+                correctOption: 2,
+                answers: ['boolean'],
+                damage: 8,
                 autoShowHint: true,
-                explanation: 'int is the Java type for whole numbers like 10.',
-                concept: 'int_declaration',
-                conceptTitle: 'Integer Variables',
-                codexTitle: 'Training Dummy - int Variables',
-                feedbackDuration: 2600
+                explanation: 'boolean is the Java data type for true-or-false values.',
+                concept: 'data_types_boolean',
+                conceptTitle: 'Boolean Type',
+                codexTitle: 'Training Dummy - boolean Type',
+                feedbackDuration: 2500
             },
             {
                 id: 'ch1_train_story_4',
                 type: 'multiple_choice',
-                title: 'Pick The Text Type',
+                title: 'Character Rune',
                 questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>"Words matter too," Rowan says.</em> Which type correctly fits here: <code>_____ village = "Oakroot";</code>?`,
-                narrative: 'Still easy. Just pick the type Java uses for text.',
+                question: `<em>Rowan etches a single letter into the air.</em> Which Java data type stores a single character?`,
+                narrative: 'Now separate text strings from single-character values.',
                 hints: [
-                    'Use String with a capital S.',
-                    'Text literals need double quotes.',
-                    'You are choosing the type only.'
+                    'A single character is not a full String.',
+                    'Java uses single quotes for char values.',
+                    'The correct type has four letters.'
                 ],
-                choices: [
-                    'String',
-                    'int',
-                    'double',
-                    'boolean'
-                ],
-                correctOption: 0,
-                answers: ['String'],
-                damage: 7,
+                choices: ['String', 'char', 'boolean', 'int'],
+                correctOption: 1,
+                answers: ['char'],
+                damage: 8,
                 autoShowHint: true,
-                explanation: 'String stores text values, and Java String literals use double quotes.',
-                concept: 'string_declaration',
-                conceptTitle: 'String Variables',
-                codexTitle: 'Training Dummy - String Variables',
-                feedbackDuration: 2600
+                explanation: 'char stores a single character value in Java.',
+                concept: 'data_types_char',
+                conceptTitle: 'Character Type',
+                codexTitle: 'Training Dummy - char Type',
+                feedbackDuration: 2500
             },
             {
                 id: 'ch1_train_story_5',
                 type: 'multiple_choice',
-                title: 'Raise The Ready Flag',
+                title: 'Dungeon Letter',
                 questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>Rowan nods toward the final beginner sigil.</em> Which line correctly declares a <code>boolean</code> named <code>isReady</code> with the value <code>true</code>?`,
-                narrative: 'This is Rowan\'s last easy check: spot the correct true-or-false declaration.',
+                question: `<em>The final training sigil flickers.</em> What is the output of this code?<br><code>char rank = 'A';<br>System.out.println(rank);</code>`,
+                narrative: 'The dummy falls once you can read a basic char output correctly.',
                 hints: [
-                    'Use boolean for true or false values.',
-                    'true is lowercase in Java.',
-                    'Do not wrap true in quotes.'
+                    'rank stores one character.',
+                    'System.out.println prints the value, not the type name.',
+                    'The output is the letter itself.'
                 ],
-                choices: [
-                    'Boolean isReady = true;',
-                    'boolean ready = "true";',
-                    'boolean isReady = true;',
-                    'int isReady = true;'
-                ],
-                correctOption: 2,
-                answers: ['boolean isReady = true;'],
-                damage: 8,
-                autoShowHint: true,
-                explanation: 'boolean stores true or false values, and Java writes them in lowercase.',
-                concept: 'boolean_declaration',
-                conceptTitle: 'boolean Variables',
-                codexTitle: 'Training Dummy - boolean Variables',
-                feedbackDuration: 2600
-            },
-            {
-                id: 'ch1_train_story_6',
-                type: 'multiple_choice',
-                title: 'Print The Variable',
-                questionType: 'Multiple Choice',
-                area,
-                npc,
-                question: `<em>Rowan points to the spell you just prepared.</em> Which line correctly prints the variable below?`,
-                code: `String greeting = "Hello, Java Realm!";
-_____`,
-                narrative: 'Last Rowan question. Pick the line that uses the variable correctly.',
-                hints: [
-                    'Use System.out.println to print a line.',
-                    'Put the variable name inside the parentheses.',
-                    'Do not wrap greeting in quotes.'
-                ],
-                choices: [
-                    'System.out.println("greeting");',
-                    'System.out.println(greeting);',
-                    'print(greeting);',
-                    'System.out.println = greeting;'
-                ],
+                choices: ['"A"', 'A', 'char', 'rank'],
                 correctOption: 1,
-                answers: ['System.out.println(greeting);'],
+                answers: ['A'],
                 damage: 8,
                 autoShowHint: true,
-                explanation: 'When printing a variable, use its name directly inside System.out.println(...).',
-                concept: 'print_variable',
-                conceptTitle: 'Printing Variables',
-                codexTitle: 'Training Dummy - Printing Variables',
-                feedbackDuration: 2800
+                explanation: 'Printing a char variable outputs the character it stores, so the result is A.',
+                concept: 'data_types_char_output',
+                conceptTitle: 'Printing char Values',
+                codexTitle: 'Training Dummy - char Output',
+                feedbackDuration: 2600
             }
         ];
     },
@@ -4289,152 +4232,123 @@ _____`,
         return [
             {
                 id: 'ch1_goblin_story_1',
-                title: 'Slash Attack',
-                questionType: 'Code Completion',
+                title: 'Scanner Import',
+                questionType: 'True or False',
                 area,
                 npc,
-                question: `<em>The goblin rushes from the brush.</em> Type the Java command that will print <code>Slash Attack</code>.`,
-                answerTip: 'Type the full System.out.println command. Semicolon is accepted but optional here.',
-                inputPlaceholder: 'System.out.println("Slash Attack");',
-                inputMode: 'code',
-                narrative: 'The first forest counter is still beginner-friendly: print the attack name.',
+                question: `<em>The goblin tears at a page from a coding manual.</em> True or false: <code>import java.util.Scanner;</code> is used to import the <code>Scanner</code> class in Java.`,
+                answerTip: 'Type only true or false.',
+                inputPlaceholder: 'Type true or false',
+                matchMode: 'exact',
+                narrative: 'The forest now shifts into user input, one of the next topics in the paper.',
                 hints: [
-                    'Start with System.out.println.',
-                    'Slash Attack must be inside double quotes.',
-                    'Full answer: System.out.println("Slash Attack");'
+                    'Scanner belongs to java.util.',
+                    'Import statements are used before the class body.',
+                    'The statement shown is the standard Scanner import.'
                 ],
-                answers: [
-                    'System.out.println("Slash Attack");',
-                    'System.out.println("Slash Attack")'
-                ],
+                answers: ['true'],
                 damage: 10,
                 autoShowHint: true,
-                explanation: 'System.out.println("Slash Attack"); prints the attack text and makes a clean basic command.',
-                concept: 'goblin_slash_print',
-                conceptTitle: 'Printing A Combat Command',
-                codexTitle: 'Goblin - Slash Attack'
+                explanation: 'import java.util.Scanner; is the correct import line for Java Scanner.',
+                concept: 'scanner_import',
+                conceptTitle: 'Importing Scanner',
+                codexTitle: 'Goblin - Scanner Import'
             },
             {
                 id: 'ch1_goblin_story_2',
-                type: 'multiple_choice',
-                title: 'Fill The Mana Flask',
-                questionType: 'Multiple Choice',
+                title: 'Input Portal',
+                questionType: 'True or False',
                 area,
                 npc,
-                question: `<em>The goblin stumbles back as a mana vial glows.</em> Which line correctly declares a <code>double</code> named <code>mana</code> with the value <code>19.5</code>?`,
-                narrative: 'You are still in beginner territory. Pick the correct decimal declaration.',
+                question: `<em>The goblin swipes at your next note.</em> True or false: <code>Scanner scan = new Scanner(System.in);</code> creates a Scanner object named <code>scan</code>.`,
+                answerTip: 'Type only true or false.',
+                inputPlaceholder: 'Type true or false',
+                matchMode: 'exact',
+                narrative: 'Now the question moves from importing Scanner to creating one.',
                 hints: [
-                    'double stores decimal values.',
-                    'The variable name must be mana.',
-                    'Do not put 19.5 in quotes.'
+                    'new Scanner(System.in) builds a Scanner object.',
+                    'scan is the variable name.',
+                    'System.in listens for keyboard input.'
                 ],
-                choices: [
-                    'double mana = 19.5;',
-                    'int mana = 19.5;',
-                    'double "mana" = 19.5;',
-                    'double mana = "19.5";'
-                ],
-                correctOption: 0,
-                answers: ['double mana = 19.5;'],
-                damage: 8,
+                answers: ['true'],
+                damage: 10,
                 autoShowHint: true,
-                explanation: 'double is used for decimal numbers such as 19.5.',
-                concept: 'goblin_double_variable',
-                conceptTitle: 'double Variables',
-                codexTitle: 'Goblin - double Variables'
+                explanation: 'That line creates a Scanner object named scan that reads from System.in.',
+                concept: 'scanner_creation',
+                conceptTitle: 'Creating A Scanner',
+                codexTitle: 'Goblin - Scanner Object'
             },
             {
                 id: 'ch1_goblin_story_3',
-                type: 'multiple_choice',
-                title: 'Name The Warning',
-                questionType: 'Multiple Choice',
+                title: 'Read The Hero',
+                questionType: 'True or False',
                 area,
                 npc,
-                question: `<em>The goblin growls as you call out a warning.</em> Which line correctly creates a <code>String</code> named <code>warning</code> with the value <code>"Stay back"</code>?`,
-                narrative: 'Still beginner level. Pick the clean text declaration.',
+                question: `<em>The goblin circles as your notes flutter loose.</em> True or false: the method <code>nextLine()</code> is used to read a <code>String</code> input from the user.`,
+                answerTip: 'Type only true or false.',
+                inputPlaceholder: 'Type true or false',
+                matchMode: 'exact',
+                narrative: 'The input topic continues with the method used for full text input.',
                 hints: [
-                    'Use String with a capital S.',
-                    'The text must use double quotes.',
-                    'The variable name is warning.'
+                    'A whole line of text is not read by nextInt().',
+                    'Scanner has a dedicated method for line-based text.',
+                    'The method named in the question is the standard one.'
                 ],
-                choices: [
-                    'String warning = "Stay back";',
-                    'string warning = "Stay back";',
-                    'String warning = Stay back;',
-                    'warning = "Stay back";'
-                ],
-                correctOption: 0,
-                answers: ['String warning = "Stay back";'],
-                damage: 9,
+                answers: ['true'],
+                damage: 10,
                 autoShowHint: true,
-                explanation: 'String variables store text, and Java wraps text literals in double quotes.',
-                concept: 'goblin_string_variable',
-                conceptTitle: 'String Variables',
-                codexTitle: 'Goblin - String Variables'
+                explanation: 'nextLine() is used to read a line of text as a String from the user.',
+                concept: 'scanner_nextline',
+                conceptTitle: 'Reading String Input',
+                codexTitle: 'Goblin - nextLine()'
             },
             {
                 id: 'ch1_goblin_story_4',
-                type: 'multiple_choice',
-                title: 'Add The Strike',
-                questionType: 'Multiple Choice',
+                title: 'Read The Gold',
+                questionType: 'True or False',
                 area,
                 npc,
-                question: `<em>The goblin braces itself for your next hit.</em> Which line correctly declares <code>totalDamage</code> as <code>dagger + spell</code>?`,
-                code: `int dagger = 12;
-int spell = 8;
-_____`,
-                narrative: 'Now you add two beginner variables together. Pick the right line.',
+                question: `<em>The goblin snarls at one misleading scribble.</em> True or false: the method <code>nextInt()</code> is used to read a <code>String</code> input.`,
+                answerTip: 'Type only true or false.',
+                inputPlaceholder: 'Type true or false',
+                matchMode: 'exact',
+                narrative: 'This one checks whether you can distinguish number input from text input.',
                 hints: [
-                    'Create a new int variable.',
-                    'Use dagger + spell on the right side.',
-                    'The variable name must be totalDamage.'
+                    'nextInt() reads a number, not a line of text.',
+                    'String input is commonly read with nextLine().',
+                    'So the statement shown is incorrect.'
                 ],
-                choices: [
-                    'int totalDamage = dagger + spell;',
-                    'totalDamage = dagger + spell;',
-                    'int totalDamage = "dagger + spell";',
-                    'int totalDamage = dagger spell;'
-                ],
-                correctOption: 0,
-                answers: ['int totalDamage = dagger + spell;'],
+                answers: ['false'],
                 damage: 10,
                 autoShowHint: true,
-                explanation: 'You can add two int variables and store the result in a new int variable.',
-                concept: 'goblin_damage_sum',
-                conceptTitle: 'Using Variables In Expressions',
-                codexTitle: 'Goblin - Variable Expressions'
+                explanation: 'nextInt() reads an integer value, so it is not used for String input.',
+                concept: 'scanner_nextint',
+                conceptTitle: 'Reading Integer Input',
+                codexTitle: 'Goblin - nextInt()'
             },
             {
                 id: 'ch1_goblin_story_5',
-                type: 'multiple_choice',
-                title: 'Finish With A Message',
-                questionType: 'Multiple Choice',
+                title: 'Enter The Name',
+                questionType: 'True or False',
                 area,
                 npc,
-                question: `<em>The goblin is almost down.</em> Which line correctly prints <code>Goblin took 20 damage</code> using the variables below?`,
-                code: `String enemy = "Goblin";
-int totalDamage = 20;
-_____`,
-                narrative: 'The first goblin ends with one easy message. Pick the line that joins text and variables.',
+                question: `<em>The goblin fades as a final input spell appears.</em> If the user enters <code>Kai</code>, will this code print <code>Kai</code>?<br><code>Scanner scan = new Scanner(System.in);<br>String name = scan.nextLine();<br>System.out.println(name);</code>`,
+                answerTip: 'Type only true or false.',
+                inputPlaceholder: 'Type true or false',
+                matchMode: 'exact',
+                narrative: 'The last user-input check ties reading and printing together.',
                 hints: [
-                    'Use System.out.println.',
-                    'Join the text and variables with +.',
-                    'Keep the spaces inside the quoted text.'
+                    'The input is stored in name.',
+                    'The last line prints the variable name.',
+                    'If the user typed Kai, that exact value is printed.'
                 ],
-                choices: [
-                    'System.out.println(enemy + " took " + totalDamage + " damage");',
-                    'System.out.println("enemy took totalDamage damage");',
-                    'print(enemy + totalDamage);',
-                    'System.out.println(enemy, totalDamage);'
-                ],
-                correctOption: 0,
-                answers: ['System.out.println(enemy + " took " + totalDamage + " damage");'],
+                answers: ['true'],
                 damage: 10,
                 autoShowHint: true,
-                explanation: 'String concatenation lets you mix text and variables in one printed message.',
-                concept: 'goblin_print_damage',
-                conceptTitle: 'Printing With Concatenation',
-                codexTitle: 'Goblin - Printing With Concatenation'
+                explanation: 'The code reads a line into name, then prints the value stored in name.',
+                concept: 'scanner_input_output',
+                conceptTitle: 'Reading And Printing Input',
+                codexTitle: 'Goblin - Input And Output'
             }
         ];
     },
@@ -4446,134 +4360,125 @@ _____`,
         return [
             {
                 id: 'ch1_abandoned_story_1',
-                title: 'Clear Path',
-                questionType: 'Code Completion',
+                title: 'Sword Strike',
+                questionType: 'Short Answer',
                 area,
                 npc,
-                question: `<em>A smaller goblin blocks the road.</em> Type the Java command that will print <code>Clear Path</code>.`,
-                answerTip: 'Type the full System.out.println command. Semicolon is accepted but optional here.',
-                inputPlaceholder: 'System.out.println("Clear Path");',
-                inputMode: 'code',
-                narrative: 'This second goblin begins with another short print attack.',
+                question: `<em>A scavenger goblin lunges with a rusty blade.</em> Which operator is used for addition in Java?`,
+                answerTip: 'Type only the operator.',
+                inputPlaceholder: 'Type the operator',
+                matchMode: 'exact',
+                narrative: 'The second goblin shifts from input to arithmetic operators.',
                 hints: [
-                    'Use System.out.println for a line of output.',
-                    'Clear Path is text, so wrap it in double quotes.',
-                    'Full answer: System.out.println("Clear Path");'
+                    'It is the same symbol used in basic math for adding values.',
+                    'Java uses one character for it.',
+                    'It is also used with String concatenation.'
                 ],
-                answers: [
-                    'System.out.println("Clear Path");',
-                    'System.out.println("Clear Path")'
-                ],
+                answers: ['+'],
                 damage: 10,
                 autoShowHint: true,
-                explanation: 'System.out.println("Clear Path"); prints a short command for the road-clearing strike.',
-                concept: 'abandoned_clear_path_print',
-                conceptTitle: 'Printing A Path Command',
-                codexTitle: 'Abandoned Village - Clear Path'
+                explanation: 'The + operator is used for addition in Java.',
+                concept: 'arithmetic_addition',
+                conceptTitle: 'Addition Operator',
+                codexTitle: 'Abandoned Village - Addition'
             },
             {
                 id: 'ch1_abandoned_story_2',
-                title: 'Count The Supplies',
+                title: 'Fire Slash',
                 questionType: 'Predict the Output',
                 area,
                 npc,
-                question: `<em>You check what the village still has left.</em> What is printed by this code?`,
-                code: `int food = 2;
-int water = 3;
-System.out.println(food + water);`,
+                question: `<em>The goblin trips over a scorched rune.</em> What is printed by this code?`,
+                code: `System.out.println(10 - 3);`,
                 answerTip: 'Type only the output.',
                 inputPlaceholder: 'Type the exact output',
                 matchMode: 'exact',
-                narrative: 'This is still a gentle warm-up. Add the two whole numbers together.',
+                narrative: 'A fast subtraction check keeps the pacing simple.',
                 hints: [
-                    'Use the + operator.',
-                    '2 + 3 is a whole number.',
-                    'The output is the total.'
+                    'Subtract 3 from 10.',
+                    'System.out.println prints the result of the expression.',
+                    'The answer is a whole number.'
                 ],
-                answers: ['5'],
+                answers: ['7'],
                 damage: 10,
                 autoShowHint: true,
-                explanation: 'The + operator adds the two int values, so the output is 5.',
-                concept: 'abandoned_simple_output',
-                conceptTitle: 'Basic Output',
-                codexTitle: 'Abandoned Village - Basic Output'
+                explanation: '10 - 3 evaluates to 7, so the output is 7.',
+                concept: 'arithmetic_subtraction',
+                conceptTitle: 'Subtraction',
+                codexTitle: 'Abandoned Village - Subtraction'
             },
             {
                 id: 'ch1_abandoned_story_3',
-                title: 'Clear The Road',
-                questionType: 'Fill in the Blank',
+                title: 'Heavy Damage',
+                questionType: 'Short Answer',
                 area,
                 npc,
-                question: `<em>A faded marker shows the road is safe again.</em> Fill in the missing type: <code>_____ pathClear = true;</code>`,
-                answerTip: 'Type only the missing type.',
-                inputPlaceholder: 'Type the missing type',
+                question: `<em>The goblin braces for a stronger hit.</em> Which operator is used for multiplication in Java?`,
+                answerTip: 'Type only the operator.',
+                inputPlaceholder: 'Type the operator',
                 matchMode: 'exact',
-                narrative: 'The goblin is weakening. Restore one more beginner variable correctly.',
+                narrative: 'This step checks whether you know the core math symbols.',
                 hints: [
-                    'This variable stores only true or false.',
-                    'Java uses the boolean type for that.',
-                    'Type only the keyword.'
+                    'It is the same symbol used in many programming languages for multiply.',
+                    'It is not the letter x.',
+                    'Java uses a single symbol.'
                 ],
-                answers: ['boolean'],
-                damage: 11,
+                answers: ['*'],
+                damage: 10,
                 autoShowHint: true,
-                explanation: 'boolean is the Java type used for true and false values.',
-                concept: 'abandoned_boolean_intro',
-                conceptTitle: 'boolean Variables',
-                codexTitle: 'Abandoned Village - boolean Variables'
+                explanation: 'The * operator is used for multiplication in Java.',
+                concept: 'arithmetic_multiplication',
+                conceptTitle: 'Multiplication Operator',
+                codexTitle: 'Abandoned Village - Multiplication'
             },
             {
                 id: 'ch1_abandoned_story_4',
-                title: 'Repair The Village Name',
-                questionType: 'Fix the Code',
+                title: 'Goblin Remainder',
+                questionType: 'Predict the Output',
                 area,
                 npc,
-                question: `<em>A cracked sign still tries to name the place.</em> Fix the broken line so the String value is written correctly.`,
-                code: `String village = Oakroot;`,
-                answerTip: 'Type the full corrected line.',
-                inputPlaceholder: 'Type the corrected Java line',
-                inputMode: 'code',
+                question: `<em>The goblin drops a broken division charm.</em> What is printed by this code?`,
+                code: `System.out.println(10 % 4);`,
+                answerTip: 'Type only the output.',
+                inputPlaceholder: 'Type the exact output',
                 matchMode: 'exact',
-                narrative: 'One missing pair of quotes keeps the sign from making sense.',
+                narrative: 'Now the battle adds the remainder operator.',
                 hints: [
-                    'String values use double quotes.',
-                    'Keep the variable name village.',
-                    'The word Oakroot is text, not a variable.'
+                    'The % operator gives the remainder after division.',
+                    '10 divided by 4 leaves something left over.',
+                    'That leftover value is the answer.'
                 ],
-                answers: ['String village = "Oakroot";'],
-                damage: 12,
+                answers: ['2'],
+                damage: 10,
                 autoShowHint: true,
-                explanation: 'Java String literals must be wrapped in double quotes.',
-                concept: 'abandoned_string_fix',
-                conceptTitle: 'Fixing String Literals',
-                codexTitle: 'Abandoned Village - String Literals'
+                explanation: '10 % 4 leaves a remainder of 2, so the output is 2.',
+                concept: 'arithmetic_remainder',
+                conceptTitle: 'Remainder Operator',
+                codexTitle: 'Abandoned Village - Remainder'
             },
             {
                 id: 'ch1_abandoned_story_5',
-                title: 'Announce Arrival',
-                questionType: 'Code Completion',
+                title: 'Binary Scroll',
+                questionType: 'Short Answer',
                 area,
                 npc,
-                question: `<em>The path opens deeper into the village.</em> Write the line that prints <code>Entering Abandoned Village</code> using the variable below.`,
-                code: `String place = "Abandoned Village";
-_____`,
-                answerTip: 'Type the full missing line.',
-                inputPlaceholder: 'Type the Java print line',
-                inputMode: 'code',
+                question: `<em>The last stolen note shows a number written in another system.</em> What is the binary equivalent of decimal <code>5</code>?`,
+                answerTip: 'Type only the binary number.',
+                inputPlaceholder: 'Type the binary number',
                 matchMode: 'exact',
-                narrative: 'The last tutorial step here is a simple print with concatenation.',
+                narrative: 'The goblin\'s last trick adds a light number-systems question before the cave.',
                 hints: [
-                    'Use System.out.println.',
-                    'Start with the text "Entering ".',
-                    'Then add the variable place.'
+                    'Binary uses only 0 and 1.',
+                    'Decimal 5 is 4 + 1.',
+                    'So the binary digits should mark those places.'
                 ],
-                answers: ['System.out.println("Entering " + place);'],
-                damage: 12,
+                answers: ['101'],
+                damage: 11,
                 autoShowHint: true,
-                explanation: 'You can join a String literal and a variable with + inside System.out.println.',
-                concept: 'abandoned_print_concat',
-                conceptTitle: 'Printing With Concatenation',
-                codexTitle: 'Abandoned Village - Printing'
+                explanation: 'The binary representation of decimal 5 is 101.',
+                concept: 'number_systems_binary',
+                conceptTitle: 'Binary Numbers',
+                codexTitle: 'Abandoned Village - Binary Numbers'
             }
         ];
     },
@@ -4585,114 +4490,127 @@ _____`,
         return [
             {
                 id: 'ch1_shroom_story_1',
-                title: 'Torch Spark',
-                questionType: 'Code Completion',
+                title: 'Goblin Check',
+                questionType: 'Short Answer',
                 area,
                 npc,
-                question: `<em>The shroom blocks the cave path.</em> Type the Java command that will print <code>Torch Spark</code>.`,
-                answerTip: 'Type the full System.out.println command. Semicolon is accepted but optional here.',
-                inputPlaceholder: 'System.out.println("Torch Spark");',
-                inputMode: 'code',
-                narrative: 'Start with a simple print attack to light the cave.',
+                question: `<em>The shroom releases a cloud that reacts to conditions.</em> What Java keyword is used to check a condition?`,
+                answerTip: 'Type only the keyword.',
+                inputPlaceholder: 'Type the keyword',
+                matchMode: 'exact',
+                narrative: 'The cave now steps into control structures.',
                 hints: [
-                    'Use System.out.println to print text.',
-                    'Torch Spark must be inside double quotes.',
-                    'Full answer: System.out.println("Torch Spark");'
+                    'This keyword starts a conditional block.',
+                    'It comes before parentheses containing a condition.',
+                    'It has only two letters.'
                 ],
-                answers: [
-                    'System.out.println("Torch Spark");',
-                    'System.out.println("Torch Spark")'
-                ],
+                answers: ['if'],
                 damage: 14,
                 autoShowHint: true,
-                explanation: 'System.out.println("Torch Spark"); prints a short text attack.',
-                concept: 'shroom_print_attack',
-                conceptTitle: 'Printing A Cave Attack',
-                codexTitle: 'Shroom - Torch Spark'
+                explanation: 'The if keyword is used to check a condition in Java.',
+                concept: 'conditions_if',
+                conceptTitle: 'if Statements',
+                codexTitle: 'Shroom - if Statements'
             },
             {
                 id: 'ch1_shroom_story_2',
-                type: 'multiple_choice',
-                title: 'Count The Spores',
-                questionType: 'Multiple Choice',
+                title: 'False Path',
+                questionType: 'Short Answer',
                 area,
                 npc,
-                question: `<em>Three glowing spores float near the shroom.</em> Which line correctly stores the number <code>3</code> in an <code>int</code> named <code>spores</code>?`,
-                narrative: 'Use the beginner whole-number type.',
+                question: `<em>The spores drift toward the wrong branch.</em> Which Java keyword runs when the condition is false?`,
+                answerTip: 'Type only the keyword.',
+                inputPlaceholder: 'Type the keyword',
+                matchMode: 'exact',
+                narrative: 'After if comes the branch for the false case.',
                 hints: [
-                    'int stores whole numbers.',
-                    'The variable name is spores.',
-                    'Numbers like 3 do not need quotes.'
+                    'This keyword often follows an if block.',
+                    'It handles the opposite case.',
+                    'It has four letters.'
                 ],
-                choices: [
-                    'int spores = 3;',
-                    'String spores = 3;',
-                    'int spores = "3";',
-                    'spores int = 3;'
-                ],
-                correctOption: 0,
-                answers: ['int spores = 3;'],
+                answers: ['else'],
                 damage: 14,
                 autoShowHint: true,
-                explanation: 'int spores = 3; stores the whole number 3 in an integer variable.',
-                concept: 'shroom_int_variable',
-                conceptTitle: 'Integer Variables',
-                codexTitle: 'Shroom - int Variables'
+                explanation: 'The else keyword runs when the if condition is false.',
+                concept: 'conditions_else',
+                conceptTitle: 'else Statements',
+                codexTitle: 'Shroom - else Statements'
             },
             {
                 id: 'ch1_shroom_story_3',
-                title: 'Name The Potion',
-                questionType: 'Code Completion',
-                area,
-                npc,
-                question: `<em>Hera tosses you a cave potion.</em> Write the line that stores <code>"Healing Potion"</code> in a <code>String</code> named <code>item</code>.`,
-                answerTip: 'Type the full Java line.',
-                inputPlaceholder: 'String item = "Healing Potion";',
-                inputMode: 'code',
-                matchMode: 'exact',
-                narrative: 'The shroom weakens when you label the item correctly.',
-                hints: [
-                    'String stores text.',
-                    'Text values need double quotes.',
-                    'Full answer: String item = "Healing Potion";'
-                ],
-                answers: [
-                    'String item = "Healing Potion";',
-                    'String item = "Healing Potion"'
-                ],
-                damage: 14,
-                autoShowHint: true,
-                explanation: 'String item = "Healing Potion"; stores text in a String variable.',
-                concept: 'shroom_string_variable',
-                conceptTitle: 'String Variables',
-                codexTitle: 'Shroom - String Variables'
-            },
-            {
-                id: 'ch1_shroom_story_4',
-                title: 'Add The Spores',
+                title: 'Arena Test',
                 questionType: 'Predict the Output',
                 area,
                 npc,
-                question: `<em>The shroom splits into two small clouds.</em> What is printed by this code?`,
-                code: `int left = 2;
-int right = 3;
-System.out.println(left + right);`,
+                question: `<em>The shroom's cap flashes with a simple conditional.</em> What is printed by this code?`,
+                code: `int hp = 20;
+if (hp > 10) {
+    System.out.println("Alive");
+}`,
                 answerTip: 'Type only the output.',
                 inputPlaceholder: 'Type the exact output',
                 matchMode: 'exact',
-                narrative: 'Finish with a tiny addition check.',
+                narrative: 'This checks whether you can read a basic if statement correctly.',
                 hints: [
-                    'left is 2.',
-                    'right is 3.',
-                    '2 + 3 equals 5.'
+                    'hp stores 20.',
+                    '20 is greater than 10.',
+                    'So the print statement inside the if block runs.'
                 ],
-                answers: ['5'],
+                answers: ['Alive'],
                 damage: 14,
                 autoShowHint: true,
-                explanation: 'System.out.println(left + right); adds the two int values and prints 5.',
-                concept: 'shroom_basic_addition',
-                conceptTitle: 'Adding Integer Variables',
-                codexTitle: 'Shroom - Basic Addition'
+                explanation: 'Because hp > 10 is true, the code prints Alive.',
+                concept: 'conditions_output',
+                conceptTitle: 'Reading if Output',
+                codexTitle: 'Shroom - if Output'
+            },
+            {
+                id: 'ch1_shroom_story_4',
+                title: 'Arena Choice',
+                questionType: 'Short Answer',
+                area,
+                npc,
+                question: `<em>The shroom opens several coded paths at once.</em> In a Java <code>switch</code> statement, which keyword defines an option?`,
+                answerTip: 'Type only the keyword.',
+                inputPlaceholder: 'Type the keyword',
+                matchMode: 'exact',
+                narrative: 'The control-structure topic now expands into switch statements.',
+                hints: [
+                    'Each possible branch starts with this label.',
+                    'It appears before the value and colon.',
+                    'It has four letters.'
+                ],
+                answers: ['case'],
+                damage: 14,
+                autoShowHint: true,
+                explanation: 'case is the keyword that defines an option inside a switch statement.',
+                concept: 'switch_case',
+                conceptTitle: 'switch case Labels',
+                codexTitle: 'Shroom - switch case'
+            },
+            {
+                id: 'ch1_shroom_story_5',
+                title: 'Training Loop',
+                questionType: 'Short Answer',
+                area,
+                npc,
+                question: `<em>The last spores circle in a fixed pattern.</em> Which loop is best when the number of repetitions is already known?`,
+                answerTip: 'Type a short answer.',
+                inputPlaceholder: 'Type the loop name',
+                matchMode: 'exact',
+                narrative: 'The shroom ends by introducing the loop concept before the cave boss.',
+                hints: [
+                    'This loop usually has initialization, condition, and update parts.',
+                    'It is common when you know how many times to repeat.',
+                    'Include the word loop in your answer.'
+                ],
+                answers: ['for loop', 'for'],
+                damage: 16,
+                autoShowHint: true,
+                explanation: 'A for loop is commonly used when the number of repetitions is known ahead of time.',
+                concept: 'loops_for',
+                conceptTitle: 'for Loops',
+                codexTitle: 'Shroom - for Loops'
             }
         ];
     },
@@ -4704,141 +4622,121 @@ System.out.println(left + right);`,
         return [
             {
                 id: 'ch1_fire_story_1',
-                title: 'Build The Shield',
+                title: 'Crystal Storage',
                 questionType: 'Code Completion',
                 area,
                 npc,
-                question: `<em>The worm erupts beside the tunnel wall.</em> Write the two lines that set up your defense.`,
-                code: `_____
-_____`,
-                answerTip: 'Type both Java lines.',
-                inputPlaceholder: 'Type the two Java lines',
+                question: `<em>The worm bursts from the lava and scatters crystal shards.</em> Create an array named <code>crystals</code> with the values <code>2</code>, <code>4</code>, and <code>6</code>.`,
+                answerTip: 'Type the full Java line.',
+                inputPlaceholder: 'int[] crystals = {2, 4, 6};',
                 inputMode: 'code',
                 matchMode: 'exact',
-                narrative: 'This is the first real spike. Start with a clean multi-line setup before the heat closes in.',
+                narrative: 'The cave boss now handles the arrays section from your research paper.',
                 hints: [
-                    'The first line declares an int shield with value 18.',
-                    'The second line declares a boolean ready with value true.',
-                    'Write one statement per line.'
+                    'Use int[] for an array of integers.',
+                    'Use curly braces for the array values.',
+                    'Full answer: int[] crystals = {2, 4, 6};'
                 ],
-                answers: [
-                    'int shield = 18;\nboolean ready = true;',
-                    'boolean ready = true;\nint shield = 18;'
-                ],
+                answers: ['int[] crystals = {2, 4, 6};', 'int[] crystals = {2,4,6};'],
                 damage: 24,
-                explanation: 'Boss fights can still start with strong basics: correct types, correct values, clean syntax.',
-                concept: 'fire_worm_multi_setup',
-                conceptTitle: 'Multi-Line Setup',
-                codexTitle: 'Fire Worm - Setup'
+                explanation: 'An int array uses int[] and is initialized with values inside curly braces.',
+                concept: 'arrays_initialization',
+                conceptTitle: 'Array Initialization',
+                codexTitle: 'Fire Worm - Crystal Storage'
             },
             {
                 id: 'ch1_fire_story_2',
-                type: 'multiple_choice',
-                title: 'Choose The Counter',
-                questionType: 'Multiple Choice',
-                area,
-                npc,
-                question: `<em>The worm thrashes through the lava glow.</em> Which line correctly declares <code>burstDamage</code> as <code>(flame + strike) * 2</code>?`,
-                narrative: 'Now the boss expects a more careful expression. Parentheses matter here.',
-                hints: [
-                    'Create a new int variable named burstDamage.',
-                    'Add flame and strike first, then multiply by 2.',
-                    'Only one option keeps the intended grouping.'
-                ],
-                choices: [
-                    'int burstDamage = flame + strike * 2;',
-                    'int burstDamage = (flame + strike) * 2;',
-                    'burstDamage = (flame + strike) * 2;',
-                    'int burstDamage = (flame + strike) * "2";'
-                ],
-                correctOption: 1,
-                answers: ['int burstDamage = (flame + strike) * 2;'],
-                damage: 28,
-                explanation: 'Parentheses ensure flame and strike are added together before the result is multiplied.',
-                concept: 'fire_worm_expression_order',
-                conceptTitle: 'Expression Order',
-                codexTitle: 'Fire Worm - Expressions'
-            },
-            {
-                id: 'ch1_fire_story_3',
-                title: 'Cut Away The Heat',
-                questionType: 'Fix the Code',
-                area,
-                npc,
-                question: `<em>The heat reading is too precise for the shield spell.</em> Fix the broken line so only the whole-number part of <code>double heat = 14.9;</code> is stored in <code>int heavyHit</code>.`,
-                code: `int heavyHit = heat;`,
-                answerTip: 'Type the full corrected line.',
-                inputPlaceholder: 'Type the corrected Java line',
-                inputMode: 'code',
-                matchMode: 'exact',
-                narrative: 'This boss starts demanding cleaner thinking. You need a cast now.',
-                hints: [
-                    'Converting from double to int needs an explicit cast.',
-                    'Place (int) in front of heat.',
-                    'Keep the variable type as int.'
-                ],
-                answers: ['int heavyHit = (int) heat;'],
-                damage: 30,
-                explanation: 'Casting with (int) removes the decimal part and allows the value to be stored in an int.',
-                concept: 'fire_worm_type_casting',
-                conceptTitle: 'Type Casting',
-                codexTitle: 'Fire Worm - Type Casting'
-            },
-            {
-                id: 'ch1_fire_story_4',
-                title: 'Read The Fragment Signal',
+                title: 'Middle Crystal',
                 questionType: 'Predict the Output',
                 area,
                 npc,
-                question: `<em>The fragment flashes through the fire.</em> What is printed by this code?`,
-                code: `String fragment = "Prime";
-int piece = 2;
-System.out.println(fragment + " " + piece);`,
+                question: `<em>The Fire Worm coils around three floating crystals.</em> What is printed by this code?`,
+                code: `int[] crystals = {2, 4, 6};
+System.out.println(crystals[1]);`,
                 answerTip: 'Type only the output.',
                 inputPlaceholder: 'Type the exact output',
                 matchMode: 'exact',
-                narrative: 'You are now mixing text and numbers under pressure.',
+                narrative: 'The second boss question checks whether you can read an array index.',
                 hints: [
-                    'fragment stores text.',
-                    'A space is added between the String and the number.',
-                    'The output keeps both values.'
+                    'Array indexes begin at 0.',
+                    'crystals[0] is 2.',
+                    'crystals[1] is the second value.'
                 ],
-                answers: ['Prime 2'],
+                answers: ['4'],
+                damage: 28,
+                explanation: 'The element at index 1 is the second value in the array, which is 4.',
+                concept: 'arrays_access',
+                conceptTitle: 'Accessing Array Elements',
+                codexTitle: 'Fire Worm - Middle Crystal'
+            },
+            {
+                id: 'ch1_fire_story_3',
+                title: 'First Index',
+                questionType: 'Short Answer',
+                area,
+                npc,
+                question: `<em>The worm whips its tail across the crystal line.</em> What is the first index of a Java array?`,
+                answerTip: 'Type only the number.',
+                inputPlaceholder: 'Type the number',
+                matchMode: 'exact',
+                narrative: 'This is the zero-based indexing check.',
+                hints: [
+                    'Java arrays do not start at 1.',
+                    'The first valid position comes before index 1.',
+                    'It is the smallest index you can use.'
+                ],
+                answers: ['0'],
+                damage: 30,
+                explanation: 'Java arrays start at index 0.',
+                concept: 'arrays_indexing',
+                conceptTitle: 'Array Indexing',
+                codexTitle: 'Fire Worm - First Index'
+            },
+            {
+                id: 'ch1_fire_story_4',
+                title: 'Grid Structure',
+                questionType: 'Short Answer',
+                area,
+                npc,
+                question: `<em>The lava floor cracks into rows and columns.</em> What kind of structure stores data in rows and columns?`,
+                answerTip: 'Type a short answer.',
+                inputPlaceholder: 'Type the structure name',
+                matchMode: 'exact',
+                narrative: 'The arrays topic now widens into two-dimensional structures.',
+                hints: [
+                    'This is often described as a 2D layout.',
+                    'A 2D array is one Java representation of it.',
+                    'The common math term is also accepted.'
+                ],
+                answers: ['Matrix', 'matrix', '2D array', '2d array'],
                 damage: 32,
-                explanation: 'Java concatenates the String, the space, and the number to produce Prime 2.',
-                concept: 'fire_worm_mixed_output',
-                conceptTitle: 'Mixed Output',
-                codexTitle: 'Fire Worm - Mixed Output'
+                explanation: 'Data arranged in rows and columns is commonly described as a matrix or a 2D array.',
+                concept: 'arrays_2d',
+                conceptTitle: '2D Arrays',
+                codexTitle: 'Fire Worm - Grid Structure'
             },
             {
                 id: 'ch1_fire_story_5',
-                title: 'Seal The Fragment',
-                questionType: 'Boss Challenge',
+                title: 'Loop Inside Loop',
+                questionType: 'Short Answer',
                 area,
                 npc,
-                question: `<em>The cave shakes as the boss starts to fall.</em> Write the two lines that mark the fragment as secured and print <code>Fragment secured</code>.`,
-                code: `_____
-_____`,
-                answerTip: 'Type both Java lines.',
-                inputPlaceholder: 'Type the two Java lines',
-                inputMode: 'code',
+                question: `<em>The Fire Worm enters its final phase and splits the crystal grid again.</em> What is the term for a loop placed inside another loop?`,
+                answerTip: 'Type a short answer.',
+                inputPlaceholder: 'Type the term',
                 matchMode: 'exact',
-                narrative: 'This is the boss finish. You need one correct declaration and one correct print line under pressure.',
+                narrative: 'The boss ends with the key idea often used when traversing 2D structures.',
                 hints: [
-                    'The first line declares String fragment = "secured";',
-                    'The second line prints "Fragment " plus the variable.',
-                    'Write one full statement per line.'
+                    'This pattern is common with 2D arrays.',
+                    'One loop runs inside another loop.',
+                    'Both words start with n and l.'
                 ],
-                answers: [
-                    'String fragment = "secured";\nSystem.out.println("Fragment " + fragment);',
-                    'String fragment="secured";\nSystem.out.println("Fragment " + fragment);',
-                    'String fragment = "secured";\nSystem.out.println("Fragment "+fragment);'
-                ],
+                answers: ['Nested', 'nested', 'nested loop', 'Nested loop'],
                 damage: 34,
-                explanation: 'The boss finale combines a String declaration and a printed result using concatenation.',
-                concept: 'fire_worm_boss_finish',
-                conceptTitle: 'Boss Finish',
-                codexTitle: 'Fire Worm - Boss Finish'
+                explanation: 'A loop inside another loop is called a nested loop.',
+                concept: 'arrays_nested_loops',
+                conceptTitle: 'Nested Loops',
+                codexTitle: 'Fire Worm - Nested Loops'
             }
         ];
     },
@@ -4850,127 +4748,122 @@ _____`,
         return [
             {
                 id: 'ch1_arena_slime_story_1',
-                title: 'Name The Tray',
-                questionType: 'Fill in the Blank',
-                area,
-                npc,
-                question: `<em>The Slimebug splits into droplets across the arena tiles.</em> Fill in the missing type so the line declares an array of integers named <code>slimeDrops</code>.`,
-                code: `_____ slimeDrops;`,
-                answerTip: 'Type only the missing type.',
-                inputPlaceholder: 'Type the missing array type',
-                inputMode: 'code',
-                matchMode: 'exact',
-                narrative: 'The Slimebug is many pieces at once. Arrays let you track them together.',
-                hints: [
-                    'This is a one-dimensional int array.',
-                    'The square brackets go with the type.',
-                    'You are declaring the array, not filling it yet.'
-                ],
-                answers: ['int[]'],
-                damage: 24,
-                explanation: 'int[] declares a one-dimensional array of integers.',
-                concept: 'arrays_declaration',
-                conceptTitle: 'Array Declaration',
-                codexTitle: 'Slimebug - Array Declaration'
-            },
-            {
-                id: 'ch1_arena_slime_story_2',
-                title: 'Bind The Droplets',
+                title: 'Package Seal',
                 questionType: 'Code Completion',
                 area,
                 npc,
-                question: `<em>You trap three droplets in runic containers.</em> Write the full line that initializes an int array named <code>drops</code> with the values <code>2</code>, <code>4</code>, and <code>6</code>.`,
+                question: `<em>The Slimebug splashes across the arena floor and smears your source header.</em> Write the Java code that declares a package named <code>gameworld</code>.`,
                 answerTip: 'Type the full Java line.',
-                inputPlaceholder: 'Type the full Java line',
+                inputPlaceholder: 'package gameworld;',
                 inputMode: 'code',
                 matchMode: 'exact',
-                narrative: 'The arena floor quivers. Only the correct array literal will bind the droplets.',
+                narrative: 'The arena begins with package and class organization before access control.',
                 hints: [
-                    'Use curly braces for the values.',
-                    'The variable name is drops.',
-                    'All elements are integers.'
+                    'Package declarations start with the package keyword.',
+                    'The package name must be gameworld.',
+                    'End the line with a semicolon.'
                 ],
-                answers: ['int[] drops = {2, 4, 6};'],
+                answers: ['package gameworld;'],
                 damage: 24,
-                explanation: 'An array initializer uses curly braces with comma-separated values.',
-                concept: 'arrays_initialization',
-                conceptTitle: 'Array Initialization',
-                codexTitle: 'Slimebug - Array Initialization'
+                explanation: 'package gameworld; declares that the class belongs to the gameworld package.',
+                concept: 'packages_declaration',
+                conceptTitle: 'Package Declaration',
+                codexTitle: 'Slimebug - Package Seal'
+            },
+            {
+                id: 'ch1_arena_slime_story_2',
+                title: 'Package Example',
+                questionType: 'Code Completion',
+                area,
+                npc,
+                question: `<em>The Slimebug hisses and tears the class body in half.</em> Write a complete class inside the <code>gameworld</code> package named <code>Game</code>.`,
+                answerTip: 'Type the full code snippet.',
+                inputPlaceholder: 'package gameworld; class Game { }',
+                inputMode: 'code',
+                matchMode: 'exact',
+                narrative: 'This stage ties a package header to a simple class declaration.',
+                hints: [
+                    'Put the package line first.',
+                    'Then declare class Game with braces.',
+                    'A compact one-line answer is accepted.'
+                ],
+                answers: ['package gameworld; class Game { }', 'package gameworld; class Game {}'],
+                damage: 24,
+                explanation: 'A package declaration can appear before a class declaration such as class Game { }.',
+                concept: 'packages_class_example',
+                conceptTitle: 'Classes Inside Packages',
+                codexTitle: 'Slimebug - Package Example'
             },
             {
                 id: 'ch1_arena_slime_story_3',
-                title: 'Strike The Middle',
-                questionType: 'Predict the Output',
+                title: 'Living Blueprint',
+                questionType: 'Code Completion',
                 area,
                 npc,
-                question: `<em>Three droplets bounce in a row.</em> What is printed by this code?`,
-                code: `int[] drops = {2, 4, 6};
-System.out.println(drops[1]);`,
-                answerTip: 'Type only the output.',
-                inputPlaceholder: 'Type the exact output',
+                question: `<em>The slime briefly forms a warrior silhouette.</em> Create a Java class named <code>Hero</code>.`,
+                answerTip: 'Type the full class declaration.',
+                inputPlaceholder: 'class Hero { }',
+                inputMode: 'code',
                 matchMode: 'exact',
-                narrative: 'The Slimebug\'s center mass is just an indexed element in disguise.',
+                narrative: 'The first arena fight now moves into class organization basics.',
                 hints: [
-                    'Array indexes begin at 0.',
-                    'drops[0] is 2.',
-                    'drops[1] is the second element.'
+                    'Use the class keyword.',
+                    'The class name is Hero.',
+                    'Include braces for the class body.'
                 ],
-                answers: ['4'],
+                answers: ['class Hero { }', 'class Hero {}'],
                 damage: 24,
-                explanation: 'The element at index 1 is the second element, which is 4.',
-                concept: 'arrays_access',
-                conceptTitle: 'Accessing Array Elements',
-                codexTitle: 'Slimebug - Array Access'
+                explanation: 'class Hero { } is a valid basic Java class declaration.',
+                concept: 'class_organization_basic',
+                conceptTitle: 'Basic Class Declarations',
+                codexTitle: 'Slimebug - Living Blueprint'
             },
             {
                 id: 'ch1_arena_slime_story_4',
-                title: 'Count The Spill',
+                title: 'Class Keyword',
                 questionType: 'Short Answer',
                 area,
                 npc,
-                question: `<em>The arena slick spreads wider.</em> Given <code>int[] drops = {2, 4, 6};</code>, what property gives the number of elements in the array?`,
-                answerTip: 'Type only the property name.',
-                inputPlaceholder: 'Type the property name',
+                question: `<em>The Slimebug keeps reshaping but never stabilizes.</em> What Java keyword begins a class declaration such as <code>_____ Hero { }</code>?`,
+                answerTip: 'Type only the keyword.',
+                inputPlaceholder: 'Type the keyword',
                 matchMode: 'exact',
-                narrative: 'You need the size of the array, not one of its values.',
+                narrative: 'This confirms the keyword behind the blueprint concept.',
                 hints: [
-                    'Arrays use a built-in property.',
-                    'It is not a method call.',
-                    'Do not use parentheses.'
+                    'It is the same keyword used in class Hero { }.',
+                    'It appears before the class name.',
+                    'It is all lowercase.'
                 ],
-                answers: ['length', 'drops.length'],
+                answers: ['class'],
                 damage: 24,
-                explanation: 'Java arrays use the length property to report how many elements they contain.',
-                concept: 'arrays_length',
-                conceptTitle: 'Array length',
-                codexTitle: 'Slimebug - Array length'
+                explanation: 'A class declaration begins with the class keyword.',
+                concept: 'class_keyword',
+                conceptTitle: 'The class Keyword',
+                codexTitle: 'Slimebug - Class Keyword'
             },
             {
                 id: 'ch1_arena_slime_story_5',
-                title: 'Sweep The Arena',
-                questionType: 'Fix the Code',
+                title: 'Summon The Form',
+                questionType: 'Code Completion',
                 area,
                 npc,
-                question: `<em>You sweep the whole slime trail from left to right.</em> Fix the broken loop condition so it visits every valid index without crashing.`,
-                code: `for (int i = 0; i <= drops.length; i++) {
-    total += drops[i];
-}`,
-                answerTip: 'Type only the corrected loop condition.',
-                inputPlaceholder: 'Type the corrected loop condition',
+                question: `<em>The last slime form hardens into a training construct.</em> Write the full line that creates an object of class <code>Hero</code> named <code>player</code>.`,
+                answerTip: 'Type the full Java line.',
+                inputPlaceholder: 'Hero player = new Hero();',
                 inputMode: 'code',
                 matchMode: 'exact',
-                narrative: 'This final pass uses a loop to traverse the whole array safely.',
+                narrative: 'The class-organization stage ends by turning a class into an object.',
                 hints: [
-                    'The last valid index is one less than the array length.',
-                    'Using <= goes one step too far.',
-                    'Only the condition needs to change.'
+                    'Use the new keyword.',
+                    'The variable type is Hero.',
+                    'Call the constructor with Hero().'
                 ],
-                answers: ['i < drops.length'],
+                answers: ['Hero player = new Hero();'],
                 damage: 26,
-                explanation: 'Array indexes go from 0 to length - 1, so the loop must use < rather than <=.',
-                concept: 'arrays_traversal',
-                conceptTitle: 'Traversing Arrays',
-                codexTitle: 'Slimebug - Array Traversal'
+                explanation: 'Objects are created from classes with new ClassName().',
+                concept: 'class_objects',
+                conceptTitle: 'Creating Objects',
+                codexTitle: 'Slimebug - Summon The Form'
             }
         ];
     },
@@ -4982,143 +4875,100 @@ System.out.println(drops[1]);`,
         return [
             {
                 id: 'ch1_arena_bird_story_1',
-                title: 'The Living Blueprint',
-                questionType: 'Short Answer',
-                area,
-                npc,
-                question: `<em>The Bird leaves afterimages in the air.</em> What Java keyword begins a class declaration such as <code>_____ Bird { }</code>?`,
-                answerTip: 'Type only the keyword.',
-                inputPlaceholder: 'Type the keyword',
-                matchMode: 'exact',
-                narrative: 'The arena demands a true blueprint. Name the keyword that starts it.',
-                hints: [
-                    'This keyword defines a blueprint.',
-                    'It comes before the class name.',
-                    'It is lowercase in Java.'
-                ],
-                answers: ['class'],
-                damage: 24,
-                explanation: 'A class declaration begins with the keyword class.',
-                concept: 'oop_class',
-                conceptTitle: 'Classes',
-                codexTitle: 'Bird - Classes'
-            },
-            {
-                id: 'ch1_arena_bird_story_2',
-                title: 'Summon The Form',
+                title: 'Open Gate',
                 questionType: 'Code Completion',
                 area,
                 npc,
-                question: `<em>The Bird dives, then reforms.</em> Write the full line that creates an object of class <code>Bird</code> named <code>hawk</code>.`,
-                answerTip: 'Type the full Java line.',
-                inputPlaceholder: 'Type the full Java line',
+                question: `<em>The Bird sweeps low over the arena rail.</em> Create a class named <code>Hero</code> that is accessible from anywhere.`,
+                answerTip: 'Type the full class declaration.',
+                inputPlaceholder: 'public class Hero { }',
                 inputMode: 'code',
                 matchMode: 'exact',
-                narrative: 'Object creation turns the blueprint into something real.',
+                narrative: 'The second arena fight shifts into access modifiers.',
                 hints: [
-                    'Use the new keyword.',
-                    'The variable type is Bird.',
-                    'The constructor call uses Bird().'
+                    'Use the public access modifier.',
+                    'The class name is Hero.',
+                    'Include braces for the class body.'
                 ],
-                answers: ['Bird hawk = new Bird();'],
+                answers: ['public class Hero { }', 'public class Hero {}'],
                 damage: 24,
-                explanation: 'Objects are created with new ClassName().',
-                concept: 'oop_object',
-                conceptTitle: 'Objects',
-                codexTitle: 'Bird - Objects'
+                explanation: 'public class Hero { } declares a class that can be accessed from anywhere.',
+                concept: 'access_public_class',
+                conceptTitle: 'public Classes',
+                codexTitle: 'Bird - Open Gate'
+            },
+            {
+                id: 'ch1_arena_bird_story_2',
+                title: 'Hidden Vault',
+                questionType: 'Code Completion',
+                area,
+                npc,
+                question: `<em>The Bird's shadow guards a sealed core.</em> Inside a class, declare a variable <code>hp</code> that can only be accessed within the same class.`,
+                answerTip: 'Type the full class snippet.',
+                inputPlaceholder: 'class Hero { private int hp; }',
+                inputMode: 'code',
+                matchMode: 'exact',
+                narrative: 'Now the arena teaches private access.',
+                hints: [
+                    'Use the private access modifier.',
+                    'The variable type is int.',
+                    'A compact class snippet is accepted.'
+                ],
+                answers: ['class Hero { private int hp; }', 'class Hero { private int hp;}', 'class Hero{ private int hp; }'],
+                damage: 24,
+                explanation: 'private int hp; restricts direct access to hp so it can only be used inside the same class.',
+                concept: 'access_private_field',
+                conceptTitle: 'private Fields',
+                codexTitle: 'Bird - Hidden Vault'
             },
             {
                 id: 'ch1_arena_bird_story_3',
-                title: 'Name The Constructor',
-                questionType: 'Fix the Code',
+                title: 'Access From Anywhere',
+                questionType: 'Short Answer',
                 area,
                 npc,
-                question: `<em>The Bird's true name must be bound the moment it is born.</em> Fix the broken assignment line inside this constructor.`,
-                code: `Bird(String name) {
-    name = name;
-}`,
-                answerTip: 'Type only the corrected assignment line.',
-                inputPlaceholder: 'Type the corrected Java line',
-                inputMode: 'code',
+                question: `<em>The Bird cries over the cheering crowd.</em> Which Java access modifier makes a class or member accessible from anywhere?`,
+                answerTip: 'Type only the modifier.',
+                inputPlaceholder: 'Type the modifier',
                 matchMode: 'exact',
-                narrative: 'Constructor magic shapes an object at creation. Repair the binding.',
+                narrative: 'This is the direct vocabulary check for open access.',
                 hints: [
-                    'The field and the parameter have the same name.',
-                    'Use this.name to refer to the field.',
-                    'Only the assignment line is wrong.'
+                    'It is used in public class Hero { }.',
+                    'It is the opposite of private in this lesson.',
+                    'It has six letters.'
                 ],
-                answers: ['this.name = name;'],
+                answers: ['public'],
                 damage: 24,
-                explanation: 'this.name refers to the field, while name refers to the constructor parameter.',
-                concept: 'oop_constructor',
-                conceptTitle: 'Constructors',
-                codexTitle: 'Bird - Constructors'
+                explanation: 'public makes a class or member accessible from anywhere it is visible in the program.',
+                concept: 'access_public',
+                conceptTitle: 'The public Modifier',
+                codexTitle: 'Bird - public Access'
             },
             {
                 id: 'ch1_arena_bird_story_4',
-                title: 'Read The Attribute',
-                questionType: 'Predict the Output',
+                title: 'Same-Class Only',
+                questionType: 'Short Answer',
                 area,
                 npc,
-                question: `<em>The Bird's afterimage reveals a name etched into its feathers.</em> What is printed by this code?`,
-                code: `class Bird {
-    String name = "Skyrend";
-}
-
-Bird b = new Bird();
-System.out.println(b.name);`,
-                answerTip: 'Type only the output.',
-                inputPlaceholder: 'Type the exact output',
+                question: `<em>The Bird shields its core behind a metallic crest.</em> Which Java access modifier restricts a field or method to the same class only?`,
+                answerTip: 'Type only the modifier.',
+                inputPlaceholder: 'Type the modifier',
                 matchMode: 'exact',
-                narrative: 'Now the arena tests whether you can read an attribute from an object.',
+                narrative: 'This is the lock on the other side of public.',
                 hints: [
-                    'The object b is created from Bird.',
-                    'name is an attribute of that object.',
-                    'b.name accesses the field.'
+                    'It is commonly used for encapsulation.',
+                    'Outside code cannot access the field directly.',
+                    'It has seven letters.'
                 ],
-                answers: ['Skyrend'],
+                answers: ['private'],
                 damage: 24,
-                explanation: 'b.name accesses the object\'s name field, which stores Skyrend.',
-                concept: 'oop_attributes',
-                conceptTitle: 'Attributes',
-                codexTitle: 'Bird - Attributes'
+                explanation: 'private restricts access so that only the same class can use the member directly.',
+                concept: 'access_private',
+                conceptTitle: 'The private Modifier',
+                codexTitle: 'Bird - private Access'
             },
             {
                 id: 'ch1_arena_bird_story_5',
-                title: 'The Dive Method',
-                questionType: 'Predict the Output',
-                area,
-                npc,
-                question: `<em>The Bird gathers speed before plunging.</em> What is printed by this code?`,
-                code: `class Bird {
-    int speed = 3;
-
-    void dive() {
-        speed += 2;
-    }
-}
-
-Bird b = new Bird();
-b.dive();
-System.out.println(b.speed);`,
-                answerTip: 'Type only the output.',
-                inputPlaceholder: 'Type the exact output',
-                matchMode: 'exact',
-                narrative: 'The method changes the Bird\'s state. Read the updated speed after the dive.',
-                hints: [
-                    'speed starts at 3.',
-                    'dive() adds 2 to speed.',
-                    'The updated value is printed.'
-                ],
-                answers: ['5'],
-                damage: 24,
-                explanation: 'Calling dive() increases speed from 3 to 5.',
-                concept: 'oop_methods',
-                conceptTitle: 'Methods In A Class',
-                codexTitle: 'Bird - Methods In A Class'
-            },
-            {
-                id: 'ch1_arena_bird_story_6',
                 title: 'Guard The Core',
                 questionType: 'Scenario-based Question',
                 area,
@@ -5137,9 +4987,9 @@ System.out.println(b.speed);`,
                 answers: ['f.getHp()'],
                 damage: 26,
                 explanation: 'With encapsulation, a private field is read through a public getter such as getHp().',
-                concept: 'oop_encapsulation',
+                concept: 'access_getter',
                 conceptTitle: 'Basic Encapsulation',
-                codexTitle: 'Bird - Encapsulation'
+                codexTitle: 'Bird - Guard The Core'
             }
         ];
     },
@@ -5151,133 +5001,63 @@ System.out.println(b.speed);`,
         return [
             {
                 id: 'ch1_arena_boss_story_1',
-                title: 'The Pulse Sequence',
-                questionType: 'Predict the Output',
+                title: 'Getter Forge',
+                questionType: 'Code Completion',
                 area,
                 npc,
-                question: `<em>The Arena Sovereign raises rune-shields across the arena.</em> What is printed by this code?`,
-                code: `public static int pulse(int n) {
-    if (n % 2 == 0) return n / 2;
-    return n * 2;
-}
-
-int total = 0;
-for (int i = 1; i <= 3; i++) {
-    total += pulse(i);
-}
-
-System.out.println(total);`,
-                answerTip: 'Type only the output.',
-                inputPlaceholder: 'Type the exact output',
+                question: `<em>The Arena Sovereign raises a locked steel hand.</em> Write a public getter method that returns an <code>int hp</code> field.`,
+                answerTip: 'Type the full method.',
+                inputPlaceholder: 'public int getHp(){ return hp; }',
+                inputMode: 'code',
                 matchMode: 'exact',
-                narrative: 'The arena falls silent. This first boss question mixes methods, conditions, and loops.',
+                narrative: 'The final arena battle starts by combining methods with access control.',
                 hints: [
-                    'pulse(1) returns 2 because 1 is odd.',
-                    'pulse(2) returns 1 because 2 is even.',
-                    'pulse(3) returns 6, then add all three results.'
+                    'The method must be public.',
+                    'Its return type is int.',
+                    'It should return hp.'
                 ],
-                answers: ['9'],
+                answers: ['public int getHp(){ return hp; }', 'public int getHp() { return hp; }'],
                 damage: 26,
-                explanation: 'The loop adds pulse(1)=2, pulse(2)=1, and pulse(3)=6 for a total of 9.',
-                concept: 'boss_methods_loops',
-                conceptTitle: 'Methods And Loops',
-                codexTitle: 'Arena Sovereign - Pulse Sequence'
+                explanation: 'A getter is a public method that returns the value of a private field.',
+                concept: 'boss_getter',
+                conceptTitle: 'Getter Methods',
+                codexTitle: 'Arena Sovereign - Getter Forge'
             },
             {
                 id: 'ch1_arena_boss_story_2',
-                type: 'multiple_choice',
-                title: 'The Shield That Never Drains',
-                questionType: 'Multiple Choice',
-                area,
-                npc,
-                question: `<em>The Arena Sovereign grins with many voices.</em> What is printed by this code?`,
-                code: `int hp = 4;
-int mana = 6;
-boolean shield = hp++ > 3 || --mana > 5;
-
-System.out.println(hp + ":" + mana + ":" + shield);`,
-                narrative: 'This is a short-circuit trial. One side of the condition may stop the other from running.',
-                hints: [
-                    'hp++ > 3 is evaluated first and is true.',
-                    'Because || short-circuits when the left side is true, --mana > 5 is not evaluated.',
-                    'hp still increments because hp++ uses the value and then increases it.'
-                ],
-                choices: ['4:5:true', '5:5:true', '5:6:true', '5:6:false'],
-                correctOption: 2,
-                answers: ['5:6:true'],
-                damage: 26,
-                explanation: 'The left side is true, so the right side is skipped. hp becomes 5, mana stays 6, and shield is true.',
-                concept: 'boss_short_circuit',
-                conceptTitle: 'Logical Short-Circuiting',
-                codexTitle: 'Arena Sovereign - Short-Circuit Logic'
-            },
-            {
-                id: 'ch1_arena_boss_story_3',
-                title: 'The Falling Marks',
+                title: 'Core Reading',
                 questionType: 'Predict the Output',
                 area,
                 npc,
-                question: `<em>The Boss stamps symbols into the arena floor and leaves out every break.</em> What is printed by this code?`,
-                code: `int mark = 2;
-switch (mark) {
-    case 1:
-        System.out.print("A");
-    case 2:
-        System.out.print("B");
-    case 3:
-        System.out.print("C");
-    default:
-        System.out.print("D");
-}`,
-                answerTip: 'Type the exact output with no spaces.',
-                inputPlaceholder: 'Type the exact output',
-                matchMode: 'exact',
-                narrative: 'A missing break can change the whole battle. Read the fallthrough correctly.',
-                hints: [
-                    'Execution starts at case 2.',
-                    'There are no break statements after case 2.',
-                    'So the switch continues through the remaining labels.'
-                ],
-                answers: ['BCD'],
-                damage: 26,
-                explanation: 'With no break after case 2, execution continues into case 3 and default, printing BCD.',
-                concept: 'boss_switch_fallthrough',
-                conceptTitle: 'switch Fallthrough',
-                codexTitle: 'Arena Sovereign - switch Fallthrough'
-            },
-            {
-                id: 'ch1_arena_boss_story_4',
-                title: 'The Skipping Runes',
-                questionType: 'Boss Challenge',
-                area,
-                npc,
-                question: `<em>Only every other rune on the arena floor is safe to step on.</em> Read the array and stepped loop carefully. What is printed?`,
-                code: `int[] runes = {3, 1, 4, 1};
-int sum = 0;
+                question: `<em>The sovereign presses a sealed crest into the ground.</em> What is printed by this code?`,
+                code: `class Hero {
+    private int hp = 12;
 
-for (int i = 0; i < runes.length; i += 2) {
-    sum += runes[i];
+    public int getHp() {
+        return hp;
+    }
 }
 
-System.out.println(sum);`,
+Hero h = new Hero();
+System.out.println(h.getHp());`,
                 answerTip: 'Type only the output.',
                 inputPlaceholder: 'Type the exact output',
                 matchMode: 'exact',
-                narrative: 'The Boss forces you to read an array with a stepped loop instead of visiting every element.',
+                narrative: 'Now you read a private field through the correct public method.',
                 hints: [
-                    'The loop visits indexes 0 and 2.',
-                    'runes[0] is 3.',
-                    'runes[2] is 4, then both visited values are added.'
+                    'hp starts at 12.',
+                    'The getter method returns hp.',
+                    'The printed value is the getter result.'
                 ],
-                answers: ['7'],
-                damage: 28,
-                explanation: 'The loop adds runes[0] and runes[2], which are 3 and 4, for a total of 7.',
-                concept: 'boss_arrays_loops',
-                conceptTitle: 'Arrays With Loops',
-                codexTitle: 'Arena Sovereign - Skipping Runes'
+                answers: ['12'],
+                damage: 26,
+                explanation: 'getHp() returns the private field value 12, so the output is 12.',
+                concept: 'boss_getter_output',
+                conceptTitle: 'Getter Output',
+                codexTitle: 'Arena Sovereign - Core Reading'
             },
             {
-                id: 'ch1_arena_boss_story_5',
+                id: 'ch1_arena_boss_story_3',
                 title: 'Name The Core',
                 questionType: 'Fix the Code',
                 area,
@@ -5294,116 +5074,85 @@ System.out.println(sum);`,
                 hints: [
                     'The parameter and the field have the same name.',
                     'Use this.name for the field.',
-                    'Only the assignment line is broken.'
+                    'Only the assignment line needs to change.'
                 ],
                 answers: ['this.name = name;'],
                 damage: 28,
-                explanation: 'this.name refers to the field in the object, while name refers to the constructor parameter.',
+                explanation: 'this.name refers to the field, while name refers to the constructor parameter.',
                 concept: 'boss_constructor_this',
                 conceptTitle: 'Constructors And this',
-                codexTitle: 'Arena Sovereign - Constructors'
+                codexTitle: 'Arena Sovereign - Name The Core'
             },
             {
-                id: 'ch1_arena_boss_story_6',
-                title: 'The Shared Blade',
-                questionType: 'Scenario-based Question',
+                id: 'ch1_arena_boss_story_4',
+                type: 'multiple_choice',
+                title: 'Choose The Shield',
+                questionType: 'Multiple Choice',
                 area,
                 npc,
-                question: `<em>The Boss summons two phantom swords, but both are bound to the same cursed core.</em> If <code>Guardian b = a;</code> and changing <code>b.level</code> also changes <code>a.level</code>, why does that happen?`,
-                answerTip: 'Type a short answer.',
-                inputPlaceholder: 'Type a short answer',
-                matchMode: 'exact',
-                narrative: 'This is a reference test. You need the idea, not just the number.',
+                question: `<em>The sovereign summons four false class fragments.</em> Which line correctly declares a private <code>int</code> field named <code>level</code>?`,
+                narrative: 'This is the direct access-control check in the final arena fight.',
                 hints: [
-                    'The variables do not hold separate objects.',
-                    'They point to the same Guardian.',
-                    'Think in terms of references.'
+                    'The field type is int.',
+                    'The access modifier must be private.',
+                    'A field declaration ends with a semicolon.'
                 ],
-                answers: ['same object', 'same reference', 'same object reference', 'they refer to the same object'],
-                damage: 28,
-                explanation: 'a and b refer to the same object, so changing the object through b is visible through a.',
-                concept: 'boss_reference_aliasing',
-                conceptTitle: 'Object References',
-                codexTitle: 'Arena Sovereign - Shared References'
+                choices: [
+                    'private int level;',
+                    'public level int;',
+                    'int private level;',
+                    'private level = int;'
+                ],
+                correctOption: 0,
+                answers: ['private int level;'],
+                damage: 26,
+                explanation: 'private int level; is the correct Java field declaration using the private modifier.',
+                concept: 'boss_private_field',
+                conceptTitle: 'private Fields',
+                codexTitle: 'Arena Sovereign - Choose The Shield'
             },
             {
-                id: 'ch1_arena_boss_story_7',
-                title: 'The Inner Circuit',
+                id: 'ch1_arena_boss_story_5',
+                title: 'Charge The Guardian',
                 questionType: 'Predict the Output',
                 area,
                 npc,
-                question: `<em>Runes spiral beneath your feet in two tightening rings.</em> What is printed by this code?`,
-                code: `int score = 0;
+                question: `<em>The final phase begins.</em> Analyze this class and method flow. What is printed?`,
+                code: `class Hero {
+    private int level;
 
-for (int i = 1; i <= 3; i++) {
-    for (int j = 1; j <= 2; j++) {
-        if (i == j) {
-            continue;
-        }
-        score += i + j;
+    Hero(int level) {
+        this.level = level;
+    }
+
+    public void train() {
+        level++;
+    }
+
+    public int getLevel() {
+        return level;
     }
 }
 
-System.out.println(score);`,
+Hero h = new Hero(2);
+h.train();
+h.train();
+System.out.println(h.getLevel());`,
                 answerTip: 'Type only the output.',
                 inputPlaceholder: 'Type the exact output',
                 matchMode: 'exact',
-                narrative: 'The Boss combines nested loops with continue. Track every allowed pair.',
+                narrative: 'The last arena question combines constructor use, methods, encapsulation, and state changes.',
                 hints: [
-                    'Skip the cases where i == j.',
-                    'The added pairs are (1,2), (2,1), (3,1), and (3,2).',
-                    'Add the values of each surviving pair.'
+                    'The hero starts at level 2.',
+                    'train() increases level by 1 each time.',
+                    'The getter prints the final level after two training calls.'
                 ],
-                answers: ['15'],
-                damage: 30,
-                explanation: 'The surviving pairs contribute 3, 3, 4, and 5, so the total is 15.',
-                concept: 'boss_nested_loops',
-                conceptTitle: 'Nested Loops',
-                codexTitle: 'Arena Sovereign - Nested Loops'
-            },
-            {
-                id: 'ch1_arena_boss_story_8',
-                title: 'Charge The Orb',
-                questionType: 'Boss Challenge',
-                area,
-                npc,
-                question: `<em>The final phase begins.</em> Analyze every line of this class, method call, and loop. What is printed?`,
-                code: `class Orb {
-    int power;
-
-    Orb(int power) {
-        this.power = power;
-    }
-
-    int pulse(int step) {
-        if (step % 2 == 0) {
-            return step;
-        }
-        return step + 1;
-    }
-}
-
-Orb o = new Orb(1);
-for (int i = 1; i <= 3; i++) {
-    o.power += o.pulse(i);
-}
-
-System.out.println(o.power);`,
-                answerTip: 'Type only the output.',
-                inputPlaceholder: 'Type the exact output',
-                matchMode: 'exact',
-                narrative: 'The last boss question mixes a constructor, a method, conditionals, and a loop.',
-                hints: [
-                    'The orb starts with power 1.',
-                    'pulse(1) returns 2, pulse(2) returns 2, and pulse(3) returns 4.',
-                    'Add each returned value to the orb\'s power.'
-                ],
-                answers: ['9'],
+                answers: ['4'],
                 damage: 32,
-                explanation: 'The orb starts at 1 and gains 2, 2, and 4, so it ends with power 9.',
-                concept: 'boss_oop_loop_mix',
-                conceptTitle: 'Objects, Methods, And Loops',
-                codexTitle: 'Arena Sovereign - Charge The Orb'
+                explanation: 'The hero starts at 2, trains twice to reach 4, and getLevel() returns that final value.',
+                concept: 'boss_encapsulation_flow',
+                conceptTitle: 'Encapsulation And Methods',
+                codexTitle: 'Arena Sovereign - Charge The Guardian'
             }
         ];
     },
