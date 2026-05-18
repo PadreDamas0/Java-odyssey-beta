@@ -43,124 +43,116 @@ const TutorialScene = {
     getTutorialChallenges() {
         return [
             {
-                id: 'tutorial_variable_int',
-                title: 'Gold Storage',
-                questionType: 'Code Completion',
+                id: 'tutorial_programming_1',
+                type: 'multiple_choice',
+                title: 'Initiation Trial',
+                questionType: 'Multiple Choice',
                 area: 'Dark Alley',
                 npc: 'Cipher',
-                question: `<em>Cipher sketches a glowing inventory rune.</em> Which Java line declares an <code>int</code> variable named <code>gold</code> with the value <code>100</code>?`,
-                answerTip: 'Type the full Java line.',
-                inputPlaceholder: 'int gold = 100;',
-                inputMode: 'code',
-                narrative: 'The tutorial now starts with the most basic weapon in Java: declaring a variable.',
+                question: `<em>Cipher opens the first lesson like a gate.</em> What is programming?`,
+                narrative: 'The new tutorial starts with the most basic foundation: what programming actually is.',
                 hints: [
-                    'Use int for a whole number.',
-                    'The variable name must be gold.',
-                    'Full answer: int gold = 100;'
+                    'Think about what a programmer gives to a computer.',
+                    'Programming is not just playing or storing files.',
+                    'It is about instructions and logic.'
                 ],
-                answers: ['int gold = 100;'],
+                choices: [
+                    'Drawing pictures',
+                    'Writing instructions for a computer',
+                    'Playing games',
+                    'Storing files'
+                ],
+                correctOption: 1,
+                answers: ['Writing instructions for a computer'],
                 damage: 12,
-                explanation: 'int gold = 100; declares an integer variable named gold and stores the value 100.',
-                concept: 'variables_int',
-                conceptTitle: 'Integer Variables',
-                codexTitle: 'Tutorial - Gold Storage'
+                explanation: 'Programming means writing instructions that tell a computer what to do.',
+                concept: 'programming_concepts_intro',
+                conceptTitle: 'What Programming Is',
+                codexTitle: 'Tutorial - Initiation Trial'
             },
             {
-                id: 'tutorial_variable_string',
-                title: 'Hero Name',
-                questionType: 'Code Completion',
+                id: 'tutorial_programming_2',
+                type: 'multiple_choice',
+                title: 'Logic Path',
+                questionType: 'Multiple Choice',
                 area: 'Dark Alley',
                 npc: 'Cipher',
-                question: `<em>The next rune glows with your identity.</em> Which Java line stores <code>"Rowan"</code> in a variable named <code>hero</code>?`,
-                answerTip: 'Type the full Java line.',
-                inputPlaceholder: 'String hero = "Rowan";',
-                inputMode: 'code',
-                narrative: 'After whole numbers comes text. Java stores text with String variables.',
+                question: `<em>A second rune appears beneath your feet.</em> Which is the first step in problem solving?`,
+                narrative: 'Before code comes planning.',
                 hints: [
-                    'Use String with a capital S.',
-                    'Text values need double quotes.',
-                    'Full answer: String hero = "Rowan";'
+                    'Good code usually starts before typing.',
+                    'You should understand the problem first.',
+                    'Think preparation, not execution.'
                 ],
-                answers: ['String hero = "Rowan";'],
+                choices: [
+                    'Coding',
+                    'Planning',
+                    'Running',
+                    'Deleting'
+                ],
+                correctOption: 1,
+                answers: ['Planning'],
                 damage: 12,
-                explanation: 'String hero = "Rowan"; stores a text value inside a String variable.',
-                concept: 'variables_string',
-                conceptTitle: 'String Variables',
-                codexTitle: 'Tutorial - Hero Name'
+                explanation: 'Planning is the first step in problem solving because it helps define the path before coding begins.',
+                concept: 'programming_concepts_planning',
+                conceptTitle: 'Planning Before Coding',
+                codexTitle: 'Tutorial - Logic Path'
             },
             {
-                id: 'tutorial_variable_boolean',
-                title: 'Battle Flag',
-                questionType: 'Code Completion',
+                id: 'tutorial_programming_3',
+                type: 'multiple_choice',
+                title: 'Algorithm Rune',
+                questionType: 'Multiple Choice',
                 area: 'Dark Alley',
                 npc: 'Cipher',
-                question: `<em>Cipher raises a shield sigil.</em> Which line declares a <code>boolean</code> variable named <code>ready</code> and sets it to <code>true</code>?`,
-                answerTip: 'Type the full Java line.',
-                inputPlaceholder: 'boolean ready = true;',
-                inputMode: 'code',
-                narrative: 'The third lesson is true-or-false state. Java uses boolean for that.',
+                question: `<em>The third seal asks for precision.</em> An algorithm is:`,
+                narrative: 'This is the core problem-solving idea behind all programming.',
                 hints: [
-                    'Use boolean for true or false values.',
-                    'true is lowercase in Java.',
-                    'Full answer: boolean ready = true;'
+                    'It is not a variable or a compiler.',
+                    'An algorithm helps solve a problem in order.',
+                    'Think step by step.'
                 ],
-                answers: ['boolean ready = true;'],
+                choices: [
+                    'A Java variable',
+                    'A step-by-step solution to a problem',
+                    'A compiler',
+                    'A loop'
+                ],
+                correctOption: 1,
+                answers: ['A step-by-step solution to a problem'],
                 damage: 12,
-                explanation: 'boolean ready = true; creates a boolean variable and stores a true value in it.',
-                concept: 'variables_boolean',
-                conceptTitle: 'boolean Variables',
-                codexTitle: 'Tutorial - Battle Flag'
+                explanation: 'An algorithm is a step-by-step solution used to solve a problem logically.',
+                concept: 'programming_concepts_algorithm',
+                conceptTitle: 'Algorithms',
+                codexTitle: 'Tutorial - Algorithm Rune'
             },
             {
-                id: 'tutorial_variable_print',
-                title: 'Torch Message',
-                questionType: 'Code Completion',
+                id: 'tutorial_programming_4',
+                type: 'multiple_choice',
+                title: 'Flowchart Vision',
+                questionType: 'Multiple Choice',
                 area: 'Dark Alley',
                 npc: 'Cipher',
-                question: `<em>The alley darkens for a moment.</em> Type the Java command that will print <code>Torch Lit</code>.`,
-                answerTip: 'Type the full print command. Semicolon is accepted but optional here.',
-                inputPlaceholder: 'System.out.println("Torch Lit");',
-                inputMode: 'code',
-                narrative: 'Now you use a variable lesson together with output: clean Java still needs correct printing.',
+                question: `<em>The final tutorial glyph unfolds into linked boxes and arrows.</em> A flowchart is used to:`,
+                narrative: 'The first battle ends with visual problem solving.',
                 hints: [
-                    'Printing text starts with System.out.println.',
-                    'Torch Lit must be inside double quotes.',
-                    'Full answer: System.out.println("Torch Lit");'
+                    'A flowchart helps visualize logic.',
+                    'It is not mainly for storing or compiling.',
+                    'Think diagrams and steps.'
                 ],
-                answers: [
-                    'System.out.println("Torch Lit");',
-                    'System.out.println("Torch Lit")'
+                choices: [
+                    'Store data',
+                    'Show program steps visually',
+                    'Compile code',
+                    'Delete errors'
                 ],
-                damage: 12,
-                explanation: 'System.out.println("Torch Lit"); prints the text Torch Lit on its own line.',
-                concept: 'variables_print',
-                conceptTitle: 'Printing Output',
-                codexTitle: 'Tutorial - Torch Message'
-            },
-            {
-                id: 'tutorial_variable_output',
-                title: 'Print The Gold',
-                questionType: 'Predict the Output',
-                area: 'Dark Alley',
-                npc: 'Cipher',
-                question: `<em>The Syntax Bug flickers as one final rune appears.</em> What is printed by this code?`,
-                code: `int gold = 50;
-System.out.println(gold);`,
-                answerTip: 'Type only the output.',
-                inputPlaceholder: 'Type the exact output',
-                matchMode: 'exact',
-                narrative: 'The tutorial ends by reading a variable and predicting its printed value.',
-                hints: [
-                    'gold stores the whole number 50.',
-                    'System.out.println prints the value inside the parentheses.',
-                    'The output is just the number.'
-                ],
-                answers: ['50'],
+                correctOption: 1,
+                answers: ['Show program steps visually'],
                 damage: 16,
-                explanation: 'The variable gold contains 50, so printing gold outputs 50.',
-                concept: 'variables_output',
-                conceptTitle: 'Printing Variable Values',
-                codexTitle: 'Tutorial - Print The Gold'
+                explanation: 'A flowchart shows the steps of a program or algorithm visually.',
+                concept: 'programming_concepts_flowchart',
+                conceptTitle: 'Flowcharts',
+                codexTitle: 'Tutorial - Flowchart Vision'
             }
         ];
     },
