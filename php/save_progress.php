@@ -43,11 +43,32 @@ $totalXp = filter_var($payload['total_xp'] ?? ($payload['totalXp'] ?? ($existing
 ]);
 $timeCompletedRaw = $payload['time_completed'] ?? ($payload['timeCompleted'] ?? null);
 $timeCompleted = null;
+[$phase, $currentScene, $currentPosition, $savepointScene, $savepointLabel] = [
+    trim((string) ($payload['phase'] ?? ($existingProgress['phase'] ?? 'menu'))),
+    trim((string) ($payload['current_scene'] ?? ($payload['currentScene'] ?? ($existingProgress['current_scene'] ?? '')))),
+    trim((string) ($payload['current_position'] ?? ($payload['currentPosition'] ?? ($existingProgress['current_position'] ?? '')))),
+    trim((string) ($payload['savepoint_scene'] ?? ($payload['savepointScene'] ?? ($existingProgress['savepoint_scene'] ?? '')))),
+    trim((string) ($payload['savepoint_label'] ?? ($payload['savepointLabel'] ?? ($existingProgress['savepoint_label'] ?? '')))),
+];
+$saveState = $payload['save_state'] ?? ($payload['saveState'] ?? ($existingProgress['save_state'] ?? null));
 
 if ($timeCompletedRaw !== null && $timeCompletedRaw !== '') {
     $timeCompleted = filter_var($timeCompletedRaw, FILTER_VALIDATE_INT, [
         'options' => ['min_range' => 1],
     ]);
+}
+
+if ($phase === '') {
+    $phase = (string) ($existingProgress['phase'] ?? 'menu');
+}
+
+$currentScene = $currentScene !== '' ? $currentScene : null;
+$currentPosition = $currentPosition !== '' ? $currentPosition : null;
+$savepointScene = $savepointScene !== '' ? $savepointScene : ($currentScene ?: null);
+$savepointLabel = $savepointLabel !== '' ? $savepointLabel : null;
+
+if ($saveState !== null && !is_array($saveState)) {
+    $saveState = null;
 }
 
 if (
@@ -74,7 +95,13 @@ try {
         (int) $hp,
         (int) $xp,
         (int) $totalXp,
-        $timeCompleted === null ? null : (int) $timeCompleted
+        $timeCompleted === null ? null : (int) $timeCompleted,
+        $phase,
+        $currentScene,
+        $currentPosition,
+        $savepointScene,
+        $savepointLabel,
+        $saveState
     );
 
     echo json_encode([

@@ -186,7 +186,25 @@ const Auth = {
             hp,
             xp,
             total_xp: totalXp,
-            time_completed: timeCompleted
+            time_completed: timeCompleted,
+            phase: typeof progress.phase === 'string' && progress.phase.trim()
+                ? progress.phase.trim()
+                : 'menu',
+            current_scene: typeof progress.current_scene === 'string' && progress.current_scene.trim()
+                ? progress.current_scene.trim()
+                : (typeof progress.currentScene === 'string' && progress.currentScene.trim() ? progress.currentScene.trim() : null),
+            current_position: typeof progress.current_position === 'string' && progress.current_position.trim()
+                ? progress.current_position.trim()
+                : (typeof progress.currentPosition === 'string' && progress.currentPosition.trim() ? progress.currentPosition.trim() : null),
+            savepoint_scene: typeof progress.savepoint_scene === 'string' && progress.savepoint_scene.trim()
+                ? progress.savepoint_scene.trim()
+                : (typeof progress.savepointScene === 'string' && progress.savepointScene.trim() ? progress.savepointScene.trim() : null),
+            savepoint_label: typeof progress.savepoint_label === 'string' && progress.savepoint_label.trim()
+                ? progress.savepoint_label.trim()
+                : (typeof progress.savepointLabel === 'string' && progress.savepointLabel.trim() ? progress.savepointLabel.trim() : null),
+            save_state: progress.save_state && typeof progress.save_state === 'object'
+                ? progress.save_state
+                : (progress.saveState && typeof progress.saveState === 'object' ? progress.saveState : null)
         };
     },
 
@@ -202,7 +220,10 @@ const Auth = {
         }
 
         const normalized = this.normalizeProgressPayload(progress);
-        this.remoteProgress = normalized;
+        this.remoteProgress = {
+            ...normalized,
+            updated_at: progress.updated_at || null
+        };
         this.lastProgressSignature = this.createProgressSignature(normalized);
     },
     bootstrapFromPage() {
@@ -393,6 +414,72 @@ const Auth = {
         return profile;
     },
 
+    getRemoteSaveData() {
+        if (!this.remoteProgress) {
+            return null;
+        }
+
+        const rawSaveState = this.remoteProgress.save_state;
+        const clonedSaveState = rawSaveState && typeof rawSaveState === 'object'
+            ? JSON.parse(JSON.stringify(rawSaveState))
+            : {};
+
+        const saveData = {
+            player: { ...(clonedSaveState.player || {}) },
+            progress: {
+                currentChapter: 0,
+                currentScene: '',
+                completedQuests: [],
+                completedChallenges: [],
+                unlockedAreas: ['modern-world'],
+                storyFlags: {},
+                ...(clonedSaveState.progress || {})
+            },
+            performance: clonedSaveState.performance || {
+                totalAttempts: 0,
+                correctAnswers: 0,
+                incorrectAnswers: 0,
+                hintsUsed: 0,
+                currentStreak: 0,
+                bestStreak: 0,
+                averageAttempts: 0,
+                difficultyLevel: 'beginner',
+                challengeHistory: []
+            },
+            inventory: Array.isArray(clonedSaveState.inventory) ? clonedSaveState.inventory : [],
+            journal: clonedSaveState.journal || {
+                activeQuests: [],
+                completedQuests: [],
+                codex: []
+            },
+            phase: this.remoteProgress.phase || clonedSaveState.phase || 'menu',
+            meta: clonedSaveState.meta || {},
+            timestamp: Number(clonedSaveState.timestamp) || Date.parse(this.remoteProgress.updated_at || '') || Date.now()
+        };
+
+        saveData.player.level = this.remoteProgress.level;
+        saveData.player.gold = this.remoteProgress.coins;
+        saveData.player.hp = this.remoteProgress.hp;
+        saveData.player.xp = this.remoteProgress.xp;
+        saveData.player.totalXp = this.remoteProgress.total_xp;
+
+        if (this.remoteProgress.current_position) {
+            saveData.player.position = this.remoteProgress.current_position;
+        }
+
+        saveData.progress.currentScene =
+            this.remoteProgress.savepoint_scene ||
+            this.remoteProgress.current_scene ||
+            saveData.progress.currentScene ||
+            '';
+
+        if (this.remoteProgress.time_completed) {
+            saveData.player.timeCompleted = this.remoteProgress.time_completed;
+        }
+
+        return saveData;
+    },
+
     buildProgressPayload(playerState) {
         if (window.GameState && typeof window.GameState.getRemoteProgressSnapshot === 'function') {
             return this.normalizeProgressPayload(window.GameState.getRemoteProgressSnapshot());
@@ -426,7 +513,7 @@ const Auth = {
         const signature = this.createProgressSignature(payload);
 
         if (signature === this.lastProgressSignature) {
-            return Promise.resolve();
+            return Promise.resolve(true);
         }
 
         return fetch('php/save_progress.php', {
@@ -446,9 +533,11 @@ const Auth = {
                 this.lastProgressSignature = signature;
                 this.remoteProgress = { ...payload };
                 this.dispatchProgressSynced(this.remoteProgress);
+                return true;
             })
             .catch((error) => {
                 console.warn('Progress sync skipped:', error.message);
+                return false;
             });
     },
 

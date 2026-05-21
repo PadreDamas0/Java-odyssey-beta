@@ -486,7 +486,7 @@ const Game = {
     /**
      * Save the game
      */
-    saveGame() {
+    saveGameLegacy() {
         if (GameState.save()) {
             Utils.notify('💾 Game saved!', 'default');
         } else {
@@ -494,6 +494,21 @@ const Game = {
         }
     },
     
+    async saveGame() {
+        if (!GameState.save()) {
+            Utils.notify('Save failed.', 'default');
+            return;
+        }
+
+        const remoteSaved = await GameState.flushRemoteSync();
+        if (remoteSaved || !window.Auth || !window.Auth.currentUser) {
+            Utils.notify('Game saved!', 'default');
+            return;
+        }
+
+        Utils.notify('Local save worked, but cloud save failed.', 'default', 4200);
+    },
+
     /**
      * Show settings modal
      */

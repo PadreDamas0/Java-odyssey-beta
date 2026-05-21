@@ -6,6 +6,22 @@
 
 const TutorialScene = {
 
+    buildAdaptiveEncounterQuestions(mainChallenges, recoveryChallenges, topicKey) {
+        const normalizedTopic = topicKey || 'tutorial';
+
+        return [
+            ...(mainChallenges || []).map((challenge) => ({
+                ...challenge,
+                adaptiveTopic: challenge.adaptiveTopic || normalizedTopic
+            })),
+            ...(recoveryChallenges || []).map((challenge) => ({
+                ...challenge,
+                adaptiveTopic: challenge.adaptiveTopic || normalizedTopic,
+                isRecovery: true
+            }))
+        ];
+    },
+
     /**
      * Start the tutorial combat
      */
@@ -41,104 +57,180 @@ const TutorialScene = {
      * Get tutorial challenges based on difficulty
      */
     getTutorialChallenges() {
-        return [
+        const topic = 'programming_concepts';
+        const mainChallenges = [
             {
-                id: 'tutorial_light_attack',
-                title: 'Light Attack',
-                questionType: 'Code Completion',
+                id: 'tutorial_programming_1',
+                type: 'multiple_choice',
+                title: 'Initiation Trial',
+                questionType: 'Multiple Choice',
                 area: 'Dark Alley',
                 npc: 'Cipher',
-                question: `<em>Cipher raises a glowing hand.</em> Type the Java command that will print <code>Light Attack</code>.`,
-                answerTip: 'Type the full System.out.println command. Semicolon is accepted but optional here.',
-                inputPlaceholder: 'System.out.println("Light Attack");',
-                inputMode: 'code',
-                narrative: 'Your first combat spell is simple: print the attack name exactly.',
+                question: `<em>Cipher opens the first lesson like a gate.</em> What is programming?`,
+                narrative: 'The new tutorial starts with the most basic foundation: what programming actually is.',
                 hints: [
-                    'Printing text in Java starts with System.out.println.',
-                    'The words Light Attack must be inside double quotes.',
-                    'Full answer: System.out.println("Light Attack");'
+                    'Think about what a programmer gives to a computer.',
+                    'Programming is not just playing or storing files.',
+                    'It is about instructions and logic.'
                 ],
-                answers: [
-                    'System.out.println("Light Attack");',
-                    'System.out.println("Light Attack")'
+                choices: [
+                    'Drawing pictures',
+                    'Writing instructions for a computer',
+                    'Playing games',
+                    'Storing files'
                 ],
+                correctOption: 1,
+                answers: ['Writing instructions for a computer'],
+                damage: 12,
+                explanation: 'Programming means writing instructions that tell a computer what to do.',
+                concept: 'programming_concepts_intro',
+                conceptTitle: 'What Programming Is',
+                codexTitle: 'Tutorial - Initiation Trial'
+            },
+            {
+                id: 'tutorial_programming_2',
+                type: 'multiple_choice',
+                title: 'Logic Path',
+                questionType: 'Multiple Choice',
+                area: 'Dark Alley',
+                npc: 'Cipher',
+                question: `<em>A second rune appears beneath your feet.</em> Which is the first step in problem solving?`,
+                narrative: 'Before code comes planning.',
+                hints: [
+                    'Good code usually starts before typing.',
+                    'You should understand the problem first.',
+                    'Think preparation, not execution.'
+                ],
+                choices: [
+                    'Coding',
+                    'Planning',
+                    'Running',
+                    'Deleting'
+                ],
+                correctOption: 1,
+                answers: ['Planning'],
+                damage: 12,
+                explanation: 'Planning is the first step in problem solving because it helps define the path before coding begins.',
+                concept: 'programming_concepts_planning',
+                conceptTitle: 'Planning Before Coding',
+                codexTitle: 'Tutorial - Logic Path'
+            },
+            {
+                id: 'tutorial_programming_3',
+                type: 'multiple_choice',
+                title: 'Algorithm Rune',
+                questionType: 'Multiple Choice',
+                area: 'Dark Alley',
+                npc: 'Cipher',
+                question: `<em>The third seal asks for precision.</em> An algorithm is:`,
+                narrative: 'This is the core problem-solving idea behind all programming.',
+                hints: [
+                    'It is not a variable or a compiler.',
+                    'An algorithm helps solve a problem in order.',
+                    'Think step by step.'
+                ],
+                choices: [
+                    'A Java variable',
+                    'A step-by-step solution to a problem',
+                    'A compiler',
+                    'A loop'
+                ],
+                correctOption: 1,
+                answers: ['A step-by-step solution to a problem'],
+                damage: 12,
+                explanation: 'An algorithm is a step-by-step solution used to solve a problem logically.',
+                concept: 'programming_concepts_algorithm',
+                conceptTitle: 'Algorithms',
+                codexTitle: 'Tutorial - Algorithm Rune'
+            },
+            {
+                id: 'tutorial_programming_4',
+                type: 'multiple_choice',
+                title: 'Flowchart Vision',
+                questionType: 'Multiple Choice',
+                area: 'Dark Alley',
+                npc: 'Cipher',
+                question: `<em>The final tutorial glyph unfolds into linked boxes and arrows.</em> A flowchart is used to:`,
+                narrative: 'The first battle ends with visual problem solving.',
+                hints: [
+                    'A flowchart helps visualize logic.',
+                    'It is not mainly for storing or compiling.',
+                    'Think diagrams and steps.'
+                ],
+                choices: [
+                    'Store data',
+                    'Show program steps visually',
+                    'Compile code',
+                    'Delete errors'
+                ],
+                correctOption: 1,
+                answers: ['Show program steps visually'],
                 damage: 16,
-                explanation: 'System.out.println("Light Attack"); prints the text Light Attack on its own line.',
-                concept: 'print_light_attack',
-                conceptTitle: 'Printing A Basic Attack',
-                codexTitle: 'Tutorial - Light Attack'
-            },
-            {
-                id: 'tutorial_program_structure',
-                title: 'Shape The Spell',
-                questionType: 'True or False',
-                area: 'Dark Alley',
-                npc: 'Cipher',
-                question: `<em>A rune tablet appears in the air.</em> True or false: <code>class FirstTrial { }</code> is a valid Java class declaration.`,
-                answerTip: 'Type only true or false.',
-                inputPlaceholder: 'Type true or false',
-                matchMode: 'exact',
-                narrative: 'The creature recoils. Confirm whether the cracked class shell is valid.',
-                hints: [
-                    'Java programs are organized into classes.',
-                    'The keyword comes before the class name.',
-                    'The braces form the class body.'
-                ],
-                answers: ['true'],
-                damage: 14,
-                explanation: 'A Java class declaration uses the class keyword, a class name, and braces to hold the class body.',
-                concept: 'java_program_structure',
-                conceptTitle: 'Structure Of A Java Program',
-                codexTitle: 'Tutorial - Program Structure'
-            },
-            {
-                id: 'tutorial_main_method',
-                title: 'Awaken The Entry Rune',
-                questionType: 'Fill in the Blank',
-                area: 'Dark Alley',
-                npc: 'Cipher',
-                question: `<em>Cipher points to the spell that begins every true journey.</em> Fill in the blank: <code>public static void ____ (String[] args)</code>`,
-                answerTip: 'Type only the missing method name.',
-                inputPlaceholder: 'Type the missing method name',
-                matchMode: 'exact',
-                narrative: 'The Syntax Bug falters. Restore the missing entry point.',
-                hints: [
-                    'The main method is public, static, and void.',
-                    'It uses String[] args as its parameter list.',
-                    'The missing word is the method name.'
-                ],
-                answers: ['main', 'main()'],
-                damage: 14,
-                explanation: 'The standard Java entry point is public static void main(String[] args).',
-                concept: 'java_main_method',
-                conceptTitle: 'The main Method',
-                codexTitle: 'Tutorial - The main Method'
-            },
-            {
-                id: 'tutorial_print_statement',
-                title: 'Speak The First Spell',
-                questionType: 'Code Completion',
-                area: 'Dark Alley',
-                npc: 'Cipher',
-                question: `<em>The final seal on the bug flickers.</em> Complete the missing method name so the line prints <code>"Hello, Java Realm!"</code>.`,
-                code: 'System.out._______("Hello, Java Realm!");',
-                answerTip: 'Type only the missing method name.',
-                inputPlaceholder: 'Type the missing method name',
-                matchMode: 'exact',
-                narrative: 'The Syntax Bug lunges one last time. Complete the print spell and end the fight.',
-                hints: [
-                    'Use System.out.println().',
-                    'The text must be inside double quotes.',
-                    'The missing part prints a full line.'
-                ],
-                answers: ['println', 'println()'],
-                damage: 20,
-                explanation: 'System.out.println() prints a line of text, and String literals must be wrapped in double quotes.',
-                concept: 'print_statement',
-                conceptTitle: 'Printing Output',
-                codexTitle: 'Tutorial - Printing Output'
+                explanation: 'A flowchart shows the steps of a program or algorithm visually.',
+                concept: 'programming_concepts_flowchart',
+                conceptTitle: 'Flowcharts',
+                codexTitle: 'Tutorial - Flowchart Vision'
             }
         ];
+
+        const recoveryChallenges = [
+            {
+                id: 'tutorial_programming_recovery_1',
+                type: 'multiple_choice',
+                title: 'Instruction Spark',
+                questionType: 'Multiple Choice',
+                area: 'Dark Alley',
+                npc: 'Cipher',
+                question: `<em>Cipher slows the lesson and redraws a simpler symbol.</em> Which choice best describes what a program tells a computer to do?`,
+                narrative: 'Cipher notices the struggle and gives you an easier concept check before the lesson moves on.',
+                hints: [
+                    'A program gives instructions.',
+                    'It is about telling the computer what steps to follow.',
+                    'Look for the choice about instructions.',
+                    'The answer is the choice that says what the computer should do.'
+                ],
+                choices: [
+                    'Sleep forever',
+                    'Follow instructions',
+                    'Paint itself',
+                    'Forget data'
+                ],
+                correctOption: 1,
+                answers: ['Follow instructions'],
+                damage: 10,
+                autoShowHint: true,
+                explanation: 'A program gives a computer instructions to follow.'
+            },
+            {
+                id: 'tutorial_programming_recovery_2',
+                type: 'multiple_choice',
+                title: 'Step Map',
+                questionType: 'Multiple Choice',
+                area: 'Dark Alley',
+                npc: 'Cipher',
+                question: `<em>The air settles and Cipher points to boxes linked by arrows.</em> What do a flowchart and an algorithm both help you show?`,
+                narrative: 'The lesson stays on the same topic, but the next question becomes more guided.',
+                hints: [
+                    'Both are about order.',
+                    'They help show how a problem is solved.',
+                    'Think of steps, not drawings or sounds.',
+                    'Choose the answer about steps.'
+                ],
+                choices: [
+                    'The steps to solve a problem',
+                    'The color of the program',
+                    'The speed of the computer',
+                    'The brand of keyboard'
+                ],
+                correctOption: 0,
+                answers: ['The steps to solve a problem'],
+                damage: 10,
+                autoShowHint: true,
+                explanation: 'Both algorithms and flowcharts help show the steps used to solve a problem.'
+            }
+        ];
+
+        return this.buildAdaptiveEncounterQuestions(mainChallenges, recoveryChallenges, topic);
     },
 
     /**
