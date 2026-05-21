@@ -243,6 +243,53 @@ function admin_update_user(): void
     }
 }
 
+function admin_get_password_reset_requests(): array
+{
+    $statement = get_db()->query(
+        'SELECT
+            r.user_id,
+            u.username,
+            u.email,
+            r.requested_at
+         FROM password_reset_requests r
+         JOIN users u ON u.id = r.user_id
+         ORDER BY r.requested_at DESC'
+    );
+
+    return $statement->fetchAll() ?: [];
+}
+
+function admin_reset_password(): void
+{
+    $userId = admin_int('user_id', 0, 1, PHP_INT_MAX);
+    $newPassword = trim((string) ($_POST['new_password'] ?? '12345678'));
+
+    if ($newPassword === '') {
+        throw new InvalidArgumentException('Please enter a new password.');
+    }
+
+    if (strlen($newPassword) < 6) {
+        throw new InvalidArgumentException('Password must be at least 6 characters long.');
+    }
+
+    $hash = password_hash($newPassword, PASSWORD_DEFAULT);
+    $statement = get_db()->prepare(
+        'UPDATE users
+         SET password = :password
+         WHERE id = :id'
+    );
+    $statement->execute([
+        'password' => $hash,
+        'id' => $userId,
+    ]);
+
+    if ($statement->rowCount() < 1) {
+        throw new RuntimeException('User not found.');
+    }
+
+    clear_password_reset_request($userId);
+}
+
 $loginError = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -275,6 +322,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             admin_update_user();
             admin_flash('success', 'User updated successfully.');
             admin_redirect();
+        } elseif (admin_is_authenticated() && $action === 'reset_password') {
+            admin_require_csrf();
+            admin_reset_password();
+            admin_flash('success', 'User password reset to the provided value.');
+            admin_redirect();
         }
     } catch (Throwable $exception) {
         log_app_exception($exception);
@@ -285,6 +337,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $flash = admin_take_flash();
 $users = admin_is_authenticated() ? admin_get_users() : [];
+$resetRequests = admin_is_authenticated() ? admin_get_password_reset_requests() : [];
 $csrfToken = admin_is_authenticated() ? admin_csrf_token() : '';
 ?>
 <!DOCTYPE html>
@@ -353,6 +406,22 @@ $csrfToken = admin_is_authenticated() ? admin_csrf_token() : '';
                     <strong><?php echo count($users); ?></strong>
                 </div>
 
+                <section class="admin-reset-requests">
+                    <h2>Password reset notifications</h2>
+
+                    <?php if ($resetRequests): ?>
+                        <div class="admin-reset-notification-list">
+                            <?php foreach ($resetRequests as $request): ?>
+                                <button type="button" class="admin-notification-button">
+                                    Notification: #<?php echo (int) $request['user_id']; ?> <?php echo admin_h($request['username']); ?>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <p class="admin-muted">No pending password reset requests.</p>
+                    <?php endif; ?>
+                </section>
+
                 <div class="admin-table-wrap">
                     <table class="admin-table">
                         <thead>
@@ -362,13 +431,14 @@ $csrfToken = admin_is_authenticated() ? admin_csrf_token() : '';
                                 <th>Progress</th>
                                 <th>Leaderboard</th>
                                 <th>Created</th>
+                                <th>Reset</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (!$users): ?>
                                 <tr>
-                                    <td colspan="6" class="admin-empty">No users found yet.</td>
+                                    <td colspan="7" class="admin-empty">No users found yet.</td>
                                 </tr>
                             <?php endif; ?>
 
@@ -433,6 +503,19 @@ $csrfToken = admin_is_authenticated() ? admin_csrf_token() : '';
                                         <p class="admin-muted admin-small">Leaderboard XP uses Total XP.</p>
                                     </td>
                                     <td><?php echo admin_h($user['created_at']); ?></td>
+                                    <td>
+                                        <form id="reset-user-<?php echo $userId; ?>" class="admin-reset-form" method="POST" action="<?php echo admin_h(admin_url()); ?>">
+                                            <input type="hidden" name="action" value="reset_password">
+                                            <input type="hidden" name="csrf_token" value="<?php echo admin_h($csrfToken); ?>">
+                                            <input type="hidden" name="user_id" value="<?php echo $userId; ?>">
+
+                                            <label>
+                                                <span>New password</span>
+                                                <input name="new_password" type="text" value="12345678" required>
+                                            </label>
+                                            <button class="admin-ghost-button" type="submit">Reset</button>
+                                        </form>
+                                    </td>
                                     <td>
                                         <div class="admin-actions">
                                             <button form="edit-user-<?php echo $userId; ?>" class="admin-save-button" type="submit">Save</button>

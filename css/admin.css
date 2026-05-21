@@ -181,6 +181,44 @@ button {
     font-size: 1.4rem;
 }
 
+.admin-reset-requests {
+    margin-bottom: 18px;
+    padding: 16px;
+    border: 1px solid rgba(240, 208, 96, 0.18);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.admin-reset-requests h2 {
+    margin: 0 0 12px;
+    font-size: 1.05rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.admin-reset-notification-list {
+    display: grid;
+    gap: 10px;
+}
+
+.admin-notification-button {
+    width: 100%;
+    text-align: left;
+    padding: 12px 14px;
+    border: 1px solid rgba(131, 173, 255, 0.26);
+    background: rgba(131, 173, 255, 0.08);
+    color: var(--admin-text);
+}
+
+.admin-reset-form label span {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.admin-reset-form input {
+    margin-bottom: 10px;
+}
+
 .admin-table-wrap {
     overflow-x: auto;
     border: 1px solid rgba(255, 255, 255, 0.08);

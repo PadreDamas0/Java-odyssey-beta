@@ -225,6 +225,17 @@ function initialize_database(): void
     ensure_table_column($db, 'leaderboard_entries', 'level', '`level` INT NOT NULL DEFAULT 1 AFTER `username`');
     ensure_table_column($db, 'leaderboard_entries', 'xp', '`xp` INT NOT NULL DEFAULT 0 AFTER `level`');
     ensure_table_column($db, 'leaderboard_entries', 'time_completed', '`time_completed` INT DEFAULT NULL AFTER `xp`');
+
+    $db->exec(
+        'CREATE TABLE IF NOT EXISTS password_reset_requests (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL UNIQUE,
+            requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT fk_password_reset_request_user
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+    );
+
     $initialized = true;
 }
 
@@ -272,6 +283,44 @@ function find_user_by_id(int $userId): ?array
 
     $user = $statement->fetch();
     return $user ?: null;
+}
+
+function record_password_reset_request(int $userId): void
+{
+    $statement = get_db()->prepare(
+        'INSERT INTO password_reset_requests (user_id)
+         VALUES (:user_id)
+         ON DUPLICATE KEY UPDATE requested_at = CURRENT_TIMESTAMP'
+    );
+    $statement->execute([
+        'user_id' => $userId,
+    ]);
+}
+
+function get_password_reset_requests(): array
+{
+    $statement = get_db()->query(
+        'SELECT
+            r.user_id,
+            u.username,
+            u.email,
+            r.requested_at
+         FROM password_reset_requests r
+         JOIN users u ON u.id = r.user_id
+         ORDER BY r.requested_at DESC'
+    );
+
+    return $statement->fetchAll() ?: [];
+}
+
+function clear_password_reset_request(int $userId): void
+{
+    $statement = get_db()->prepare(
+        'DELETE FROM password_reset_requests WHERE user_id = :user_id'
+    );
+    $statement->execute([
+        'user_id' => $userId,
+    ]);
 }
 
 function create_user(string $username, string $email, string $passwordHash): int
