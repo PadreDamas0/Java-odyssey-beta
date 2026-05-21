@@ -2720,6 +2720,169 @@ System.out.println(threat + " blocked the tunnel");</pre>
         Combat.start(fireWorm, this.getFireWormChallenges(), () => this.onFireWormVictory());
     },
 
+    getFireWormChallenges() {
+        return [
+            {
+                id: 'ch1_fire_worm_1',
+                prompt: `
+                    <span class="challenge-title">Fire Worm: Build The Shield</span>
+                    <p>Write <strong>two lines</strong>:</p>
+                    <pre>int shield = 18;
+boolean ready = true;</pre>
+                `,
+                narrative: 'The worm surges forward in a wave of heat. Build your defense in two clean lines!',
+                hints: [
+                    'First declare shield as an int.',
+                    'Then declare ready as a boolean.',
+                    'Answer:\nint shield = 18;\nboolean ready = true;'
+                ],
+                answers: [
+                    'int shield = 18;\nboolean ready = true;',
+                    'boolean ready = true;\nint shield = 18;'
+                ],
+                damage: 46,
+                explanation: 'A stronger encounter can still be stabilized one declaration at a time.',
+                concept: 'fire_worm_shield_setup',
+                conceptTitle: 'Multi-Line Setup',
+                codexTitle: 'Fire Worm - Build The Shield',
+                feedbackDuration: 3200
+            },
+            {
+                id: 'ch1_fire_worm_2',
+                type: 'multiple_choice',
+                prompt: `
+                    <span class="challenge-title">Fire Worm: Choose The Counter</span>
+                    <p>Given:</p>
+                    <pre>int flame = 12;
+int strike = 9;</pre>
+                    <p>Which answer correctly creates <code>totalDamage</code> and prints it?</p>
+                `,
+                narrative: 'The cave trembles. Pick the correct two-line counter before the worm crashes through your guard.',
+                hints: [
+                    'Line 1 declares totalDamage with parentheses.',
+                    'Line 2 prints totalDamage.',
+                    'Answer:\nint totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);'
+                ],
+                choices: [
+                    'int totalDamage = flame + strike * 2;\nSystem.out.println(flame);',
+                    'int totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);',
+                    'totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);',
+                    'int totalDamage = (flame + strike) * 2;\nSystem.out.println("totalDamage");'
+                ],
+                correctOption: 1,
+                answers: ['int totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);'],
+                damage: 54,
+                explanation: 'You can combine arithmetic and output across multiple lines.',
+                concept: 'fire_worm_counter_combo',
+                conceptTitle: 'Multi-Line Combat Expressions',
+                codexTitle: 'Fire Worm - Counter Choice',
+                feedbackDuration: 3200
+            },
+            {
+                id: 'ch1_fire_worm_3',
+                prompt: `
+                    <span class="challenge-title">Fire Worm: Seal The Fragment</span>
+                    <p>Write <strong>two lines</strong>:</p>
+                    <pre>String fragment = "secured";
+System.out.println("Fragment " + fragment);</pre>
+                `,
+                narrative: 'The fire worm weakens. Seal the fragment state before the cave collapses around it!',
+                hints: [
+                    'First declare the fragment String.',
+                    'Then print "Fragment " plus fragment.',
+                    'Answer:\nString fragment = "secured";\nSystem.out.println("Fragment " + fragment);'
+                ],
+                answers: [
+                    'String fragment = "secured";\nSystem.out.println("Fragment " + fragment);',
+                    'String fragment="secured";\nSystem.out.println("Fragment " + fragment);',
+                    'String fragment = "secured";\nSystem.out.println("Fragment "+fragment);'
+                ],
+                damage: 62,
+                explanation: 'A variable declared on one line can be used immediately on the next line.',
+                concept: 'fire_worm_fragment_finish',
+                conceptTitle: 'Completing A Multi-Line Finish',
+                codexTitle: 'Fire Worm - Seal The Fragment',
+                feedbackDuration: 3200
+            }
+        ];
+
+        return [
+            {
+                id: 'ch1_fire_worm_1',
+                prompt: `
+                    <span class="challenge-title">🔥 Fire Worm: Build The Shield</span>
+                    <p>Write <strong>two lines</strong>:</p>
+                    <pre>int shield = 18;
+boolean ready = true;</pre>
+                `,
+                narrative: 'The worm surges forward in a wave of heat. Build your defense in two clean lines!',
+                hints: [
+                    'First declare shield as an int.',
+                    'Then declare ready as a boolean.',
+                    'Answer:\nint shield = 18;\nboolean ready = true;'
+                ],
+                answers: [
+                    'int shield = 18;\nboolean ready = true;',
+                    'boolean ready = true;\nint shield = 18;'
+                ],
+                damage: 46,
+                explanation: 'A stronger encounter can still be stabilized one declaration at a time.',
+                concept: 'fire_worm_shield_setup',
+                conceptTitle: 'Multi-Line Setup'
+            },
+            {
+                id: 'ch1_fire_worm_2',
+                prompt: `
+                    <span class="challenge-title">🔥 Fire Worm: Calculate The Counter</span>
+                    <p>Given:</p>
+                    <pre>int flame = 12;
+int strike = 9;</pre>
+                    <p>Write <strong>two lines</strong>:</p>
+                    <pre>int totalDamage = (flame + strike) * 2;
+System.out.println(totalDamage);</pre>
+                `,
+                narrative: 'The cave trembles. Only a stronger two-line counterattack will break its guard.',
+                hints: [
+                    'Line 1 declares totalDamage with parentheses.',
+                    'Line 2 prints totalDamage.',
+                    'Answer:\nint totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);'
+                ],
+                answers: [
+                    'int totalDamage = (flame + strike) * 2;\nSystem.out.println(totalDamage);',
+                    'int totalDamage=(flame+strike)*2;\nSystem.out.println(totalDamage);'
+                ],
+                damage: 54,
+                explanation: 'You can combine arithmetic and output across multiple lines.',
+                concept: 'fire_worm_counter_combo',
+                conceptTitle: 'Multi-Line Combat Expressions'
+            },
+            {
+                id: 'ch1_fire_worm_3',
+                prompt: `
+                    <span class="challenge-title">🔥 Fire Worm: Seal The Fragment</span>
+                    <p>Write <strong>two lines</strong>:</p>
+                    <pre>String fragment = "secured";
+System.out.println("Fragment " + fragment);</pre>
+                `,
+                narrative: 'The fire worm weakens. Seal the fragment state before the cave collapses around it!',
+                hints: [
+                    'First declare the fragment String.',
+                    'Then print "Fragment " plus fragment.',
+                    'Answer:\nString fragment = "secured";\nSystem.out.println("Fragment " + fragment);'
+                ],
+                answers: [
+                    'String fragment = "secured";\nSystem.out.println("Fragment " + fragment);',
+                    'String fragment="secured";\nSystem.out.println("Fragment " + fragment);',
+                    'String fragment = "secured";\nSystem.out.println("Fragment "+fragment);'
+                ],
+                damage: 62,
+                explanation: 'A variable declared on one line can be used immediately on the next line.',
+                concept: 'fire_worm_fragment_finish',
+                conceptTitle: 'Completing A Multi-Line Finish'
+            }
+        ];
+    },
+
     async onFireWormVictory() {
         GameState.setFlag('ch1_fire_worm_defeated');
         GameState.setFlag('ch1_fragment_recovered');
@@ -4707,12 +4870,9 @@ ______________________</pre>
                 questionType: 'Short Answer',
                 area,
                 npc,
-                question: `<em>The worm erupts beside the tunnel wall.</em> Write the two lines that set up your defense.`,
-                code: `_____
-_____`,
-                answerTip: 'Type both Java lines.',
-                inputPlaceholder: 'Type the two Java lines',
-                inputMode: 'code',
+                question: `<em>The Fire Worm opens a gate of flickering digits.</em> What number system uses only <code>0</code> and <code>1</code>?`,
+                answerTip: 'Type the name of the number system.',
+                inputPlaceholder: 'Type the answer',
                 matchMode: 'exact',
                 narrative: 'The cave boss now follows the number-systems section from the new file.',
                 hints: [
@@ -4733,18 +4893,15 @@ _____`,
                 questionType: 'Short Answer',
                 area,
                 npc,
-                question: `<em>The worm thrashes through the lava glow.</em> Which line correctly declares <code>burstDamage</code> as <code>(flame + strike) * 2</code>?`,
-                narrative: 'Now the boss expects a more careful expression. Parentheses matter here.',
+                question: `<em>The tunnel wall glows with ten carved marks.</em> What is the base of the decimal system?`,
+                answerTip: 'Type only the number.',
+                inputPlaceholder: 'Type the number',
+                matchMode: 'exact',
+                narrative: 'The second number-systems question checks decimal base knowledge.',
                 hints: [
-                    'Create a new int variable named burstDamage.',
-                    'Add flame and strike first, then multiply by 2.',
-                    'Only one option keeps the intended grouping.'
-                ],
-                choices: [
-                    'int burstDamage = flame + strike * 2;',
-                    'int burstDamage = (flame + strike) * 2;',
-                    'burstDamage = (flame + strike) * 2;',
-                    'int burstDamage = (flame + strike) * "2";'
+                    'Decimal is the normal counting system most people use daily.',
+                    'Its base matches the number of digits from 0 through 9.',
+                    'Type only the base value.'
                 ],
                 answers: ['10'],
                 damage: 28,
@@ -4759,17 +4916,15 @@ _____`,
                 questionType: 'Short Answer',
                 area,
                 npc,
-                question: `<em>The heat reading is too precise for the shield spell.</em> Fix the broken line so only the whole-number part of <code>double heat = 14.9;</code> is stored in <code>int heavyHit</code>.`,
-                code: `int heavyHit = heat;`,
-                answerTip: 'Type the full corrected line.',
-                inputPlaceholder: 'Type the corrected Java line',
-                inputMode: 'code',
+                question: `<em>The Fire Worm spits out a glowing hexadecimal sigil.</em> What hexadecimal letter represents <code>10</code>?`,
+                answerTip: 'Type only the letter.',
+                inputPlaceholder: 'Type the letter',
                 matchMode: 'exact',
                 narrative: 'The third number-systems question checks hexadecimal basics.',
                 hints: [
-                    'Converting from double to int needs an explicit cast.',
-                    'Place (int) in front of heat.',
-                    'Keep the variable type as int.'
+                    'Hexadecimal continues after 9 with letters.',
+                    'The first letter used is the answer.',
+                    'Type the capital letter.'
                 ],
                 answers: ['A', 'a'],
                 damage: 30,
@@ -4784,18 +4939,15 @@ _____`,
                 questionType: 'Short Answer',
                 area,
                 npc,
-                question: `<em>The fragment flashes through the fire.</em> What is printed by this code?`,
-                code: `String fragment = "Prime";
-int piece = 2;
-System.out.println(fragment + " " + piece);`,
-                answerTip: 'Type only the output.',
-                inputPlaceholder: 'Type the exact output',
+                question: `<em>The worm carves a value into the cave wall.</em> What is the binary equivalent of decimal <code>5</code>?`,
+                answerTip: 'Type only the binary number.',
+                inputPlaceholder: 'Type the binary number',
                 matchMode: 'exact',
                 narrative: 'Now the boss checks whether you can convert a small decimal value to binary.',
                 hints: [
-                    'fragment stores text.',
-                    'A space is added between the String and the number.',
-                    'The output keeps both values.'
+                    'Binary uses only 0 and 1.',
+                    'Decimal 5 is 4 + 1.',
+                    'Mark those places in binary.'
                 ],
                 answers: ['101'],
                 damage: 32,
@@ -4810,24 +4962,17 @@ System.out.println(fragment + " " + piece);`,
                 questionType: 'Short Answer',
                 area,
                 npc,
-                question: `<em>The cave shakes as the boss starts to fall.</em> Write the two lines that mark the fragment as secured and print <code>Fragment secured</code>.`,
-                code: `_____
-_____`,
-                answerTip: 'Type both Java lines.',
-                inputPlaceholder: 'Type the two Java lines',
-                inputMode: 'code',
+                question: `<em>The last flames collapse into two repeating marks.</em> How many digits are used in binary?`,
+                answerTip: 'Type only the number.',
+                inputPlaceholder: 'Type the number',
                 matchMode: 'exact',
                 narrative: 'The number-systems section ends by reinforcing the binary digit set.',
                 hints: [
-                    'The first line declares String fragment = "secured";',
-                    'The second line prints "Fragment " plus the variable.',
-                    'Write one full statement per line.'
+                    'Binary uses only 0 and 1.',
+                    'Count how many distinct digits that is.',
+                    'Type the number only.'
                 ],
-                answers: [
-                    'String fragment = "secured";\nSystem.out.println("Fragment " + fragment);',
-                    'String fragment="secured";\nSystem.out.println("Fragment " + fragment);',
-                    'String fragment = "secured";\nSystem.out.println("Fragment "+fragment);'
-                ],
+                answers: ['2'],
                 damage: 34,
                 explanation: 'Binary uses exactly two digits: 0 and 1.',
                 concept: 'number_systems_binary_digits',
