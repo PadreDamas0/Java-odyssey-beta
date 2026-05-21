@@ -123,6 +123,27 @@ function ensure_table_column(PDO $db, string $table, string $column, string $def
 
     $db->exec(sprintf('ALTER TABLE `%s` ADD COLUMN %s', $table, $definition));
 }
+
+function decode_progress_save_state(mixed $rawState): ?array
+{
+    if (!is_string($rawState) || trim($rawState) === '') {
+        return null;
+    }
+
+    $decoded = json_decode($rawState, true);
+    return is_array($decoded) ? $decoded : null;
+}
+
+function encode_progress_save_state(?array $saveState): ?string
+{
+    if ($saveState === null) {
+        return null;
+    }
+
+    $encoded = json_encode($saveState, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    return $encoded === false ? null : $encoded;
+}
+
 function initialize_database(): void
 {
     static $initialized = false;
@@ -163,6 +184,12 @@ function initialize_database(): void
             hp INT NOT NULL DEFAULT 100,
             xp INT NOT NULL DEFAULT 0,
             total_xp INT NOT NULL DEFAULT 0,
+            phase VARCHAR(50) NOT NULL DEFAULT \'menu\',
+            current_scene VARCHAR(100) DEFAULT NULL,
+            current_position VARCHAR(50) DEFAULT NULL,
+            savepoint_scene VARCHAR(100) DEFAULT NULL,
+            savepoint_label VARCHAR(150) DEFAULT NULL,
+            save_state LONGTEXT DEFAULT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             CONSTRAINT fk_player_progress_user
@@ -172,6 +199,12 @@ function initialize_database(): void
 
     ensure_table_column($db, 'player_progress', 'xp', '`xp` INT NOT NULL DEFAULT 0 AFTER `hp`');
     ensure_table_column($db, 'player_progress', 'total_xp', '`total_xp` INT NOT NULL DEFAULT 0 AFTER `xp`');
+    ensure_table_column($db, 'player_progress', 'phase', '`phase` VARCHAR(50) NOT NULL DEFAULT \'menu\' AFTER `total_xp`');
+    ensure_table_column($db, 'player_progress', 'current_scene', '`current_scene` VARCHAR(100) DEFAULT NULL AFTER `phase`');
+    ensure_table_column($db, 'player_progress', 'current_position', '`current_position` VARCHAR(50) DEFAULT NULL AFTER `current_scene`');
+    ensure_table_column($db, 'player_progress', 'savepoint_scene', '`savepoint_scene` VARCHAR(100) DEFAULT NULL AFTER `current_position`');
+    ensure_table_column($db, 'player_progress', 'savepoint_label', '`savepoint_label` VARCHAR(150) DEFAULT NULL AFTER `savepoint_scene`');
+    ensure_table_column($db, 'player_progress', 'save_state', '`save_state` LONGTEXT DEFAULT NULL AFTER `savepoint_label`');
 
     $db->exec(
         'CREATE TABLE IF NOT EXISTS leaderboard_entries (
@@ -263,8 +296,10 @@ function ensure_player_progress(int $userId): void
     }
 
     $statement = get_db()->prepare(
-        'INSERT INTO player_progress (user_id, level, coins, hp, xp, total_xp)
-         VALUES (:user_id, 1, 0, 100, 0, 0)
+        'INSERT INTO player_progress (
+            user_id, level, coins, hp, xp, total_xp, phase, current_scene, current_position, savepoint_scene, savepoint_label, save_state
+         )
+         VALUES (:user_id, 1, 0, 100, 0, 0, \'menu\', NULL, NULL, NULL, NULL, NULL)
          ON DUPLICATE KEY UPDATE user_id = user_id'
     );
     $statement->execute([
@@ -327,6 +362,12 @@ function get_player_progress(int $userId): ?array
             p.hp,
             p.xp,
             p.total_xp,
+            p.phase,
+            p.current_scene,
+            p.current_position,
+            p.savepoint_scene,
+            p.savepoint_label,
+            p.save_state,
             l.time_completed,
             p.created_at,
             p.updated_at
@@ -341,6 +382,9 @@ function get_player_progress(int $userId): ?array
     ]);
 
     $progress = $statement->fetch();
+    if ($progress && array_key_exists('save_state', $progress)) {
+        $progress['save_state'] = decode_progress_save_state($progress['save_state']);
+    }
     return $progress ?: null;
 }
 
@@ -351,7 +395,13 @@ function save_player_progress(
     int $hp,
     int $xp,
     int $totalXp,
-    ?int $timeCompleted = null
+    ?int $timeCompleted = null,
+    string $phase = 'menu',
+    ?string $currentScene = null,
+    ?string $currentPosition = null,
+    ?string $savepointScene = null,
+    ?string $savepointLabel = null,
+    ?array $saveState = null
 ): void
 {
     $user = find_user_by_id($userId);
@@ -360,19 +410,30 @@ function save_player_progress(
     }
 
     $db = get_db();
+    $encodedSaveState = encode_progress_save_state($saveState);
 
     try {
         $db->beginTransaction();
 
         $progressStatement = $db->prepare(
-            'INSERT INTO player_progress (user_id, level, coins, hp, xp, total_xp)
-             VALUES (:user_id, :level, :coins, :hp, :xp, :total_xp)
+            'INSERT INTO player_progress (
+                user_id, level, coins, hp, xp, total_xp, phase, current_scene, current_position, savepoint_scene, savepoint_label, save_state
+             )
+             VALUES (
+                :user_id, :level, :coins, :hp, :xp, :total_xp, :phase, :current_scene, :current_position, :savepoint_scene, :savepoint_label, :save_state
+             )
              ON DUPLICATE KEY UPDATE
                 level = VALUES(level),
                 coins = VALUES(coins),
                 hp = VALUES(hp),
                 xp = VALUES(xp),
-                total_xp = VALUES(total_xp)'
+                total_xp = VALUES(total_xp),
+                phase = VALUES(phase),
+                current_scene = VALUES(current_scene),
+                current_position = VALUES(current_position),
+                savepoint_scene = VALUES(savepoint_scene),
+                savepoint_label = VALUES(savepoint_label),
+                save_state = VALUES(save_state)'
         );
         $progressStatement->execute([
             'user_id' => $userId,
@@ -381,6 +442,12 @@ function save_player_progress(
             'hp' => $hp,
             'xp' => $xp,
             'total_xp' => $totalXp,
+            'phase' => $phase,
+            'current_scene' => $currentScene,
+            'current_position' => $currentPosition,
+            'savepoint_scene' => $savepointScene,
+            'savepoint_label' => $savepointLabel,
+            'save_state' => $encodedSaveState,
         ]);
 
         $leaderboardStatement = $db->prepare(

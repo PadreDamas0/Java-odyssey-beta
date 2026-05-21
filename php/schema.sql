@@ -20,6 +20,12 @@ CREATE TABLE IF NOT EXISTS player_progress (
     hp INT NOT NULL DEFAULT 100,
     xp INT NOT NULL DEFAULT 0,
     total_xp INT NOT NULL DEFAULT 0,
+    phase VARCHAR(50) NOT NULL DEFAULT 'menu',
+    current_scene VARCHAR(100) DEFAULT NULL,
+    current_position VARCHAR(50) DEFAULT NULL,
+    savepoint_scene VARCHAR(100) DEFAULT NULL,
+    savepoint_label VARCHAR(150) DEFAULT NULL,
+    save_state LONGTEXT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_player_progress_user

@@ -207,6 +207,25 @@ const GameState = {
 
     getRemoteProgressSnapshot() {
         this.commitPlayTimeSnapshot();
+        const currentScene = this.progress.currentScene
+            || (typeof World !== 'undefined' ? World.currentScene : '')
+            || '';
+        const currentPosition = this.player.position || CONFIG.PLAYER_HEALTH.startingPosition;
+        const phase = this.phase || 'menu';
+        const savepointScene = currentScene || null;
+        const savepointLabel = currentScene
+            ? currentScene.replace(/^ch\d+_/, '').replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
+            : null;
+        const saveState = {
+            player: this.player,
+            progress: this.progress,
+            performance: this.performance,
+            inventory: this.inventory,
+            journal: this.journal,
+            phase: this.phase,
+            meta: this.meta,
+            timestamp: Date.now()
+        };
 
         return {
             level: Math.max(1, Number(this.player.level) || 1),
@@ -214,7 +233,13 @@ const GameState = {
             hp: Math.max(0, Number(this.player.hp) || 0),
             xp: Math.max(0, Number(this.player.xp) || 0),
             total_xp: Math.max(0, Number(this.player.totalXp) || 0),
-            time_completed: this.getChapterOneCompletionSeconds()
+            time_completed: this.getChapterOneCompletionSeconds(),
+            phase,
+            current_scene: currentScene || null,
+            current_position: currentPosition || null,
+            savepoint_scene: savepointScene,
+            savepoint_label: savepointLabel,
+            save_state: saveState
         };
     },
 
@@ -230,6 +255,19 @@ const GameState = {
                 window.Auth.syncPlayerProgress(this.player);
             }
         }, Math.max(0, delayMs));
+    },
+
+    async flushRemoteSync() {
+        if (!(window.Auth && typeof window.Auth.syncPlayerProgress === 'function')) {
+            return false;
+        }
+
+        if (this.remoteSyncTimer) {
+            window.clearTimeout(this.remoteSyncTimer);
+            this.remoteSyncTimer = null;
+        }
+
+        return window.Auth.syncPlayerProgress(this.player);
     },
     /**
      * Initialize fresh game state
@@ -321,7 +359,14 @@ const GameState = {
 
     getStoredSaveData() {
         const scopedKey = this.getSaveKey();
+        const remoteData = this.getRemoteSaveData();
         const scopedData = Utils.loadFromStorage(scopedKey);
+
+        if (remoteData && (!scopedData || this.getSaveTimestamp(remoteData) >= this.getSaveTimestamp(scopedData))) {
+            Utils.saveToStorage(scopedKey, remoteData);
+            return remoteData;
+        }
+
         if (scopedData) {
             return scopedData;
         }
@@ -335,6 +380,19 @@ const GameState = {
         }
 
         return null;
+    },
+
+    getRemoteSaveData() {
+        if (!(window.Auth && typeof window.Auth.getRemoteSaveData === 'function')) {
+            return null;
+        }
+
+        return window.Auth.getRemoteSaveData();
+    },
+
+    getSaveTimestamp(data) {
+        const timestamp = Number(data?.timestamp);
+        return Number.isFinite(timestamp) && timestamp > 0 ? timestamp : 0;
     },
 
     /**
@@ -659,7 +717,7 @@ const GameState = {
      * Check if save exists
      */
     hasSave() {
-        return !!this.getStoredSaveData();
+        return !!(this.getRemoteSaveData() || this.getStoredSaveData());
     }
 };
 
