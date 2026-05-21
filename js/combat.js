@@ -20,6 +20,10 @@ const Combat = {
     playerDefeated: false,
     encounterResolved: false,
     pendingTimeouts: [],
+    recoveryChallengesByTopic: {},
+    recoveryUsageByTopic: {},
+    pendingRecoveryQueue: [],
+    currentChallengeSource: 'main',
     
     /**
      * Start a combat encounter
@@ -55,7 +59,7 @@ const Combat = {
         this.clearPendingTimeouts();
 
         this.enemy = { ...enemyData };
-        this.challenges = challenges;
+        this.prepareChallenges(challenges);
         this.currentChallenge = null;
         this.currentChallengeIndex = 0;
         this.attempts = 0;
@@ -68,6 +72,7 @@ const Combat = {
         this.onDefeat = onDefeat;
         this.playerDefeated = false;
         this.encounterResolved = false;
+        this.currentChallengeSource = 'main';
 
         if (typeof Platformer !== 'undefined' && typeof Platformer.clearInputState === 'function') {
             Platformer.clearInputState();
@@ -110,6 +115,76 @@ const Combat = {
 
     isCombatLocked() {
         return this.playerDefeated || this.encounterResolved || !GameState.combat.active || !this.enemy;
+    },
+
+    prepareChallenges(challenges = []) {
+        const mainChallenges = [];
+        const recoveryChallengesByTopic = {};
+
+        (Array.isArray(challenges) ? challenges : []).forEach((challenge) => {
+            if (!challenge) {
+                return;
+            }
+
+            if (challenge.isRecovery) {
+                const topicKey = this.getChallengeTopicKey(challenge);
+                if (!recoveryChallengesByTopic[topicKey]) {
+                    recoveryChallengesByTopic[topicKey] = [];
+                }
+                recoveryChallengesByTopic[topicKey].push({ ...challenge });
+                return;
+            }
+
+            mainChallenges.push({ ...challenge });
+        });
+
+        this.challenges = mainChallenges;
+        this.recoveryChallengesByTopic = recoveryChallengesByTopic;
+        this.recoveryUsageByTopic = {};
+        this.pendingRecoveryQueue = [];
+    },
+
+    getChallengeTopicKey(challenge) {
+        return challenge?.adaptiveTopic || challenge?.concept || this.enemy?.id || 'general';
+    },
+
+    didPlayerStruggle(challenge) {
+        if (!challenge || challenge.isRecovery) {
+            return false;
+        }
+
+        return this.attempts >= 2 || this.hintsShown > 0 || this.multipleChoiceWrongSelections > 0;
+    },
+
+    createRecoveryChallenge(baseChallenge) {
+        const topicKey = this.getChallengeTopicKey(baseChallenge);
+        const pool = this.recoveryChallengesByTopic[topicKey];
+
+        if (!Array.isArray(pool) || pool.length === 0) {
+            return null;
+        }
+
+        const nextUsage = this.recoveryUsageByTopic[topicKey] || 0;
+        const template = pool[nextUsage % pool.length];
+        this.recoveryUsageByTopic[topicKey] = nextUsage + 1;
+
+        return {
+            ...template,
+            id: `${template.id}__recovery_${this.recoveryUsageByTopic[topicKey]}`,
+            adaptiveTopic: topicKey,
+            recoveryFrom: baseChallenge.id,
+            isRecovery: true
+        };
+    },
+
+    queueRecoveryChallenge(baseChallenge) {
+        const recoveryChallenge = this.createRecoveryChallenge(baseChallenge);
+        if (!recoveryChallenge) {
+            return false;
+        }
+
+        this.pendingRecoveryQueue.push(recoveryChallenge);
+        return true;
     },
 
     scheduleTimeout(callback, delay) {
@@ -164,7 +239,15 @@ const Combat = {
             this.currentChallengeIndex = 0;
         }
 
-        const challenge = this.challenges[this.currentChallengeIndex];
+        let challenge = null;
+        if (this.pendingRecoveryQueue.length > 0) {
+            challenge = this.pendingRecoveryQueue.shift();
+            this.currentChallengeSource = 'recovery';
+        } else {
+            challenge = this.challenges[this.currentChallengeIndex];
+            this.currentChallengeSource = 'main';
+        }
+
         this.currentChallenge = challenge;
         const promptEl = Utils.$('challenge-prompt');
         const narrativeEl = Utils.$('combat-narrative');
@@ -507,7 +590,7 @@ const Combat = {
      * Show hint for current challenge
      */
     showHint() {
-        const challenge = this.challenges[this.currentChallengeIndex];
+        const challenge = this.currentChallenge;
         const hintArea = Utils.$('hint-area');
         const hintText = Utils.$('hint-text');
         
@@ -579,6 +662,8 @@ const Combat = {
             return;
         }
 
+        const struggled = this.didPlayerStruggle(challenge);
+
         const damage = this.calculateDamage(challenge);
         const healed = typeof Game !== 'undefined' && typeof Game.handleCorrectAnswer === 'function'
             ? Game.handleCorrectAnswer(challenge.correctHealAmount ?? CONFIG.PLAYER_HEALTH.correctAnswerHeal)
@@ -625,7 +710,12 @@ const Combat = {
             await this.victory();
         } else {
             // Move to next challenge
-            this.currentChallengeIndex++;
+            if (this.currentChallengeSource === 'main') {
+                if (struggled) {
+                    this.queueRecoveryChallenge(challenge);
+                }
+                this.currentChallengeIndex++;
+            }
             await Utils.wait(challenge.feedbackDuration || 2800);
             if (!this.isCombatLocked()) {
                 this.showChallenge();
@@ -653,12 +743,14 @@ const Combat = {
         let feedbackMsg = '';
         
         if (this.attempts >= CONFIG.COMBAT.maxAttempts) {
+            const queuedRecovery = this.currentChallengeSource === 'main' && this.queueRecoveryChallenge(challenge);
             // Too many attempts - show answer and move on with reduced damage
             feedbackMsg = `❌ Too many attempts! The correct answer was:<br>` +
                 `<pre>${challenge.answers[0]}</pre>` +
                 `${challenge.explanation || ''}<br>` +
                 `<strong>You took ${playerResult.damage} damage.</strong><br>` +
-                `<em>The enemy takes reduced damage...</em>`;
+                `<em>The enemy takes reduced damage...</em>` +
+                (queuedRecovery ? `<br><em>An easier follow-up is coming next to help you recover.</em>` : '');
             
             this.showFeedback(feedbackMsg, 'incorrect');
 
@@ -680,7 +772,9 @@ const Combat = {
                 if (this.enemy.hp <= 0) {
                     await this.victory();
                 } else {
-                    this.currentChallengeIndex++;
+                    if (this.currentChallengeSource === 'main') {
+                        this.currentChallengeIndex++;
+                    }
                     await Utils.wait(1000);
                     if (!this.isCombatLocked()) {
                         this.showChallenge();
@@ -914,6 +1008,10 @@ const Combat = {
         this.hintsShown = 0;
         this.multipleChoiceWrongSelections = 0;
         this.multipleChoiceLocked = false;
+        this.pendingRecoveryQueue = [];
+        this.recoveryChallengesByTopic = {};
+        this.recoveryUsageByTopic = {};
+        this.currentChallengeSource = 'main';
         this.playerDefeated = false;
         this.encounterResolved = false;
         GameState.combat.currentChallenge = null;

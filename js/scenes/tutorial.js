@@ -6,6 +6,22 @@
 
 const TutorialScene = {
 
+    buildAdaptiveEncounterQuestions(mainChallenges, recoveryChallenges, topicKey) {
+        const normalizedTopic = topicKey || 'tutorial';
+
+        return [
+            ...(mainChallenges || []).map((challenge) => ({
+                ...challenge,
+                adaptiveTopic: challenge.adaptiveTopic || normalizedTopic
+            })),
+            ...(recoveryChallenges || []).map((challenge) => ({
+                ...challenge,
+                adaptiveTopic: challenge.adaptiveTopic || normalizedTopic,
+                isRecovery: true
+            }))
+        ];
+    },
+
     /**
      * Start the tutorial combat
      */
@@ -41,7 +57,8 @@ const TutorialScene = {
      * Get tutorial challenges based on difficulty
      */
     getTutorialChallenges() {
-        return [
+        const topic = 'programming_concepts';
+        const mainChallenges = [
             {
                 id: 'tutorial_programming_1',
                 type: 'multiple_choice',
@@ -155,6 +172,65 @@ const TutorialScene = {
                 codexTitle: 'Tutorial - Flowchart Vision'
             }
         ];
+
+        const recoveryChallenges = [
+            {
+                id: 'tutorial_programming_recovery_1',
+                type: 'multiple_choice',
+                title: 'Instruction Spark',
+                questionType: 'Multiple Choice',
+                area: 'Dark Alley',
+                npc: 'Cipher',
+                question: `<em>Cipher slows the lesson and redraws a simpler symbol.</em> Which choice best describes what a program tells a computer to do?`,
+                narrative: 'Cipher notices the struggle and gives you an easier concept check before the lesson moves on.',
+                hints: [
+                    'A program gives instructions.',
+                    'It is about telling the computer what steps to follow.',
+                    'Look for the choice about instructions.',
+                    'The answer is the choice that says what the computer should do.'
+                ],
+                choices: [
+                    'Sleep forever',
+                    'Follow instructions',
+                    'Paint itself',
+                    'Forget data'
+                ],
+                correctOption: 1,
+                answers: ['Follow instructions'],
+                damage: 10,
+                autoShowHint: true,
+                explanation: 'A program gives a computer instructions to follow.'
+            },
+            {
+                id: 'tutorial_programming_recovery_2',
+                type: 'multiple_choice',
+                title: 'Step Map',
+                questionType: 'Multiple Choice',
+                area: 'Dark Alley',
+                npc: 'Cipher',
+                question: `<em>The air settles and Cipher points to boxes linked by arrows.</em> What do a flowchart and an algorithm both help you show?`,
+                narrative: 'The lesson stays on the same topic, but the next question becomes more guided.',
+                hints: [
+                    'Both are about order.',
+                    'They help show how a problem is solved.',
+                    'Think of steps, not drawings or sounds.',
+                    'Choose the answer about steps.'
+                ],
+                choices: [
+                    'The steps to solve a problem',
+                    'The color of the program',
+                    'The speed of the computer',
+                    'The brand of keyboard'
+                ],
+                correctOption: 0,
+                answers: ['The steps to solve a problem'],
+                damage: 10,
+                autoShowHint: true,
+                explanation: 'Both algorithms and flowcharts help show the steps used to solve a problem.'
+            }
+        ];
+
+        return this.buildAdaptiveEncounterQuestions(mainChallenges, recoveryChallenges, topic);
     },
 
     /**

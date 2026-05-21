@@ -1324,7 +1324,8 @@ const Chapter1Scene = {
     },
 
     getArenaHostChallenges() {
-        return [
+        const topic = 'programming_language_if_else';
+        const mainChallenges = [
             {
                 id: 'ch1_host_1',
                 title: 'Compiler Role',
@@ -1469,6 +1470,55 @@ if (hp > 10) {
                 codexTitle: 'Arena Host - Pass The Trial'
             }
         ];
+
+        const recoveryChallenges = [
+            {
+                id: 'ch1_host_recovery_1',
+                title: 'Condition Starter',
+                questionType: 'True or False',
+                area: 'Rusty Tankard',
+                npc: 'Arena Host',
+                question: `<em>The host slows down and redraws the condition.</em> True or false: the keyword <code>if</code> is used to start a condition in Java.`,
+                answerTip: 'Type only true or false.',
+                inputPlaceholder: 'Type true or false',
+                matchMode: 'exact',
+                narrative: 'The host gives you an easier follow-up while staying in the if/else lesson.',
+                hints: [
+                    'This keyword checks whether something is true.',
+                    'It appears before a condition in parentheses.',
+                    'The statement is correct.',
+                    'Type true.'
+                ],
+                answers: ['true'],
+                damage: 12,
+                autoShowHint: true,
+                explanation: 'if is the keyword used to begin a conditional statement in Java.'
+            },
+            {
+                id: 'ch1_host_recovery_2',
+                title: 'Other Branch',
+                questionType: 'Short Answer',
+                area: 'Rusty Tankard',
+                npc: 'Arena Host',
+                question: `<em>He taps the other side of the bracket.</em> Which keyword handles the other branch when the <code>if</code> condition is false?`,
+                answerTip: 'Type only the keyword.',
+                inputPlaceholder: 'Type the keyword',
+                matchMode: 'exact',
+                narrative: 'This recovery question keeps the player on the same conditionals topic with a clearer prompt.',
+                hints: [
+                    'It usually comes after an if block.',
+                    'It has four letters.',
+                    'It handles the false path.',
+                    'The answer is else.'
+                ],
+                answers: ['else'],
+                damage: 12,
+                autoShowHint: true,
+                explanation: 'else handles the branch that runs when the if condition is false.'
+            }
+        ];
+
+        return this.buildAdaptiveEncounterQuestions(mainChallenges, recoveryChallenges, topic);
     },
 
     async onArenaHostVictory() {
@@ -4111,11 +4161,28 @@ ______________________</pre>
 
     // Story-aligned challenge overrides. These later method definitions replace the
     // older legacy question pools above without changing the rest of the scene flow.
+    buildAdaptiveEncounterQuestions(mainChallenges, recoveryChallenges, topicKey) {
+        const normalizedTopic = topicKey || 'chapter1';
+
+        return [
+            ...(mainChallenges || []).map((challenge) => ({
+                ...challenge,
+                adaptiveTopic: challenge.adaptiveTopic || normalizedTopic
+            })),
+            ...(recoveryChallenges || []).map((challenge) => ({
+                ...challenge,
+                adaptiveTopic: challenge.adaptiveTopic || normalizedTopic,
+                isRecovery: true
+            }))
+        ];
+    },
+
     getTrainingChallenges() {
         const area = 'Village of Variables - Training Grounds';
         const npc = 'Mentor Rowan';
+        const topic = 'user_input';
 
-        return [
+        const mainChallenges = [
             {
                 id: 'ch1_train_story_1',
                 title: 'Scanner Import',
@@ -4217,13 +4284,63 @@ ______________________</pre>
                 feedbackDuration: 2600
             }
         ];
+
+        const recoveryChallenges = [
+            {
+                id: 'ch1_train_recovery_1',
+                title: 'Keyboard Source',
+                questionType: 'Short Answer',
+                area,
+                npc,
+                question: `<em>Rowan lowers the pace and points at the keyboard.</em> In Java, what source is commonly placed inside <code>new Scanner(_____)</code> to read keyboard input?`,
+                answerTip: 'Type only the missing source.',
+                inputPlaceholder: 'System.in',
+                matchMode: 'exact',
+                narrative: 'You struggled a bit, so Rowan gives a more guided Scanner question from the same lesson.',
+                hints: [
+                    'It starts with System.',
+                    'It refers to standard input.',
+                    'The missing text includes a dot.',
+                    'The full answer is System.in.'
+                ],
+                answers: ['System.in'],
+                damage: 7,
+                autoShowHint: true,
+                explanation: 'System.in is the standard keyboard input source used with Scanner.'
+            },
+            {
+                id: 'ch1_train_recovery_2',
+                title: 'Text Reader',
+                questionType: 'Multiple Choice',
+                area,
+                npc,
+                type: 'multiple_choice',
+                question: `<em>Rowan taps the scroll again.</em> Which Scanner method is used to read a whole line of text?`,
+                narrative: 'The lesson stays on user input, but the next question becomes easier and more direct.',
+                hints: [
+                    'It reads text, not a number.',
+                    'It includes the word line.',
+                    'It is not nextInt().',
+                    'Choose the method used for a full line.'
+                ],
+                choices: ['nextInt()', 'nextLine()', 'close()', 'print()'],
+                correctOption: 1,
+                answers: ['nextLine()'],
+                damage: 7,
+                autoShowHint: true,
+                explanation: 'nextLine() reads a whole line of text from the user.'
+            }
+        ];
+
+        return this.buildAdaptiveEncounterQuestions(mainChallenges, recoveryChallenges, topic);
     },
 
     getGoblinChallenges() {
         const area = 'Corrupted Forest';
         const npc = 'Corrupted Goblin';
+        const topic = 'arithmetic';
 
-        return [
+        const mainChallenges = [
             {
                 id: 'ch1_goblin_story_1',
                 title: 'Sword Strike',
@@ -4323,13 +4440,64 @@ ______________________</pre>
                 codexTitle: 'Goblin - Loot Remainder'
             }
         ];
+
+        const recoveryChallenges = [
+            {
+                id: 'ch1_goblin_recovery_1',
+                title: 'Quick Count',
+                questionType: 'Predict the Output',
+                area,
+                npc,
+                question: `<em>The goblin stumbles, giving you a simpler opening.</em> What is the output of this code?`,
+                code: `System.out.println(2 + 3);`,
+                answerTip: 'Type only the output.',
+                inputPlaceholder: 'Type the number',
+                matchMode: 'exact',
+                narrative: 'The goblin is still teaching arithmetic, but this follow-up eases the pace.',
+                hints: [
+                    'Add the two numbers.',
+                    '2 plus 3 equals a small whole number.',
+                    'System.out.println prints that result.',
+                    'The answer is 5.'
+                ],
+                answers: ['5'],
+                damage: 8,
+                autoShowHint: true,
+                explanation: '2 + 3 equals 5, so the output is 5.'
+            },
+            {
+                id: 'ch1_goblin_recovery_2',
+                title: 'Minus Sign',
+                questionType: 'Short Answer',
+                area,
+                npc,
+                question: `<em>The goblin swings wide and leaves a basic symbol in the dirt.</em> Which operator subtracts numbers in Java?`,
+                answerTip: 'Type only the operator.',
+                inputPlaceholder: 'Type the operator',
+                matchMode: 'exact',
+                narrative: 'This recovery question stays inside the arithmetic topic with a simpler symbol check.',
+                hints: [
+                    'Think of basic subtraction in math.',
+                    'Java uses the same symbol.',
+                    'It is a single horizontal mark.',
+                    'The answer is the minus sign.'
+                ],
+                answers: ['-'],
+                damage: 8,
+                autoShowHint: true,
+                explanation: 'The - operator is used for subtraction in Java.'
+            }
+        ];
+
+        return this.buildAdaptiveEncounterQuestions(mainChallenges, recoveryChallenges, topic);
     },
 
     getAbandonedVillageChallenges() {
         const area = 'Abandoned Village';
         const npc = 'Village Goblin';
+        const topic = 'variables';
 
-        return [
+        const mainChallenges = [
             {
                 id: 'ch1_abandoned_story_1',
                 title: 'Gold Storage',
@@ -4455,13 +4623,64 @@ ______________________</pre>
                 codexTitle: 'Abandoned Village - Print Gold Output'
             }
         ];
+
+        const recoveryChallenges = [
+            {
+                id: 'ch1_abandoned_recovery_1',
+                title: 'Lives Variable',
+                questionType: 'Code Completion',
+                area,
+                npc,
+                question: `<em>A quiet note survives under the rubble.</em> Declare an <code>int</code> variable named <code>lives</code> with the value <code>3</code>.`,
+                answerTip: 'Type the full Java line.',
+                inputPlaceholder: 'int lives = 3;',
+                inputMode: 'code',
+                matchMode: 'exact',
+                narrative: 'This easier recovery keeps the lesson on variable declarations with a shorter line.',
+                hints: [
+                    'Use int for a whole number.',
+                    'The variable name is lives.',
+                    'Set it equal to 3.',
+                    'End the statement with a semicolon.'
+                ],
+                answers: ['int lives = 3;', 'int lives=3;'],
+                damage: 8,
+                autoShowHint: true,
+                explanation: 'int lives = 3; is a correct integer variable declaration.'
+            },
+            {
+                id: 'ch1_abandoned_recovery_2',
+                title: 'Text Type',
+                type: 'multiple_choice',
+                questionType: 'Multiple Choice',
+                area,
+                npc,
+                question: `<em>The wind flips to a simpler note.</em> Which Java data type is used to store text like <code>"Rowan"</code>?`,
+                narrative: 'The recovery question stays on beginner variables and adds more guidance.',
+                hints: [
+                    'Text uses double quotes.',
+                    'The correct type starts with a capital S.',
+                    'It is not int or boolean.',
+                    'Choose the type used for words.'
+                ],
+                choices: ['int', 'String', 'boolean', 'char'],
+                correctOption: 1,
+                answers: ['String'],
+                damage: 8,
+                autoShowHint: true,
+                explanation: 'String is the Java data type used to store text.'
+            }
+        ];
+
+        return this.buildAdaptiveEncounterQuestions(mainChallenges, recoveryChallenges, topic);
     },
 
     getEvilShroomChallenges() {
         const area = 'Crystal Cave';
         const npc = 'Evil Java Shroom';
+        const topic = 'data_types';
 
-        return [
+        const mainChallenges = [
             {
                 id: 'ch1_shroom_story_1',
                 type: 'multiple_choice',
@@ -4588,13 +4807,63 @@ ______________________</pre>
                 codexTitle: 'Shroom - Dungeon Letter'
             }
         ];
+
+        const recoveryChallenges = [
+            {
+                id: 'ch1_shroom_recovery_1',
+                type: 'multiple_choice',
+                title: 'Whole Number Type',
+                questionType: 'Multiple Choice',
+                area,
+                npc,
+                question: `<em>The spores thin for a moment.</em> Which Java data type stores whole numbers?`,
+                narrative: 'The shroom eases up with a simpler data-type check before the lesson continues.',
+                hints: [
+                    'Whole numbers do not have decimal points.',
+                    'It is one of the most common beginner types.',
+                    'It has three letters.',
+                    'Choose the type used for 1, 2, and 3.'
+                ],
+                choices: ['double', 'String', 'int', 'boolean'],
+                correctOption: 2,
+                answers: ['int'],
+                damage: 10,
+                autoShowHint: true,
+                explanation: 'int is the Java data type used for whole numbers.'
+            },
+            {
+                id: 'ch1_shroom_recovery_2',
+                title: 'Quoted Text',
+                questionType: 'Short Answer',
+                area,
+                npc,
+                question: `<em>A calm crystal reflects the word <code>"Java"</code>.</em> Which data type stores text written in double quotes?`,
+                answerTip: 'Type only the data type.',
+                inputPlaceholder: 'Type the data type',
+                matchMode: 'exact',
+                narrative: 'This recovery question stays in the data-types lesson with a more direct text example.',
+                hints: [
+                    'It stores words, not one single character.',
+                    'Its name starts with a capital S.',
+                    'It is longer than char.',
+                    'The answer is String.'
+                ],
+                answers: ['String'],
+                damage: 10,
+                autoShowHint: true,
+                explanation: 'String is used to store text in Java.'
+            }
+        ];
+
+        return this.buildAdaptiveEncounterQuestions(mainChallenges, recoveryChallenges, topic);
     },
 
     getFireWormChallenges() {
         const area = 'Crystal Cave - Lava Tunnel';
         const npc = 'Fire Worm';
+        const topic = 'number_systems';
 
-        return [
+        const mainChallenges = [
             {
                 id: 'ch1_fire_story_1',
                 title: 'Binary Gate',
@@ -4711,13 +4980,63 @@ ______________________</pre>
                 codexTitle: 'Fire Worm - Binary Rule'
             }
         ];
+
+        const recoveryChallenges = [
+            {
+                id: 'ch1_fire_recovery_1',
+                title: 'Base Two',
+                questionType: 'True or False',
+                area,
+                npc,
+                question: `<em>The tunnel cools just enough for a clearer sign.</em> True or false: binary is a base-2 number system.`,
+                answerTip: 'Type only true or false.',
+                inputPlaceholder: 'Type true or false',
+                matchMode: 'exact',
+                narrative: 'The Fire Worm gives a simpler recovery question from the same number-systems topic.',
+                hints: [
+                    'Binary uses 0 and 1.',
+                    'A system with two symbols has base 2.',
+                    'The statement is correct.',
+                    'Type true.'
+                ],
+                answers: ['true'],
+                damage: 12,
+                autoShowHint: true,
+                explanation: 'Binary is the base-2 number system.'
+            },
+            {
+                id: 'ch1_fire_recovery_2',
+                title: 'Everyday System',
+                questionType: 'Short Answer',
+                area,
+                npc,
+                question: `<em>A safer flame draws a familiar counting line.</em> What number system do people commonly use every day: binary or decimal?`,
+                answerTip: 'Type the system name.',
+                inputPlaceholder: 'Type the answer',
+                matchMode: 'exact',
+                narrative: 'This guided recovery question keeps the lesson on number systems but lowers the difficulty.',
+                hints: [
+                    'Think of normal counting from 0 to 9.',
+                    'It uses base 10.',
+                    'It is not binary.',
+                    'The answer is decimal.'
+                ],
+                answers: ['decimal', 'Decimal'],
+                damage: 12,
+                autoShowHint: true,
+                explanation: 'People normally use the decimal number system in everyday counting.'
+            }
+        ];
+
+        return this.buildAdaptiveEncounterQuestions(mainChallenges, recoveryChallenges, topic);
     },
 
     getArenaSlimebugChallenges() {
         const area = 'Arena of Heroes';
         const npc = 'Slimebug';
+        const topic = 'switch';
 
-        return [
+        const mainChallenges = [
             {
                 id: 'ch1_arena_slime_story_1',
                 title: 'Case Rune',
@@ -4816,13 +5135,63 @@ switch(door){
                 codexTitle: 'Slimebug - Default Path'
             }
         ];
+
+        const recoveryChallenges = [
+            {
+                id: 'ch1_arena_slime_recovery_1',
+                title: 'Fallback Branch',
+                questionType: 'Short Answer',
+                area,
+                npc,
+                question: `<em>The slime pauses and points to the backup route.</em> Which switch keyword is the fallback when no case matches?`,
+                answerTip: 'Type only the keyword.',
+                inputPlaceholder: 'Type the keyword',
+                matchMode: 'exact',
+                narrative: 'The recovery question stays in switch statements with a simpler fallback idea.',
+                hints: [
+                    'It is the backup branch.',
+                    'It runs when none of the cases match.',
+                    'It has seven letters.',
+                    'The answer is default.'
+                ],
+                answers: ['default'],
+                damage: 12,
+                autoShowHint: true,
+                explanation: 'default is the fallback branch in a switch statement.'
+            },
+            {
+                id: 'ch1_arena_slime_recovery_2',
+                title: 'Stop The Slide',
+                questionType: 'True or False',
+                area,
+                npc,
+                question: `<em>A cleaner switch symbol appears.</em> True or false: <code>break</code> is used to stop a switch case from continuing into the next one.`,
+                answerTip: 'Type only true or false.',
+                inputPlaceholder: 'Type true or false',
+                matchMode: 'exact',
+                narrative: 'This easier follow-up keeps the player in the same switch lesson.',
+                hints: [
+                    'Without it, execution can keep falling through.',
+                    'The statement describes the usual role of break.',
+                    'The statement is correct.',
+                    'Type true.'
+                ],
+                answers: ['true'],
+                damage: 12,
+                autoShowHint: true,
+                explanation: 'break is used to stop a switch case and prevent fallthrough.'
+            }
+        ];
+
+        return this.buildAdaptiveEncounterQuestions(mainChallenges, recoveryChallenges, topic);
     },
 
     getArenaBirdChallenges() {
         const area = 'Arena of Heroes';
         const npc = 'Bird';
+        const topic = 'loops';
 
-        return [
+        const mainChallenges = [
             {
                 id: 'ch1_arena_bird_story_1',
                 title: 'Training Loop',
@@ -4942,13 +5311,63 @@ switch(door){
                 codexTitle: 'Bird - Array Walker'
             }
         ];
+
+        const recoveryChallenges = [
+            {
+                id: 'ch1_arena_bird_recovery_1',
+                title: 'Known Count',
+                questionType: 'Short Answer',
+                area,
+                npc,
+                question: `<em>The Bird circles slower and marks a fixed number of laps.</em> Which loop is commonly used when you already know how many times to repeat?`,
+                answerTip: 'Type the loop name.',
+                inputPlaceholder: 'Type the loop name',
+                matchMode: 'exact',
+                narrative: 'The loops lesson stays in order, but this follow-up becomes more guided.',
+                hints: [
+                    'It often has initialization, condition, and update in one line.',
+                    'It is the most common counting loop.',
+                    'Answers with or without the word loop are accepted.',
+                    'The answer is for.'
+                ],
+                answers: ['for', 'for loop'],
+                damage: 12,
+                autoShowHint: true,
+                explanation: 'A for loop is commonly used when the number of repetitions is known.'
+            },
+            {
+                id: 'ch1_arena_bird_recovery_2',
+                title: 'At Least Once',
+                questionType: 'True or False',
+                area,
+                npc,
+                question: `<em>The Bird lands once before taking off again.</em> True or false: a <code>do-while</code> loop runs its body at least one time.`,
+                answerTip: 'Type only true or false.',
+                inputPlaceholder: 'Type true or false',
+                matchMode: 'exact',
+                narrative: 'This recovery question keeps the player on the loop topic with a simpler yes-or-no check.',
+                hints: [
+                    'This loop checks the condition after the body runs.',
+                    'That means the body happens first.',
+                    'So the statement is correct.',
+                    'Type true.'
+                ],
+                answers: ['true'],
+                damage: 12,
+                autoShowHint: true,
+                explanation: 'A do-while loop runs the body first, so it always executes at least once.'
+            }
+        ];
+
+        return this.buildAdaptiveEncounterQuestions(mainChallenges, recoveryChallenges, topic);
     },
 
     getArenaBigBossChallenges() {
         const area = 'Arena of Heroes';
         const npc = 'Arena Sovereign';
+        const topic = 'arrays';
 
-        return [
+        const mainChallenges = [
             {
                 id: 'ch1_arena_boss_story_1',
                 title: 'Crystal Storage',
@@ -5066,13 +5485,63 @@ switch(door){
                 codexTitle: 'Arena Sovereign - Nested Loop'
             }
         ];
+
+        const recoveryChallenges = [
+            {
+                id: 'ch1_arena_boss_recovery_1',
+                title: 'First Slot',
+                questionType: 'Short Answer',
+                area,
+                npc,
+                question: `<em>The sovereign redraws the array from the beginning.</em> What is the first index of a Java array?`,
+                answerTip: 'Type only the number.',
+                inputPlaceholder: 'Type the number',
+                matchMode: 'exact',
+                narrative: 'The array lesson stays in place, but the next question becomes more basic.',
+                hints: [
+                    'Java arrays start counting before 1.',
+                    'It is the smallest valid index.',
+                    'It is one digit.',
+                    'The answer is 0.'
+                ],
+                answers: ['0'],
+                damage: 14,
+                autoShowHint: true,
+                explanation: 'Java arrays start at index 0.'
+            },
+            {
+                id: 'ch1_arena_boss_recovery_2',
+                title: 'Array Truth',
+                questionType: 'True or False',
+                area,
+                npc,
+                question: `<em>A cleaner array pattern appears.</em> True or false: <code>int[] values = {1, 2};</code> is a valid Java array declaration.`,
+                answerTip: 'Type only true or false.',
+                inputPlaceholder: 'Type true or false',
+                matchMode: 'exact',
+                narrative: 'This easier recovery still teaches arrays, but with a direct declaration check.',
+                hints: [
+                    'The code uses int[] and curly braces.',
+                    'That is the standard style for initializing an int array.',
+                    'The statement is correct.',
+                    'Type true.'
+                ],
+                answers: ['true'],
+                damage: 14,
+                autoShowHint: true,
+                explanation: 'int[] values = {1, 2}; is a valid Java array declaration and initialization.'
+            }
+        ];
+
+        return this.buildAdaptiveEncounterQuestions(mainChallenges, recoveryChallenges, topic);
     },
 
     getForestChallenges() {
         const area = 'Corrupted Forest Core';
         const npc = 'Data Glitch';
+        const topic = 'methods_packages_modifiers';
 
-        return [
+        const mainChallenges = [
             {
                 id: 'ch1_glitch_story_1',
                 title: 'Forge The Skill',
@@ -5265,5 +5734,55 @@ System.out.println(add(2,3));`,
                 codexTitle: 'Data Glitch - Open Gate'
             }
         ];
+
+        const recoveryChallenges = [
+            {
+                id: 'ch1_glitch_recovery_1',
+                title: 'Return Signal',
+                questionType: 'Short Answer',
+                area,
+                npc,
+                question: `<em>The Glitch pauses and isolates the easiest part.</em> Which Java keyword sends a value back from a method?`,
+                answerTip: 'Type only the keyword.',
+                inputPlaceholder: 'Type the keyword',
+                matchMode: 'exact',
+                narrative: 'The lesson stays on methods, but this recovery question narrows the focus.',
+                hints: [
+                    'It appears inside a method body.',
+                    'It gives a value back to the caller.',
+                    'The keyword begins with r.',
+                    'The answer is return.'
+                ],
+                answers: ['return'],
+                damage: 12,
+                autoShowHint: true,
+                explanation: 'The return keyword sends a value back from a method.'
+            },
+            {
+                id: 'ch1_glitch_recovery_2',
+                title: 'Package Name',
+                questionType: 'Code Completion',
+                area,
+                npc,
+                question: `<em>A stable shard shows the top of a class file.</em> Write the Java statement that declares the package <code>gameworld</code>.`,
+                answerTip: 'Type the full Java line.',
+                inputPlaceholder: 'package gameworld;',
+                inputMode: 'code',
+                matchMode: 'exact',
+                narrative: 'This easier follow-up keeps the fight inside the packages section with a short one-line answer.',
+                hints: [
+                    'Start with the package keyword.',
+                    'Use the name gameworld.',
+                    'End with a semicolon.',
+                    'The full line is package gameworld;'
+                ],
+                answers: ['package gameworld;'],
+                damage: 12,
+                autoShowHint: true,
+                explanation: 'package gameworld; declares the package name at the top of the file.'
+            }
+        ];
+
+        return this.buildAdaptiveEncounterQuestions(mainChallenges, recoveryChallenges, topic);
     }
 };
