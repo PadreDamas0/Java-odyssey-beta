@@ -22,6 +22,18 @@ Basic Syntax: Variables, data types, and operators.
 **Problem Solving:** Interactive coding challenges within the game world.
 
 ------------------------------------------------------------------------------------------------
+
+                                                  GAME FEATURES
+
+Code-Based Battles : Fight enemies using Identification/Multiple Choice questions about Java Programming as well as Line-by-line code executions.
+
+Immersion: Immerse yourself with the Story driven adventures. Learn about the lore, the characters and their fate.
+
+Gear Customization: Buy and equip weapons and armor to prepare your Hero.
+
+Cross-PC Saving: You can log in and play on different PC's/Browsers.
+
+------------------------------------------------------------------------------------------------
                                                   ACKNOWLEDGEMENTS
 
 
